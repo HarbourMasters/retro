@@ -24,6 +24,24 @@ class Retro extends StatelessWidget {
         theme: lightTHeme(),
         themeMode: ThemeMode.dark,
         initialRoute: '/',
+        builder: (context, child) {
+          return Column(
+            children: [
+              Expanded(child: child!),
+              // Replace this with the bottom bar
+              Container(
+                height: 50,
+                color: Colors.black,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Cool permanent bar", style: Theme.of(context).textTheme.headline6),
+                  ],
+                ),
+              )
+            ],
+          );
+        },
         routes: {
           '/': (context) => HomeScreen(),
         },
