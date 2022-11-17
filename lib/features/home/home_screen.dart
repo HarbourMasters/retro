@@ -4,6 +4,9 @@ import 'package:retro/features/home/home_viewmodel.dart';
 import 'package:retro/ui/components/option_card.dart';
 
 class HomeScreen extends StatefulWidget {
+
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -29,11 +32,10 @@ class _HomeScreenState extends State<HomeScreen> {
               OptionCard(
                 text: "Create OTR",
                 icon: Icons.compress,
-                onHover: (p0) {
-                  (p0 ? viewModel.onCreateOTRCardFocused : viewModel.onCardFocusLost)();
-                },
+                onMouseEnter: viewModel.onCreateOTRCardFocused,
+                onMouseLeave: viewModel.onCardFocusLost,
                 onTap: () {
-                  // TODO: push new view
+
                 }
               ),
             ],
