@@ -21,7 +21,6 @@ class OptionCard extends StatefulWidget {
 }
 
 class _OptionCardState extends State<OptionCard> {
-
   bool isHovered = false;
 
   @override
@@ -33,7 +32,7 @@ class _OptionCardState extends State<OptionCard> {
         });
         widget.onMouseEnter();
       },
-      onExit:  (_) {
+      onExit: (_) {
         setState(() {
           isHovered = false;
         });
@@ -49,7 +48,7 @@ class _OptionCardState extends State<OptionCard> {
             borderRadius: BorderRadius.circular(5),
             color: isHovered ? Colors.white24 : Colors.white12,
           ),
-          child: const Icon(Icons.compress, size: 50),
+          child: Icon(widget.icon, size: 50),
         ),
       ),
     );

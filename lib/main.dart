@@ -22,7 +22,7 @@ class Retro extends StatelessWidget {
       child: MaterialApp(
         title: 'Retro',
         darkTheme: darkTheme(),
-        theme: lightTHeme(),
+        theme: lightTheme(),
         themeMode: ThemeMode.dark,
         initialRoute: '/',
         builder: (context, child) {
@@ -36,7 +36,8 @@ class Retro extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("Cool permanent bar", style: Theme.of(context).textTheme.headline6),
+                    Text("Cool permanent bar",
+                        style: Theme.of(context).textTheme.headline6),
                   ],
                 ),
               )

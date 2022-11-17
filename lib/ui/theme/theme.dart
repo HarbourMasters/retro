@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:retro/ui/theme/colors.dart';
+import 'package:retro/ui/theme/typography.dart';
 
-ThemeData lightTHeme() {
+ThemeData lightTheme() {
   return ThemeData.light(); // TODO
 }
 
@@ -9,7 +10,7 @@ ThemeData darkTheme() {
   final ThemeData base = ThemeData.dark().copyWith(
     scaffoldBackgroundColor: RetroColors.bigStone,
   );
-  ColorScheme test = base.colorScheme.copyWith(
+  ColorScheme dark = base.colorScheme.copyWith(
     primary: RetroColors.telegramBlue,
     onPrimary: Colors.white,
     secondary: RetroColors.elephant,
@@ -20,6 +21,7 @@ ThemeData darkTheme() {
   );
 
   return base.copyWith(
-    colorScheme: test,
+    colorScheme: dark,
+    textTheme: retroTypography,
   );
 }

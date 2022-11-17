@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               OptionCard(
                   text: "Create OTR",
-                  icon: Icons.compress,
+                  icon: Icons.add_circle,
                   onMouseEnter: viewModel.onCreateOTRCardFocused,
                   onMouseLeave: viewModel.onCardFocusLost,
                   onTap: () {
