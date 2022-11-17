@@ -4,7 +4,6 @@ import 'package:retro/features/home/home_viewmodel.dart';
 import 'package:retro/ui/components/option_card.dart';
 
 class HomeScreen extends StatefulWidget {
-
   const HomeScreen({super.key});
 
   @override
@@ -30,18 +29,19 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               OptionCard(
-                text: "Create OTR",
-                icon: Icons.compress,
-                onMouseEnter: viewModel.onCreateOTRCardFocused,
-                onMouseLeave: viewModel.onCardFocusLost,
-                onTap: () {
-
-                }
-              ),
+                  text: "Create OTR",
+                  icon: Icons.compress,
+                  onMouseEnter: viewModel.onCreateOTRCardFocused,
+                  onMouseLeave: viewModel.onCardFocusLost,
+                  onTap: () {
+                    Navigator.pushNamed(context, "/create_selection");
+                  }),
             ],
           ),
           const SizedBox(height: 40),
-          Text(viewModel.focusedCardInfo, style: textTheme.subtitle2?.copyWith(color: colorScheme.onSurface.withOpacity(0.2))),
+          Text(viewModel.focusedCardInfo,
+              style: textTheme.subtitle2
+                  ?.copyWith(color: colorScheme.onSurface.withOpacity(0.2))),
         ],
       ),
     );

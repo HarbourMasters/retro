@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:retro/features/create_selection/create_selection_screen.dart';
 import 'package:retro/features/home/home_screen.dart';
 import 'package:retro/features/home/home_viewmodel.dart';
 import 'package:retro/ui/theme/theme.dart';
@@ -44,6 +45,7 @@ class Retro extends StatelessWidget {
         },
         routes: {
           '/': (context) => HomeScreen(),
+          '/create_selection': (context) => const CreateSelectionScreen(),
         },
       ),
     );
