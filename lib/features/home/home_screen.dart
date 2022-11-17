@@ -16,29 +16,32 @@ class _HomeScreenState extends State<HomeScreen> {
     final TextTheme textTheme = theme.textTheme;
     final HomeViewModel viewModel = Provider.of<HomeViewModel>(context);
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text("Home", style: textTheme.headline3),
-        const SizedBox(height: 40),
-        Row(
-          children: [
-            OptionCard(
+    return Scaffold(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text("Retro", style: textTheme.headline3),
+          const SizedBox(height: 40),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              OptionCard(
                 text: "Create OTR",
                 icon: Icons.compress,
-                onMouseEnter: viewModel.onCreateOTRCardFocused,
-                onMouseLeave: viewModel.onCardFocusLost,
+                onHover: (p0) {
+                  (p0 ? viewModel.onCreateOTRCardFocused : viewModel.onCardFocusLost)();
+                },
                 onTap: () {
                   // TODO: push new view
-                }),
-          ],
-        ),
-        const SizedBox(height: 40),
-        Text(viewModel.focusedCardInfo,
-            style: textTheme.subtitle2
-                ?.copyWith(color: colorScheme.onSurface.withOpacity(0.2))),
-      ],
+                }
+              ),
+            ],
+          ),
+          const SizedBox(height: 40),
+          Text(viewModel.focusedCardInfo, style: textTheme.subtitle2?.copyWith(color: colorScheme.onSurface.withOpacity(0.2))),
+        ],
+      ),
     );
   }
 }
