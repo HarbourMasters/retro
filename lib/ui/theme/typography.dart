@@ -1,12 +1,5 @@
 import 'package:flutter/material.dart';
 
-// TODO:
-// val GoogleSans = FontFamily(
-//     Font("fonts/GoogleSans-Regular.ttf", FontWeight.Normal),
-//     Font("fonts/GoogleSans-Medium.ttf", FontWeight.Medium),
-//     Font("fonts/GoogleSans-Bold.ttf", FontWeight.Bold),
-// )
-
 const retroTypography = TextTheme(
   headline1: TextStyle(
     fontSize: 95,

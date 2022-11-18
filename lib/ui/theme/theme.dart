@@ -20,8 +20,12 @@ ThemeData darkTheme() {
     background: RetroColors.bigStone,
   );
 
+  final textTheme = retroTypography.apply(
+    fontFamily: 'GoogleSans',
+  );
+
   return base.copyWith(
     colorScheme: dark,
-    textTheme: retroTypography,
+    textTheme: textTheme,
   );
 }
