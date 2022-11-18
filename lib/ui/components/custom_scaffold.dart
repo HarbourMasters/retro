@@ -42,15 +42,17 @@ class CustomScaffold extends StatelessWidget {
                         children: [
                           // back button
                           if (onBackButtonPressed != null)
-                            Material(
-                                child: IconButton(
+                            IconButton(
                               icon: const Icon(Icons.chevron_left_outlined),
+                              color: Colors.white,
+                              splashRadius: 30,
                               onPressed: () => onBackButtonPressed!(),
-                            )),
+                            ),
                           const SizedBox(width: 15),
 
                           // title
                           Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
