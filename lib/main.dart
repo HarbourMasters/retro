@@ -1,12 +1,23 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:retro/features/create_custom/create_custom_screen.dart';
+import 'package:retro/features/create_custom/create_custom_viewmodel.dart';
 import 'package:retro/features/create_selection/create_selection_screen.dart';
 import 'package:retro/features/create_selection/create_selection_viewmodel.dart';
 import 'package:retro/features/home/home_screen.dart';
 import 'package:retro/features/home/home_viewmodel.dart';
 import 'package:retro/ui/theme/theme.dart';
+import 'package:window_size/window_size.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    setWindowTitle('Retro');
+    setWindowMinSize(const Size(600, 600));
+    setWindowMaxSize(Size.infinite);
+  }
+
   runApp(const Retro());
 }
 
@@ -20,6 +31,7 @@ class Retro extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
         ChangeNotifierProvider(create: (_) => CreateSelectionViewModel()),
+        ChangeNotifierProvider(create: (_) => CreateCustomViewModel()),
       ],
       child: MaterialApp(
         title: 'Retro',
@@ -47,8 +59,9 @@ class Retro extends StatelessWidget {
           );
         },
         routes: {
-          '/': (context) => HomeScreen(),
+          '/': (context) => const HomeScreen(),
           '/create_selection': (context) => const CreateSelectionScreen(),
+          '/create_custom': (context) => const CreateCustomScreen(),
         },
       ),
     );

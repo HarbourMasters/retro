@@ -41,7 +41,9 @@ class _CreateSelectionScreenState extends State<CreateSelectionScreen> {
                   icon: Icons.settings_suggest,
                   onMouseEnter: viewModel.onCustomCardFocused,
                   onMouseLeave: viewModel.onCardFocusLost,
-                  onTap: () {}),
+                  onTap: () {
+                    Navigator.of(context).pushNamed('/create_custom');
+                  }),
             ],
           ),
         ]));
