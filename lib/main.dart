@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:retro/features/create_selection/create_selection_screen.dart';
+import 'package:retro/features/create_selection/create_selection_viewmodel.dart';
 import 'package:retro/features/home/home_screen.dart';
 import 'package:retro/features/home/home_viewmodel.dart';
 import 'package:retro/ui/theme/theme.dart';
@@ -18,6 +19,7 @@ class Retro extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
+        ChangeNotifierProvider(create: (_) => CreateSelectionViewModel()),
       ],
       child: MaterialApp(
         title: 'Retro',

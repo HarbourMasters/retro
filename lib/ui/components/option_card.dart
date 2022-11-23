@@ -25,32 +25,46 @@ class _OptionCardState extends State<OptionCard> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) {
-        setState(() {
-          isHovered = true;
-        });
-        widget.onMouseEnter();
-      },
-      onExit: (_) {
-        setState(() {
-          isHovered = false;
-        });
-        widget.onMouseLeave();
-      },
-      child: InkWell(
-        enableFeedback: true,
-        onTap: widget.onTap,
-        child: Container(
-          width: 130,
-          height: 160,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5),
-            color: isHovered ? Colors.white24 : Colors.white12,
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final TextTheme textTheme = theme.textTheme;
+
+    return Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+      MouseRegion(
+        onEnter: (event) {
+          setState(() {
+            isHovered = true;
+          });
+          widget.onMouseEnter();
+        },
+        onExit: (event) {
+          setState(() {
+            isHovered = false;
+          });
+          widget.onMouseLeave();
+        },
+        child: GestureDetector(
+          onTap: widget.onTap,
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.5,
+            decoration: BoxDecoration(
+              color: isHovered ? Colors.white24 : Colors.white12,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 80, vertical: 100),
+                child: Icon(
+                  widget.icon,
+                  size: 50,
+                )),
           ),
-          child: Icon(widget.icon, size: 50),
         ),
       ),
-    );
+      const SizedBox(height: 20),
+      Text(widget.text,
+          style: textTheme.bodyText1
+              ?.copyWith(color: colorScheme.onSurface.withOpacity(0.5))),
+    ]);
   }
 }

@@ -78,9 +78,7 @@ class CustomScaffold extends StatelessWidget {
                   // 10 dp space
                   const SizedBox(height: 10),
                   // content
-                  Container(
-                    child: content,
-                  ),
+                  content
                 ]))));
   }
 }
