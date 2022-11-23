@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:retro/features/create_finish/create_finish_viewmodel.dart';
 import 'package:retro/features/home/home_viewmodel.dart';
 import 'package:retro/ui/components/option_card.dart';
 
@@ -17,6 +18,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final ColorScheme colorScheme = theme.colorScheme;
     final TextTheme textTheme = theme.textTheme;
     final HomeViewModel viewModel = Provider.of<HomeViewModel>(context);
+    final CreateFinishViewModel createFinishViewModel =
+        Provider.of<CreateFinishViewModel>(context);
 
     return Scaffold(
       body: Column(
@@ -34,6 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onMouseEnter: viewModel.onCreateOTRCardFocused,
                   onMouseLeave: viewModel.onCardFocusLost,
                   onTap: () {
+                    createFinishViewModel.onCreationState();
                     Navigator.pushNamed(context, "/create_selection");
                   }),
             ],

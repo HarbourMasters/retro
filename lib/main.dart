@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:retro/features/create_custom/create_custom_screen.dart';
 import 'package:retro/features/create_custom/create_custom_viewmodel.dart';
+import 'package:retro/features/create_finish/create_finish_viewmodel.dart';
 import 'package:retro/features/create_selection/create_selection_screen.dart';
 import 'package:retro/features/create_selection/create_selection_viewmodel.dart';
 import 'package:retro/features/home/home_screen.dart';
 import 'package:retro/features/home/home_viewmodel.dart';
+import 'package:retro/ui/components/ephemeral_bar.dart';
 import 'package:retro/ui/theme/theme.dart';
 import 'package:window_size/window_size.dart';
 
@@ -32,6 +34,7 @@ class Retro extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
         ChangeNotifierProvider(create: (_) => CreateSelectionViewModel()),
         ChangeNotifierProvider(create: (_) => CreateCustomViewModel()),
+        ChangeNotifierProvider(create: (_) => CreateFinishViewModel()),
       ],
       child: MaterialApp(
         title: 'Retro',
@@ -41,21 +44,7 @@ class Retro extends StatelessWidget {
         initialRoute: '/',
         builder: (context, child) {
           return Column(
-            children: [
-              Expanded(child: child!),
-              // Replace this with the bottom bar
-              Container(
-                height: 50,
-                color: Colors.black,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("Cool permanent bar",
-                        style: Theme.of(context).textTheme.headline6),
-                  ],
-                ),
-              )
-            ],
+            children: [Expanded(child: child!), const EphemeralBar()],
           );
         },
         routes: {
