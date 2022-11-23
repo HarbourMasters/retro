@@ -26,6 +26,7 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
         title: 'Via Path',
         subtitle: 'Select files to place at path',
         onBackButtonPressed: () {
+          viewModel.onDiscardFiles();
           Navigator.of(context).pop();
         },
         content: Expanded(

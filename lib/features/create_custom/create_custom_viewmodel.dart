@@ -10,4 +10,9 @@ class CreateCustomViewModel extends ChangeNotifier {
     files.forEach((file) => print(file.path));
     notifyListeners();
   }
+
+  onDiscardFiles() {
+    files = [];
+    notifyListeners();
+  }
 }

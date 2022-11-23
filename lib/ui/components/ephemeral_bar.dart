@@ -18,7 +18,7 @@ class _EphemeralBarState extends State<EphemeralBar> {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     final TextTheme textTheme = theme.textTheme;
-    final CreateFinishViewModel createFinishViewModel =
+    final CreateFinishViewModel viewModel =
         Provider.of<CreateFinishViewModel>(context);
 
     return Container(
@@ -35,7 +35,7 @@ class _EphemeralBarState extends State<EphemeralBar> {
                 children: [
                   const Icon(Icons.gamepad, size: 14),
                   const SizedBox(width: 4),
-                  Text("state/${createFinishViewModel.currentState.name}",
+                  Text("state/${viewModel.currentState.name}",
                       style: textTheme.bodyText2!
                           .copyWith(color: colorScheme.onSurface)),
                 ],
