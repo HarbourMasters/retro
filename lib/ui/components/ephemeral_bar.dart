@@ -21,9 +21,12 @@ class _EphemeralBarState extends State<EphemeralBar> {
     final CreateFinishViewModel viewModel =
         Provider.of<CreateFinishViewModel>(context);
 
+    bool hasStagedFiles = viewModel.files.isNotEmpty;
+    Color backgroundColor = hasStagedFiles ? Colors.green : Colors.blueAccent;
+
     return Container(
       height: 24,
-      color: Colors.blueAccent,
+      color: backgroundColor,
       child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Row(
@@ -35,11 +38,24 @@ class _EphemeralBarState extends State<EphemeralBar> {
                 children: [
                   const Icon(Icons.gamepad, size: 14),
                   const SizedBox(width: 4),
-                  Text("state/${viewModel.currentState.name}",
+                  Text(
+                      "state/${viewModel.currentState.name}${hasStagedFiles ? ' (staged)' : ''}",
                       style: textTheme.bodyText2!
                           .copyWith(color: colorScheme.onSurface)),
                 ],
               )),
+              if (hasStagedFiles)
+                // finalize button with solid background
+                TextButton(
+                    onPressed: () {
+                      // TODO: Take you to final confirmation screen
+                    },
+                    child: Text(
+                      'Finalize OTR ⚡️',
+                      style: textTheme.bodyText2!.copyWith(
+                          color: colorScheme.onSurface,
+                          fontWeight: FontWeight.bold),
+                    )),
               Expanded(
                   child:
                       Row(mainAxisAlignment: MainAxisAlignment.end, children: [
@@ -52,7 +68,7 @@ class _EphemeralBarState extends State<EphemeralBar> {
                     child: Container(
                         width: 24,
                         height: 24,
-                        color: Colors.blueAccent,
+                        color: backgroundColor,
                         child: IconButton(
                             padding: EdgeInsets.zero,
                             onPressed: () async {

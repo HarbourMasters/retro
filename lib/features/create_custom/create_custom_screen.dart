@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:retro/features/create_custom/create_custom_viewmodel.dart';
+import 'package:retro/features/create_finish/create_finish_viewmodel.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
 
 class CreateCustomScreen extends StatefulWidget {
@@ -17,10 +18,18 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final ColorScheme colorScheme = theme.colorScheme;
     final TextTheme textTheme = theme.textTheme;
     final CreateCustomViewModel viewModel =
         Provider.of<CreateCustomViewModel>(context);
+    final CreateFinishViewModel finishViewModel =
+        Provider.of<CreateFinishViewModel>(context);
+    final textFieldController = TextEditingController();
+
+    @override
+    void dispose() {
+      textFieldController.dispose();
+      super.dispose();
+    }
 
     return CustomScaffold(
         title: 'Via Path',
@@ -34,8 +43,9 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    const TextField(
-                      decoration: InputDecoration(
+                    TextField(
+                      controller: textFieldController,
+                      decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Path',
                       ),
@@ -76,6 +86,20 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
                             itemBuilder: (context, index) {
                               return Text(viewModel.files[index].path);
                             })),
+                    // 80% width submit button
+                    if (viewModel.files.isNotEmpty)
+                      ElevatedButton(
+                          onPressed: () {
+                            finishViewModel.onStageFiles(
+                                viewModel.files, textFieldController.text);
+                            viewModel.onDiscardFiles();
+                            Navigator.of(context).popUntil(
+                                ModalRoute.withName("/create_selection"));
+                          },
+                          style: ElevatedButton.styleFrom(
+                              minimumSize: Size(
+                                  MediaQuery.of(context).size.width * 0.5, 50)),
+                          child: const Text('Stage Files')),
                   ],
                 ))));
   }
