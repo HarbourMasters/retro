@@ -57,7 +57,6 @@ class Retro extends StatelessWidget {
           '/': (context) => const HomeScreen(),
           '/create_selection': (context) => const CreateSelectionScreen(),
           '/create_custom': (context) => const CreateCustomScreen(),
-          '/create_finish': (context) => const CreateFinishScreen(),
         },
       ),
     );
