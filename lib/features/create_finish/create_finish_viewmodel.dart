@@ -3,10 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-enum AppState {
-  none,
-  creation,
-}
+enum AppState { none, creation, creationFinalization }
 
 class CreateFinishViewModel with ChangeNotifier {
   AppState currentState = AppState.none;
@@ -17,8 +14,23 @@ class CreateFinishViewModel with ChangeNotifier {
     notifyListeners();
   }
 
+  void onCreationFinalizationState() {
+    currentState = AppState.creationFinalization;
+    notifyListeners();
+  }
+
+  String displayState() {
+    bool hasStagedFiles = files.isNotEmpty;
+    return "${currentState.name}${hasStagedFiles && currentState != AppState.creationFinalization ? ' (staged)' : ''}";
+  }
+
   void onStageFiles(List<File> files, String path) {
-    this.files[path] = files;
+    if (this.files.containsKey(path)) {
+      this.files[path]!.addAll(files);
+    } else {
+      this.files[path] = files;
+    }
+
     notifyListeners();
   }
 }
