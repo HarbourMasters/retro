@@ -46,9 +46,13 @@ class Retro extends StatelessWidget {
           return Stack(
             children: [
               SizedBox(
-                  height: MediaQuery.of(context).size.height - 24,
-                  child: child!),
-              const Positioned(bottom: 0, child: EphemeralBar()),
+                height: MediaQuery.of(context).size.height - 24,
+                child: child!
+              ),
+              const Positioned(
+                bottom: 0,
+                child: EphemeralBar()
+              ),
             ],
           );
         },

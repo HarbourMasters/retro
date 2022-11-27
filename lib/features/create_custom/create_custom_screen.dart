@@ -27,11 +27,8 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final TextTheme textTheme = theme.textTheme;
-    final CreateCustomViewModel viewModel =
-        Provider.of<CreateCustomViewModel>(context);
-    final CreateFinishViewModel finishViewModel =
-        Provider.of<CreateFinishViewModel>(context);
-
+    final CreateCustomViewModel viewModel = Provider.of<CreateCustomViewModel>(context);
+    final CreateFinishViewModel finishViewModel = Provider.of<CreateFinishViewModel>(context);
     void onStageFiles() {
       finishViewModel.onStageFiles(viewModel.files, textFieldController.text);
       viewModel.onDiscardFiles();
@@ -39,70 +36,73 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
     }
 
     return CustomScaffold(
-        title: 'Via Path',
-        subtitle: 'Select files to place at path',
-        onBackButtonPressed: () {
-          viewModel.onDiscardFiles();
-          Navigator.of(context).pop();
-        },
-        content: Expanded(
-            child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    TextField(
-                      controller: textFieldController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Path',
-                      ),
-                      onChanged: (String value) {
-                        viewModel.onPathChanged(value);
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    OutlinedButton(
-                        onPressed: () async {
-                          FilePickerResult? result = await FilePicker.platform
-                              .pickFiles(
-                                  allowMultiple: true, type: FileType.any);
-
-                          if (result != null) {
-                            viewModel.onSelectedFiles(result.paths
-                                .map((path) => File(path!))
-                                .toList());
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                            minimumSize: const Size(200, 50)),
-                        child: const Text('Select Files')),
-                    const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Files to insert: ${viewModel.files.length}',
-                          style: textTheme.subtitle1,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Expanded(
-                        child: ListView.builder(
-                            itemCount: viewModel.files.length,
-                            itemBuilder: (context, index) {
-                              return Text(viewModel.files[index].path);
-                            })),
-                    ElevatedButton(
-                        onPressed:
-                            viewModel.files.isNotEmpty && viewModel.isPathValid
-                                ? onStageFiles
-                                : null,
-                        style: ElevatedButton.styleFrom(
-                            minimumSize: Size(
-                                MediaQuery.of(context).size.width * 0.8, 50)),
-                        child: const Text('Stage Files')),
-                  ],
-                ))));
+      title: 'Via Path',
+      subtitle: 'Select files to place at path',
+      onBackButtonPressed: () {
+        viewModel.onDiscardFiles();
+        Navigator.of(context).pop();
+      },
+      content: Expanded(
+        child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            TextField(
+              controller: textFieldController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Path',
+              ),
+              onChanged: (String value) {
+                viewModel.onPathChanged(value);
+              },
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12.0),
+              child: OutlinedButton(
+                onPressed: () async {
+                  FilePickerResult? result = await FilePicker.platform.pickFiles(
+                    allowMultiple: true, type: FileType.any
+                  );
+                  if (result != null) {
+                    viewModel.onSelectedFiles(result.paths
+                      .map((path) => File(path!))
+                      .toList()
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(minimumSize: const Size(200, 50)),
+                child: const Text('Select Files')
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Files to insert: ${viewModel.files.length}',
+                  style: textTheme.subtitle1,
+                ),
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: viewModel.files.length,
+                itemBuilder: (context, index) {
+                  return Text(viewModel.files[index].path);
+                }
+              )
+            ),
+            ElevatedButton(
+              onPressed: viewModel.files.isNotEmpty && viewModel.isPathValid ? onStageFiles : null,
+              style: ElevatedButton.styleFrom(minimumSize: Size(
+                MediaQuery.of(context).size.width * 0.5, 50)
+              ),
+              child: const Text('Stage Files')
+            ),
+          ],
+        )
+      )
+    ));
   }
 }
