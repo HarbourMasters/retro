@@ -45,12 +45,19 @@ class Retro extends StatelessWidget {
         builder: (context, child) {
           final CreateFinishViewModel createFinishViewModel =
               Provider.of<CreateFinishViewModel>(context);
+          createFinishViewModel.bindGlobalContext(context);
 
-          return Column(
-            children: createFinishViewModel.currentState ==
-                    AppState.creationFinalization
-                ? const [EphemeralBar()]
-                : [Expanded(child: child!), const EphemeralBar()],
+          return Stack(
+            children: [
+              SizedBox(
+                height: MediaQuery.of(context).size.height - 24,
+                child: child!
+              ),
+              const Positioned(
+                bottom: 0,
+                child: const EphemeralBar()
+              ),
+            ],
           );
         },
         routes: {

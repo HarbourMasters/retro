@@ -8,6 +8,11 @@ enum AppState { none, creation, creationFinalization }
 class CreateFinishViewModel with ChangeNotifier {
   AppState currentState = AppState.none;
   HashMap<String, List<File>> files = HashMap();
+  late BuildContext context;
+
+  void bindGlobalContext(BuildContext ctx) {
+    context = ctx;
+  }
 
   void onCreationState() {
     currentState = AppState.creation;
