@@ -15,6 +15,14 @@ class CreateCustomScreen extends StatefulWidget {
 }
 
 class _CreateCustomScreenState extends State<CreateCustomScreen> {
+  final textFieldController = TextEditingController();
+
+  @override
+  void dispose() {
+    textFieldController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
@@ -23,12 +31,11 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
         Provider.of<CreateCustomViewModel>(context);
     final CreateFinishViewModel finishViewModel =
         Provider.of<CreateFinishViewModel>(context);
-    final textFieldController = TextEditingController();
 
-    @override
-    void dispose() {
-      textFieldController.dispose();
-      super.dispose();
+    void onStageFiles() {
+      finishViewModel.onStageFiles(viewModel.files, textFieldController.text);
+      viewModel.onDiscardFiles();
+      Navigator.of(context).popUntil(ModalRoute.withName("/create_selection"));
     }
 
     return CustomScaffold(
@@ -49,10 +56,11 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
                         border: OutlineInputBorder(),
                         labelText: 'Path',
                       ),
+                      onChanged: (String value) {
+                        viewModel.onPathChanged(value);
+                      },
                     ),
-                    // submit button with solid background
                     const SizedBox(height: 12),
-                    // elevated button with 200 width
                     OutlinedButton(
                         onPressed: () async {
                           FilePickerResult? result = await FilePicker.platform
@@ -69,7 +77,6 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
                             minimumSize: const Size(200, 50)),
                         child: const Text('Select Files')),
                     const SizedBox(height: 12),
-                    // full width left aligned text
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -86,20 +93,15 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
                             itemBuilder: (context, index) {
                               return Text(viewModel.files[index].path);
                             })),
-                    // 80% width submit button
-                    if (viewModel.files.isNotEmpty)
-                      ElevatedButton(
-                          onPressed: () {
-                            finishViewModel.onStageFiles(
-                                viewModel.files, textFieldController.text);
-                            viewModel.onDiscardFiles();
-                            Navigator.of(context).popUntil(
-                                ModalRoute.withName("/create_selection"));
-                          },
-                          style: ElevatedButton.styleFrom(
-                              minimumSize: Size(
-                                  MediaQuery.of(context).size.width * 0.5, 50)),
-                          child: const Text('Stage Files')),
+                    ElevatedButton(
+                        onPressed:
+                            viewModel.files.isNotEmpty && viewModel.isPathValid
+                                ? onStageFiles
+                                : null,
+                        style: ElevatedButton.styleFrom(
+                            minimumSize: Size(
+                                MediaQuery.of(context).size.width * 0.8, 50)),
+                        child: const Text('Stage Files')),
                   ],
                 ))));
   }

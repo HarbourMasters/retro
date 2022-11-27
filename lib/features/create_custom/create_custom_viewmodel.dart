@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 class CreateCustomViewModel extends ChangeNotifier {
   List<File> files = [];
+  bool isPathValid = false;
 
   onSelectedFiles(List<File> files) {
     this.files = files;
@@ -13,6 +14,11 @@ class CreateCustomViewModel extends ChangeNotifier {
 
   onDiscardFiles() {
     files = [];
+    notifyListeners();
+  }
+
+  onPathChanged(String path) {
+    isPathValid = path.isNotEmpty;
     notifyListeners();
   }
 }
