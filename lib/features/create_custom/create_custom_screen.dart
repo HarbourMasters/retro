@@ -29,11 +29,6 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
     final TextTheme textTheme = theme.textTheme;
     final CreateCustomViewModel viewModel = Provider.of<CreateCustomViewModel>(context);
     final CreateFinishViewModel finishViewModel = Provider.of<CreateFinishViewModel>(context);
-    void onStageFiles() {
-      finishViewModel.onStageFiles(viewModel.files, textFieldController.text);
-      viewModel.onDiscardFiles();
-      Navigator.of(context).popUntil(ModalRoute.withName("/create_selection"));
-    }
 
     return CustomScaffold(
       title: 'Via Path',
@@ -94,7 +89,11 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
               )
             ),
             ElevatedButton(
-              onPressed: viewModel.files.isNotEmpty && viewModel.isPathValid ? onStageFiles : null,
+              onPressed: viewModel.files.isNotEmpty && viewModel.isPathValid ? () {
+                finishViewModel.onStageFiles(viewModel.files, textFieldController.text);
+                viewModel.onDiscardFiles();
+                Navigator.of(context).popUntil(ModalRoute.withName("/create_selection"));
+              } : null,
               style: ElevatedButton.styleFrom(minimumSize: Size(
                 MediaQuery.of(context).size.width * 0.5, 50)
               ),

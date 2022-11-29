@@ -9,6 +9,7 @@ class CreateFinishViewModel with ChangeNotifier {
   AppState currentState = AppState.none;
   HashMap<String, List<File>> files = HashMap();
   late BuildContext context;
+  bool isFormValid = false;
 
   void bindGlobalContext(BuildContext ctx) {
     context = ctx;
@@ -37,5 +38,23 @@ class CreateFinishViewModel with ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  void onRemoveFile(File file, String path) {
+    files[path]!.remove(file);
+    if (files[path]!.isEmpty) {
+      files.remove(path);
+    }
+    
+    notifyListeners();
+  }
+
+  void onOTRNameChanged(String name) {
+    isFormValid = name.isNotEmpty;
+    notifyListeners();
+  }
+
+  void onGenerateOTR() {
+
   }
 }

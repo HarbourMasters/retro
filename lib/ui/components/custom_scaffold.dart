@@ -67,11 +67,11 @@ class CustomScaffold extends StatelessWidget {
                   ),
                   // top right widget
                   if (topRightWidget != null)
-                  Container(
-                    width: double.infinity,
-                    alignment: Alignment.centerRight,
-                    child: topRightWidget,
-                  ),
+                    Expanded(
+                      child: Align(
+                          alignment: Alignment.centerRight,
+                          child: topRightWidget!)),
+
                 ],
               )
             ),
