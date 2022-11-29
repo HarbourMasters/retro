@@ -29,56 +29,56 @@ class CustomScaffold extends StatelessWidget {
     final TextTheme textTheme = theme.textTheme;
 
     return Scaffold(
-        body: SizedBox.expand(
-            child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    vertical: CONTENT_PADDING_VERTICAL,
-                    horizontal: CONTENT_PADDING_HORIZONTAL),
-                child: Column(children: [
-                  SizedBox(
-                      height: 60,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          // back button
-                          if (onBackButtonPressed != null)
-                            IconButton(
-                              icon: const Icon(Icons.chevron_left_outlined),
-                              color: Colors.white,
-                              splashRadius: 30,
-                              onPressed: () => onBackButtonPressed!(),
-                            ),
-                          const SizedBox(width: 15),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical:   CONTENT_PADDING_VERTICAL,
+          horizontal: CONTENT_PADDING_HORIZONTAL
+        ),
+        child: Column(
+          children: [
+            SizedBox(
+              height: 60,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // back button
+                  if (onBackButtonPressed != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 15.0),
+                    child: IconButton(
+                      icon: const Icon(Icons.chevron_left_outlined),
+                      color: Colors.white,
+                      splashRadius: 30,
+                      onPressed: () => onBackButtonPressed!(),
+                    ),
+                  ),
 
-                          // title
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                title,
-                                style: textTheme.headline5,
-                              ),
-                              if (subtitle != null)
-                                Text(subtitle!,
-                                    style: textTheme.bodyText2?.copyWith(
-                                        color: colorScheme.onSurface
-                                            .withOpacity(0.5))),
-                            ],
-                          ),
-                          // top right widget
-                          if (topRightWidget != null)
-                            Container(
-                              width: double.infinity,
-                              alignment: Alignment.centerRight,
-                              child: topRightWidget,
-                            ),
-                        ],
-                      )),
-                  // 10 dp space
-                  const SizedBox(height: 10),
-                  // content
-                  content
-                ]))));
+                  // title
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title, style: textTheme.headline5 ),
+                      if (subtitle != null)
+                      Text(subtitle!, style: textTheme.bodyText2?.copyWith(
+                        color: colorScheme.onSurface.withOpacity(0.5))
+                      ),
+                    ],
+                  ),
+                  // top right widget
+                  if (topRightWidget != null)
+                    Expanded(
+                      child: Align(
+                          alignment: Alignment.centerRight,
+                          child: topRightWidget!)),
+
+                ],
+              )
+            ),
+            content
+          ]
+        )
+      )
+    );
   }
 }

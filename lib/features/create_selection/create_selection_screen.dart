@@ -35,7 +35,7 @@ class _CreateSelectionScreenState extends State<CreateSelectionScreen> {
                   onMouseEnter: viewModel.onReplaceModelsCardFocused,
                   onMouseLeave: viewModel.onCardFocusLost,
                   onTap: () {}),
-              const SizedBox(width: 8),
+              const SizedBox(width: 12),
               OptionCard(
                   text: "Custom",
                   icon: Icons.settings_suggest,

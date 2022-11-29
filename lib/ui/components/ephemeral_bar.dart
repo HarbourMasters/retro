@@ -1,6 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:retro/features/create_finish/create_finish_screen.dart';
 import 'package:retro/features/create_finish/create_finish_viewmodel.dart';
+import 'package:retro/ui/theme/colors.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class EphemeralBar extends StatefulWidget {
@@ -10,8 +14,28 @@ class EphemeralBar extends StatefulWidget {
   State<EphemeralBar> createState() => _EphemeralBarState();
 }
 
-class _EphemeralBarState extends State<EphemeralBar> {
+class _EphemeralBarState extends State<EphemeralBar>
+    with SingleTickerProviderStateMixin {
   bool isHovered = false;
+  late AnimationController expandController;
+  late Animation<double> animation;
+
+  @override
+  void initState() {
+    super.initState();
+    prepareAnimations();
+  }
+
+  void prepareAnimations() {
+    expandController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 500));
+    animation = CurvedAnimation(
+      parent: expandController,
+      curve: Curves.fastOutSlowIn,
+    )..addListener(() {
+        setState(() {});
+      });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,67 +47,90 @@ class _EphemeralBarState extends State<EphemeralBar> {
 
     bool hasStagedFiles = viewModel.files.isNotEmpty;
     Color backgroundColor = hasStagedFiles ? Colors.green : Colors.blueAccent;
+    bool isExpanded = viewModel.currentState == AppState.creationFinalization;
 
-    return Container(
+    Widget bottomBar = AnimatedContainer(
+      width: MediaQuery.of(context).size.width,
       height: 24,
-      color: backgroundColor,
+      duration: const Duration(milliseconds: 100),
+      color: isExpanded ? RetroColors.blueBayoux : backgroundColor,
       child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                  child: Row(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const Icon(Icons.gamepad, size: 14),
-                  const SizedBox(width: 4),
-                  Text(
-                      "state/${viewModel.currentState.name}${hasStagedFiles ? ' (staged)' : ''}",
-                      style: textTheme.bodyText2!
-                          .copyWith(color: colorScheme.onSurface)),
-                ],
-              )),
-              if (hasStagedFiles)
-                // finalize button with solid background
-                TextButton(
-                    onPressed: () {
-                      // TODO: Take you to final confirmation screen
-                    },
-                    child: Text(
-                      'Finalize OTR ⚡️',
-                      style: textTheme.bodyText2!.copyWith(
-                          color: colorScheme.onSurface,
-                          fontWeight: FontWeight.bold),
-                    )),
-              Expanded(
-                  child:
-                      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                Text("Retro: 0.0.1",
-                    style: textTheme.bodyText2!
-                        .copyWith(color: colorScheme.onSurface)),
-                const SizedBox(width: 4),
-                // TODO: Replace this one with Github icon
-                Material(
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Text("state/${viewModel.displayState()}",
+                      style: textTheme.bodyText2!.copyWith(color: colorScheme.onSurface)
+                    ),
+                  ),
+                ]
+              )
+            ),
+            if (hasStagedFiles && !isExpanded)
+            TextButton(
+              onPressed: () {
+                // Navigator.of(context).pushNamed('/create_finish');
+                if (viewModel.currentState == AppState.creationFinalization) {
+                  viewModel.onCreationState();
+                } else {
+                  viewModel.onCreationFinalizationState();
+                  expandController.forward();
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 2),
+                child: Text(
+                  'Finalize OTR ⚡️',
+                  style: textTheme.bodyText2!.copyWith(
+                    color: colorScheme.onSurface,
+                    fontWeight: FontWeight.bold
+                  ),
+                ),
+              )
+            ),
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text("Retro: 0.0.1", style: textTheme.bodyText2!.copyWith(
+                    color: colorScheme.onSurface)
+                  ),
+                  if (!isExpanded)
+                  // TODO: Replace this one with Github icon
+                  Material(
                     child: Container(
-                        width: 24,
-                        height: 24,
-                        color: backgroundColor,
-                        child: IconButton(
-                            padding: EdgeInsets.zero,
-                            onPressed: () async {
-                              // open Github link
-                              if (!await launchUrl(
-                                  Uri.parse(
-                                      "https://github.com/HarbourMasters/retro"),
-                                  mode: LaunchMode.externalApplication)) {
-                                throw "Could not launch URL";
-                              }
-                            },
-                            icon: const Icon(Icons.memory, size: 14))))
-              ])),
-            ],
-          )),
+                      width: 24,
+                      height: 24,
+                      color: backgroundColor,
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () async {
+                          if (!await launchUrl(Uri.parse("https://github.com/HarbourMasters/retro"), mode: LaunchMode.externalApplication)) {
+                            throw "Could not launch URL";
+                          }
+                        },
+                        icon: const Icon(Icons.memory, size: 14)
+                      )
+                    )
+                  )
+                ]
+              )
+            ),
+          ],
+        )
+      )
     );
+    var size = MediaQuery.of(context).size;
+    return SizedBox.fromSize(
+        size: Size(size.width, max(size.height * animation.value, 24)),
+        child: CreateFinishBottomBarModal(
+            bottomBar: bottomBar, dismissCallback: expandController.reverse));
   }
 }
