@@ -40,6 +40,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     createFinishViewModel.onCreationState();
                     Navigator.pushNamed(context, "/create_selection");
                   }),
+              const SizedBox(width: 8),
+              OptionCard(
+                  text: "View OTR",
+                  icon: Icons.visibility,
+                  onMouseEnter: viewModel.onCreateOTRCardFocused,
+                  onMouseLeave: viewModel.onCardFocusLost,
+                  onTap: () {
+                    createFinishViewModel.onCreationState();
+                    Navigator.pushNamed(context, "/view_otr");
+                  }),
             ],
           ),
           const SizedBox(height: 40),
