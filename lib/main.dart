@@ -43,18 +43,17 @@ class Retro extends StatelessWidget {
         themeMode: ThemeMode.dark,
         initialRoute: '/',
         builder: (context, child) {
-          return Stack(
-            children: [
-              SizedBox(
-                height: MediaQuery.of(context).size.height - 24,
-                child: child!
-              ),
-              const Positioned(
-                bottom: 0,
-                child: EphemeralBar()
-              ),
-            ],
-          );
+          return Overlay(initialEntries: [
+            OverlayEntry(
+                builder: (context) => Stack(
+                      children: [
+                        SizedBox(
+                            height: MediaQuery.of(context).size.height - 24,
+                            child: child!),
+                        const Positioned(bottom: 0, child: EphemeralBar()),
+                      ],
+                    ))
+          ]);
         },
         routes: {
           '/': (context) => const HomeScreen(),

@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:retro/features/create_custom/create_custom_viewmodel.dart';
@@ -55,17 +52,7 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12.0),
               child: OutlinedButton(
-                onPressed: () async {
-                  FilePickerResult? result = await FilePicker.platform.pickFiles(
-                    allowMultiple: true, type: FileType.any
-                  );
-                  if (result != null) {
-                    viewModel.onSelectedFiles(result.paths
-                      .map((path) => File(path!))
-                      .toList()
-                    );
-                  }
-                },
+                onPressed: viewModel.onSelectFiles,
                 style: ElevatedButton.styleFrom(minimumSize: const Size(200, 50)),
                 child: const Text('Select Files')
               ),
