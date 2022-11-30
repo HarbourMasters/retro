@@ -44,7 +44,7 @@ class _ViewOTRScreenState extends State<ViewOTRScreen> {
                   )
                 ]),
                 if (viewModel.selectedOTRPath != null)
-                  // TODO: Show OTR contents similar as in finish_screen
+                  const Text("OTR contents")
             ],
           ),
         ),
