@@ -43,8 +43,18 @@ class _ViewOTRScreenState extends State<ViewOTRScreen> {
                     child: const Text("Select")
                   )
                 ]),
-                if (viewModel.selectedOTRPath != null)
-                  const Text("OTR contents")
+                if (viewModel.filesInOTR.isNotEmpty)
+                  // TODO: Show loading state when we start processing the OTR
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: ListView.builder(
+                        itemCount: viewModel.filesInOTR.length,
+                        itemBuilder: (context, index) {
+                          return Text(viewModel.filesInOTR[index]);
+                        }
+                      ))
+                  )
             ],
           ),
         ),
