@@ -2,9 +2,11 @@ import 'dart:collection';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_storm/flutter_storm.dart';
 import 'package:flutter_storm/bridge/flags.dart';
+import 'package:retro/otr/types/sequence.dart';
 import 'package:tuple/tuple.dart';
 
 enum AppState { none, creation, creationFinalization, inspection }
@@ -24,7 +26,7 @@ class CustomStageEntry extends StageEntry {
 class CustomSequencesEntry extends StageEntry {
   final List<Tuple2<File, File>> pairs;
   CustomSequencesEntry(this.pairs);
-  
+
   @override
   List<File> get iterables => pairs.map((e) => e.item1).toList();
 }
@@ -113,6 +115,11 @@ class CreateFinishViewModel with ChangeNotifier {
       return;
     }
 
+    File mpqOut = File(outputFile);
+    if(mpqOut.existsSync()){
+      mpqOut.deleteSync();
+    }
+
     String? mpqHandle = await SFileCreateArchive(
         outputFile, MPQ_CREATE_SIGNATURE | MPQ_CREATE_ARCHIVE_V4, 1024);
 
@@ -137,7 +144,15 @@ class CreateFinishViewModel with ChangeNotifier {
         }
       } else if (entry.value is CustomSequencesEntry) {
         for (var pair in (entry.value as CustomSequencesEntry).pairs) {
-          // TODO: Handle sequences
+          Sequence sequence = Sequence.fromSeqFile(pair);
+          String fileName = "${entry.key}/${sequence.path}";
+          Uint8List data = sequence.build();
+
+          String? fileHandle = await SFileCreateFile(
+              mpqHandle, fileName, data.length, MPQ_FILE_COMPRESS);
+          await SFileWriteFile(fileHandle!, data,
+              data.length, MPQ_COMPRESSION_ZLIB);
+          await SFileFinishFile(fileHandle);
         }
       }
     }
