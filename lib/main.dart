@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:retro/features/create_custom/create_custom_screen.dart';
 import 'package:retro/features/create_custom/create_custom_viewmodel.dart';
+import 'package:retro/features/create_custom_sequences/create_custom_sequences_screen.dart';
+import 'package:retro/features/create_custom_sequences/create_custom_sequences_viewmodel.dart';
 import 'package:retro/features/create_finish/create_finish_viewmodel.dart';
 import 'package:retro/features/create_selection/create_selection_screen.dart';
-import 'package:retro/features/create_selection/create_selection_viewmodel.dart';
 import 'package:retro/features/home/home_screen.dart';
 import 'package:retro/features/home/home_viewmodel.dart';
 import 'package:retro/features/view_otr/view_otr_screen.dart';
@@ -34,10 +35,10 @@ class Retro extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
-        ChangeNotifierProvider(create: (_) => CreateSelectionViewModel()),
         ChangeNotifierProvider(create: (_) => CreateCustomViewModel()),
         ChangeNotifierProvider(create: (_) => CreateFinishViewModel()),
         ChangeNotifierProvider(create: (_) => ViewOTRViewModel()),
+        ChangeNotifierProvider(create: (_) => CreateCustomSequencesViewModel()),
       ],
       child: MaterialApp(
         title: 'Retro',
@@ -63,6 +64,7 @@ class Retro extends StatelessWidget {
           '/create_selection': (context) => const CreateSelectionScreen(),
           '/create_custom': (context) => const CreateCustomScreen(),
           '/view_otr': (context) => const ViewOTRScreen(),
+          '/create_custom_sequences': (context) => const CreateCustomSequencesScreen(),
         },
       ),
     );

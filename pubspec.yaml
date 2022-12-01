@@ -47,6 +47,7 @@ dependencies:
     git:
       url: git@github.com:HarbourMasters/flutter_storm.git
       ref: 63381b35035aa7767befabcc8907c332d6f5c7b1
+  tuple: ^2.0.1
 
 dev_dependencies:
   flutter_test:

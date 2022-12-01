@@ -45,7 +45,7 @@ class _EphemeralBarState extends State<EphemeralBar>
     final CreateFinishViewModel viewModel =
         Provider.of<CreateFinishViewModel>(context);
 
-    bool hasStagedFiles = viewModel.files.isNotEmpty;
+    bool hasStagedFiles = viewModel.entries.isNotEmpty;
     Color backgroundColor = hasStagedFiles ? Colors.green : Colors.blueAccent;
     bool isExpanded = viewModel.currentState == AppState.creationFinalization;
 

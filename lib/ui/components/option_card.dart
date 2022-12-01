@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 class OptionCard extends StatefulWidget {
   final String text;
   final IconData icon;
-  final Function onMouseEnter;
-  final Function onMouseLeave;
+  final Function? onMouseEnter;
+  final Function? onMouseLeave;
   final void Function() onTap;
 
   const OptionCard({
     Key? key,
     required this.text,
     required this.icon,
-    required this.onMouseEnter,
-    required this.onMouseLeave,
+    this.onMouseEnter,
+    this.onMouseLeave,
     required this.onTap,
   }) : super(key: key);
 
@@ -32,16 +32,17 @@ class _OptionCardState extends State<OptionCard> {
     return Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
       MouseRegion(
         onEnter: (event) {
-          setState(() {
-            isHovered = true;
-          });
-          widget.onMouseEnter();
+          setState(() { isHovered = true; });
+
+          if (widget.onMouseEnter != null) {
+            widget.onMouseEnter!();
+          }
         },
         onExit: (event) {
-          setState(() {
-            isHovered = false;
-          });
-          widget.onMouseLeave();
+          setState(() { isHovered = false; });
+          if (widget.onMouseLeave != null) {
+            widget.onMouseLeave!();
+          }
         },
         child: GestureDetector(
           onTap: widget.onTap,

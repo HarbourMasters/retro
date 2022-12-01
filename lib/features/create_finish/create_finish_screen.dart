@@ -53,15 +53,15 @@ class _CreateFinishBottomBarModalState
                           child: ListView.builder(
                             shrinkWrap: true,
                             physics: const ClampingScrollPhysics(),
-                            itemCount: viewModel.files.length,
+                            itemCount: viewModel.entries.length,
                             itemBuilder: (BuildContext context, int index) {
-                              String key = viewModel.files.keys.elementAt(index);
+                              String key = viewModel.entries.keys.elementAt(index);
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
                                   Text(key, style: textTheme.subtitle2),
-                                  for (var file in viewModel.files[key]!)
+                                  for (var file in viewModel.entries[key]!.iterables)
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       mainAxisAlignment: MainAxisAlignment.center,
@@ -87,7 +87,7 @@ class _CreateFinishBottomBarModalState
                       ]),
                       const Spacer(),
                       ElevatedButton(
-                        onPressed: viewModel.files.isNotEmpty ? viewModel.onGenerateOTR : null,
+                        onPressed: viewModel.entries.isNotEmpty ? viewModel.onGenerateOTR : null,
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.green, minimumSize: Size(
                           MediaQuery.of(context).size.width * 0.5, 50)
                         ),
