@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_storm/flutter_storm.dart';
 import 'package:flutter_storm/bridge/flags.dart';
 
-enum AppState { none, creation, creationFinalization }
+enum AppState { none, creation, creationFinalization, inspection }
 
 class CreateFinishViewModel with ChangeNotifier {
   AppState currentState = AppState.none;
@@ -20,6 +20,11 @@ class CreateFinishViewModel with ChangeNotifier {
 
   void onCreationState() {
     currentState = AppState.creation;
+    notifyListeners();
+  }
+
+  void onInspectState() {
+    currentState = AppState.inspection;
     notifyListeners();
   }
 
@@ -62,7 +67,7 @@ class CreateFinishViewModel with ChangeNotifier {
       return;
     }
 
-    int? mpqHandle = await SFileCreateArchive(
+    String? mpqHandle = await SFileCreateArchive(
         outputFile, MPQ_CREATE_SIGNATURE | MPQ_CREATE_ARCHIVE_V4, 1024);
 
     if (mpqHandle == null) {
@@ -77,7 +82,7 @@ class CreateFinishViewModel with ChangeNotifier {
       List<File> files = this.files[path]!;
       for (var file in files) {
         String fileName = "$path/${file.path.split('/').last}";
-        int? fileHandle = await SFileCreateFile(
+        String? fileHandle = await SFileCreateFile(
             mpqHandle, fileName, file.lengthSync(), MPQ_FILE_COMPRESS);
         await SFileWriteFile(fileHandle!, file.readAsBytesSync(),
             file.lengthSync(), MPQ_COMPRESSION_ZLIB);
