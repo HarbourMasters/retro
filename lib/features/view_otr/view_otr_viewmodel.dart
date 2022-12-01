@@ -6,6 +6,7 @@ import 'package:flutter_storm/flutter_storm.dart';
 class ViewOTRViewModel extends ChangeNotifier {
   String? selectedOTRPath;
   List<String> filesInOTR = [];
+  bool isProcessing = false;
 
   onSelectOTR() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -48,6 +49,8 @@ class ViewOTRViewModel extends ChangeNotifier {
 
     bool fileFound = false;
     List<String> files = [];
+    isProcessing = true;
+    notifyListeners();
 
     do {
       fileFound = await SFileFindNextFile(hFind, findData) == 0;
@@ -61,6 +64,7 @@ class ViewOTRViewModel extends ChangeNotifier {
 
     SFileFindClose(hFind);
     filesInOTR = files;
+    isProcessing = false;
     notifyListeners();
   }
 }
