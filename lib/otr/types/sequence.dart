@@ -25,7 +25,7 @@ class Sequence extends Resource {
     Uint8List rawData = sequence.item1.readAsBytesSync();
     int fontIdx = int.parse(metadata[1].toLowerCase().replaceAll("0x", ""), radix: 16);
     String type = metadata.length > 2 ? metadata[2].toLowerCase().trim() : "bgm";
-    String metaname = metadata[0].trim().replaceAll('/', '|').replaceAll(" ", "_");
+    String metaname = metadata[0].trim().replaceAll('/', '|');
 
     return Sequence(
       rawData.length, rawData,
