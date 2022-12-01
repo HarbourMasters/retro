@@ -7,40 +7,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_storm/flutter_storm.dart';
 import 'package:flutter_storm/bridge/flags.dart';
 import 'package:retro/otr/types/sequence.dart';
+import 'package:retro/models/app_state.dart';
 import 'package:retro/models/stage_entry.dart';
 import 'package:tuple/tuple.dart';
-
-enum AppState { none, creation, creationFinalization, inspection }
 
 class CreateFinishViewModel with ChangeNotifier {
   AppState currentState = AppState.none;
   HashMap<String, StageEntry> entries = HashMap();
   late BuildContext context;
+  bool isEphemeralBarExpanded = false;
   bool isGenerating = false;
 
   void bindGlobalContext(BuildContext ctx) {
     context = ctx;
   }
 
-  // State Management
-  void onCreationState() {
-    currentState = AppState.creation;
-    notifyListeners();
-  }
-
-  void onInspectState() {
-    currentState = AppState.inspection;
-    notifyListeners();
-  }
-
-  void onCreationFinalizationState() {
-    currentState = AppState.creationFinalization;
-    notifyListeners();
-  }
-
   String displayState() {
     bool hasStagedFiles = entries.isNotEmpty;
-    return "${currentState.name}${hasStagedFiles && currentState != AppState.creationFinalization ? ' (staged)' : ''}";
+    return "${currentState.name}${hasStagedFiles && currentState != AppState.changesStaged ? ' (staged)' : ''}";
+  }
+
+  void toggleEphemeralBar() {
+    isEphemeralBarExpanded = !isEphemeralBarExpanded;
+    notifyListeners();
   }
 
   // Stage Management
@@ -53,6 +42,7 @@ class CreateFinishViewModel with ChangeNotifier {
       entries[path] = CustomStageEntry(files);
     }
 
+    currentState = AppState.changesStaged;
     notifyListeners();
   }
 
@@ -65,6 +55,7 @@ class CreateFinishViewModel with ChangeNotifier {
       entries[path] = CustomSequencesEntry(pairs);
     }
 
+    currentState = AppState.changesStaged;
     notifyListeners();
   }
 
@@ -81,6 +72,10 @@ class CreateFinishViewModel with ChangeNotifier {
 
     if (entries[path]?.iterables.isEmpty == true) {
       entries.remove(path);
+    }
+
+    if (entries.isEmpty) {
+      currentState = AppState.none;
     }
 
     notifyListeners();

@@ -36,10 +36,7 @@ class _CreateFinishBottomBarModalState
               subtitle: 'Review your OTR details',
               topRightWidget: IconButton(
                   icon: const Icon(Icons.close),
-                  onPressed: () {
-                    widget.dismissCallback();
-                    viewModel.onCreationState();
-                  }),
+                  onPressed: () { widget.dismissCallback(); }),
               content: Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(20),

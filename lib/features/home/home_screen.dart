@@ -37,7 +37,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   onMouseEnter: viewModel.onCreateOTRCardFocused,
                   onMouseLeave: viewModel.onCardFocusLost,
                   onTap: () {
-                    createFinishViewModel.onCreationState();
                     Navigator.pushNamed(context, "/create_selection");
                   }),
               const SizedBox(width: 8),
@@ -47,7 +46,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   onMouseEnter: viewModel.onCreateOTRCardFocused,
                   onMouseLeave: viewModel.onCardFocusLost,
                   onTap: () {
-                    createFinishViewModel.onInspectState();
                     Navigator.pushNamed(context, "/view_otr");
                   }),
             ],
