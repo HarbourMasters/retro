@@ -47,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onMouseEnter: viewModel.onCreateOTRCardFocused,
                   onMouseLeave: viewModel.onCardFocusLost,
                   onTap: () {
-                    createFinishViewModel.onCreationState();
+                    createFinishViewModel.onInspectState();
                     Navigator.pushNamed(context, "/view_otr");
                   }),
             ],

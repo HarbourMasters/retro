@@ -43,15 +43,12 @@ class CustomScaffold extends StatelessWidget {
                 children: [
                   // back button
                   if (onBackButtonPressed != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 15.0),
-                    child: IconButton(
+                    IconButton(
                       icon: const Icon(Icons.chevron_left_outlined),
                       color: Colors.white,
                       splashRadius: 30,
                       onPressed: () => onBackButtonPressed!(),
                     ),
-                  ),
 
                   // title
                   Column(

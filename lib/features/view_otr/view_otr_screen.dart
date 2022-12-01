@@ -18,6 +18,7 @@ class _ViewOTRScreenState extends State<ViewOTRScreen> {
     return CustomScaffold(
       title: "View OTR",
       onBackButtonPressed: () {
+        viewModel.resetState();
         Navigator.of(context).pop();
       },
       content: Expanded(
@@ -25,37 +26,34 @@ class _ViewOTRScreenState extends State<ViewOTRScreen> {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              Row(
-                children: [
-                  Expanded(
+              Row(children: [
+                Expanded(
                     child: TextField(
-                      enabled: false,
-                      // controller: textFieldController,
-                      decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        labelText: viewModel.selectedOTRPath ?? 'OTR Path',
-                      ),
-                    )),
-                  const SizedBox(width: 12),
-                  ElevatedButton(
+                  enabled: false,
+                  // controller: textFieldController,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: viewModel.selectedOTRPath ?? 'OTR Path',
+                  ),
+                )),
+                const SizedBox(width: 12),
+                ElevatedButton(
                     onPressed: viewModel.onSelectOTR,
-                    style: ElevatedButton.styleFrom(minimumSize: const Size(100, 50)),
-                    child: const Text("Select")
-                  )
-                ]),
-                if (viewModel.isProcessing || viewModel.filesInOTR.isNotEmpty)
-                  Expanded(
+                    style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(100, 50)),
+                    child: const Text("Select"))
+              ]),
+              if (viewModel.isProcessing || viewModel.filesInOTR.isNotEmpty)
+                Expanded(
                     child: viewModel.isProcessing
-                      ? const Center(child: CircularProgressIndicator())
-                      : Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: ListView.builder(
-                            itemCount: viewModel.filesInOTR.length,
-                            itemBuilder: (context, index) {
-                              return Text(viewModel.filesInOTR[index]);
-                            }
-                          ))
-                  )
+                        ? const Center(child: CircularProgressIndicator())
+                        : Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: ListView.builder(
+                                itemCount: viewModel.filesInOTR.length,
+                                itemBuilder: (context, index) {
+                                  return Text(viewModel.filesInOTR[index]);
+                                })))
             ],
           ),
         ),

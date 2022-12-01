@@ -8,6 +8,12 @@ class ViewOTRViewModel extends ChangeNotifier {
   List<String> filesInOTR = [];
   bool isProcessing = false;
 
+  resetState() {
+    selectedOTRPath = null;
+    filesInOTR = [];
+    isProcessing = false;
+  }
+
   onSelectOTR() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
         allowMultiple: true, type: FileType.custom, allowedExtensions: ['otr']);

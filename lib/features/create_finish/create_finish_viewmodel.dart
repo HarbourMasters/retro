@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_storm/flutter_storm.dart';
 import 'package:flutter_storm/bridge/flags.dart';
 
-enum AppState { none, creation, creationFinalization }
+enum AppState { none, creation, creationFinalization, inspection }
 
 class CreateFinishViewModel with ChangeNotifier {
   AppState currentState = AppState.none;
@@ -20,6 +20,11 @@ class CreateFinishViewModel with ChangeNotifier {
 
   void onCreationState() {
     currentState = AppState.creation;
+    notifyListeners();
+  }
+
+  void onInspectState() {
+    currentState = AppState.inspection;
     notifyListeners();
   }
 
