@@ -5,29 +5,10 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_storm/flutter_storm.dart';
 import 'package:flutter_storm/bridge/flags.dart';
+import 'package:retro/models/stage_entry.dart';
 import 'package:tuple/tuple.dart';
 
 enum AppState { none, creation, creationFinalization, inspection }
-
-abstract class StageEntry {
-  abstract final List<File> iterables;
-}
-
-class CustomStageEntry extends StageEntry {
-  final List<File> files;
-  CustomStageEntry(this.files);
-
-  @override
-  List<File> get iterables => files;
-}
-
-class CustomSequencesEntry extends StageEntry {
-  final List<Tuple2<File, File>> pairs;
-  CustomSequencesEntry(this.pairs);
-  
-  @override
-  List<File> get iterables => pairs.map((e) => e.item1).toList();
-}
 
 class CreateFinishViewModel with ChangeNotifier {
   AppState currentState = AppState.none;
@@ -124,7 +105,6 @@ class CreateFinishViewModel with ChangeNotifier {
     isGenerating = true;
     notifyListeners();
 
-    // Handle custom stages
     for (var entry in entries.entries) {
       if (entry.value is CustomStageEntry) {
         for (var file in (entry.value as CustomStageEntry).files) {
