@@ -18,7 +18,7 @@ class _CreateCustomSequencesScreenState extends State<CreateCustomSequencesScree
     final CreateCustomSequencesViewModel viewModel = Provider.of<CreateCustomSequencesViewModel>(context);
     final CreateFinishViewModel finishViewModel = Provider.of<CreateFinishViewModel>(context);
 
-    String nameWithouExtension(String path, String basePath) {
+    String nameWithoutExtension(String path, String basePath) {
       return path.split("$basePath/").last.split('.').first;
     }
 
@@ -57,8 +57,9 @@ class _CreateCustomSequencesScreenState extends State<CreateCustomSequencesScree
                             padding: const EdgeInsets.only(top: 10),
                             child: ListView.builder(
                                 itemCount: viewModel.sequenceMetaPairs.length,
+                                prototypeItem: const SizedBox(width: 0, height: 20),
                                 itemBuilder: (context, index) {
-                                  return Text(nameWithouExtension(viewModel.sequenceMetaPairs[index].item1.path, viewModel.selectedFolderPath!));
+                                  return Text(nameWithoutExtension(viewModel.sequenceMetaPairs[index].item1.path, viewModel.selectedFolderPath!));
                                 }))),
               if (!viewModel.isProcessing && viewModel.sequenceMetaPairs.isEmpty)
                 const Spacer(),

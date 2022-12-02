@@ -51,6 +51,7 @@ class _InspectOTRScreenState extends State<InspectOTRScreen> {
                             padding: const EdgeInsets.only(top: 10),
                             child: ListView.builder(
                                 itemCount: viewModel.filesInOTR.length,
+                                prototypeItem: const SizedBox(width: 0, height: 20),
                                 itemBuilder: (context, index) {
                                   return Text(viewModel.filesInOTR[index]);
                                 })))

@@ -54,6 +54,7 @@ class _CreateFinishBottomBarModalState
                                   shrinkWrap: true,
                                   physics: const ClampingScrollPhysics(),
                                   itemCount: viewModel.entries.length,
+                                  prototypeItem: const SizedBox(width: 0, height: 20),
                                   itemBuilder: (BuildContext context, int index) {
                                     String key = viewModel.entries.keys.elementAt(index);
                                     return Column(
