@@ -44,8 +44,8 @@ dependencies:
       path: plugins/window_size
   flutter_storm:
     git:
-      url: https://github.com/HarbourMasters/flutter_storm
-      ref: d2eacf3b23984718e231b1e64a62d66c0831f638
+      url: https://github.com/HarbourMasters/flutter_storm.git
+      ref: a773c77a0369263aa0b27108cfcdee555ab40602
   tuple: ^2.0.1
 
 flutter_icons:
