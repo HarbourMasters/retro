@@ -62,9 +62,9 @@ class _CreateFinishBottomBarModalState
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Text("\u2022 ${file.path}", style: textTheme.bodyText2),
-                                        const Spacer(),
+                                        Expanded(child: Text("\u2022 ${file.path}", overflow: TextOverflow.ellipsis, style: textTheme.bodyText2)),
                                         SizedBox(
                                           width: 20,
                                           height: 20,
