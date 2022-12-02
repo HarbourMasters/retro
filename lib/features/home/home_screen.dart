@@ -34,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
               OptionCard(
                   text: "Create OTR",
                   icon: Icons.add_circle,
-                  onMouseEnter: viewModel.onCreateOTRCardFocused,
+                  onMouseEnter: () => viewModel.onCreateOTRCardFocused("Create an OTR for SoH"),
                   onMouseLeave: viewModel.onCardFocusLost,
                   onTap: () {
                     Navigator.pushNamed(context, "/create_selection");
@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
               OptionCard(
                   text: "View OTR",
                   icon: Icons.visibility,
-                  onMouseEnter: viewModel.onCreateOTRCardFocused,
+                  onMouseEnter: () => viewModel.onCreateOTRCardFocused("View an OTR from SoH"),
                   onMouseLeave: viewModel.onCardFocusLost,
                   onTap: () {
                     Navigator.pushNamed(context, "/view_otr");
