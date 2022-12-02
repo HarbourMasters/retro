@@ -39,7 +39,8 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: windows
-        path: build/windows/runner/Release/*.exe
+        path: build/windows/runner/Release/*
+
   # build-linux:
   #   runs-on: ubuntu-latest
   #   steps:
