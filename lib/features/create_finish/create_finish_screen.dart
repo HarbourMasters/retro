@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:retro/features/create_finish/create_finish_viewmodel.dart';
@@ -26,6 +28,36 @@ class _CreateFinishBottomBarModalState
     final TextTheme textTheme = theme.textTheme;
     final CreateFinishViewModel viewModel =
         Provider.of<CreateFinishViewModel>(context);
+    int itemCount = 0;
+    for (var element in viewModel.entries.values) {
+      itemCount += element.iterables.length;
+    }
+
+    List<Widget> widgets = [];
+    for (var key in viewModel.entries.keys) {
+      widgets.add(Text(key, style: textTheme.subtitle2));
+      widgets.addAll(viewModel.entries[key]!.iterables.map((file) => Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Expanded(child: Text("\u2022 ${file.path}", overflow: TextOverflow.ellipsis, style: textTheme.bodyText2)),
+          Container(
+            width: 20,
+            height: 20,
+            margin: const EdgeInsets.only(right: 20),
+            child: IconButton(
+              iconSize: 20,
+              splashRadius: 20,
+              padding: EdgeInsets.zero,
+              icon: const Icon(Icons.delete),
+              onPressed: () {
+                viewModel.onRemoveFile(file, key);
+              },
+            )),
+        ],
+      )));
+    }
 
     return Column(
       children: [
@@ -43,50 +75,10 @@ class _CreateFinishBottomBarModalState
                   child: Column(
                     children: [
                       Expanded(
-                        child: ListView(children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("Contents:", style: textTheme.subtitle1!.copyWith(decoration: TextDecoration.underline)),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8, right: 20),
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: const ClampingScrollPhysics(),
-                                  itemCount: viewModel.entries.length,
-                                  itemBuilder: (BuildContext context, int index) {
-                                    String key = viewModel.entries.keys.elementAt(index);
-                                    return Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      children: [
-                                        Text(key, style: textTheme.subtitle2),
-                                        for (var file in viewModel.entries[key]!.iterables)
-                                          Row(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Expanded(child: Text("\u2022 ${file.path}", overflow: TextOverflow.ellipsis, style: textTheme.bodyText2)),
-                                              SizedBox(
-                                                width: 20,
-                                                height: 20,
-                                                child: IconButton(
-                                                  iconSize: 20,
-                                                  splashRadius: 20,
-                                                  padding: EdgeInsets.zero,
-                                                  icon: const Icon(Icons.delete),
-                                                  onPressed: () {
-                                                    viewModel.onRemoveFile(file, key);
-                                                  },
-                                                )),
-                                            ],
-                                          ),
-                                    ]);
-                                  }))
-                            ]),
-
-                        ]),
+                        child: ListView(
+                          prototypeItem: const SizedBox(height: 20),
+                          children: widgets
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 20.0),
