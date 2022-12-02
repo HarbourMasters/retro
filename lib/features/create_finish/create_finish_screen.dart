@@ -40,13 +40,13 @@ class _CreateFinishBottomBarModalState
               content: Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(20),
-                  child: Column(children: [
+                  child: ListView(children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text("Contents:", style: textTheme.subtitle1!.copyWith(decoration: TextDecoration.underline)),
                         Padding(
-                          padding: const EdgeInsets.only(top: 8),
+                          padding: const EdgeInsets.only(top: 8, right: 20),
                           child: ListView.builder(
                             shrinkWrap: true,
                             physics: const ClampingScrollPhysics(),
