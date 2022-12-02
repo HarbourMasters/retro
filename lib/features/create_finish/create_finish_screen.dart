@@ -84,7 +84,11 @@ class _CreateFinishBottomBarModalState
                       ]),
                       const Spacer(),
                       ElevatedButton(
-                        onPressed: viewModel.entries.isNotEmpty ? viewModel.onGenerateOTR : null,
+                        onPressed: viewModel.entries.isNotEmpty ? () {
+                          viewModel.onGenerateOTR(() {
+                            widget.dismissCallback();
+                          });
+                        } : null,
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.green, minimumSize: Size(
                           MediaQuery.of(context).size.width * 0.5, 50)
                         ),
