@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:retro/features/view_otr/view_otr_viewmodel.dart';
+import 'package:retro/features/inspect_otr/inspect_otr_viewmodel.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
 
-class ViewOTRScreen extends StatefulWidget {
-  const ViewOTRScreen({super.key});
+class InspectOTRScreen extends StatefulWidget {
+  const InspectOTRScreen({super.key});
 
   @override
-  _ViewOTRScreenState createState() => _ViewOTRScreenState();
+  _InspectOTRScreenState createState() => _InspectOTRScreenState();
 }
 
-class _ViewOTRScreenState extends State<ViewOTRScreen> {
+class _InspectOTRScreenState extends State<InspectOTRScreen> {
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<ViewOTRViewModel>(context);
+    final viewModel = Provider.of<InspectOTRViewModel>(context);
 
     return CustomScaffold(
-      title: "View OTR",
+      title: "Inspect OTR",
       subtitle: "Inspect the contents of an OTR",
       onBackButtonPressed: () {
         viewModel.resetState();

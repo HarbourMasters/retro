@@ -4,7 +4,7 @@ import 'package:flutter_storm/bridge/errors.dart';
 import 'package:flutter_storm/bridge/flags.dart';
 import 'package:flutter_storm/flutter_storm.dart';
 
-class ViewOTRViewModel extends ChangeNotifier {
+class InspectOTRViewModel extends ChangeNotifier {
   String? selectedOTRPath;
   List<String> filesInOTR = [];
   bool isProcessing = false;

@@ -9,8 +9,8 @@ import 'package:retro/features/create_finish/create_finish_viewmodel.dart';
 import 'package:retro/features/create_selection/create_selection_screen.dart';
 import 'package:retro/features/home/home_screen.dart';
 import 'package:retro/features/home/home_viewmodel.dart';
-import 'package:retro/features/view_otr/view_otr_screen.dart';
-import 'package:retro/features/view_otr/view_otr_viewmodel.dart';
+import 'package:retro/features/inspect_otr/inspect_otr_screen.dart';
+import 'package:retro/features/inspect_otr/inspect_otr_viewmodel.dart';
 import 'package:retro/ui/components/ephemeral_bar.dart';
 import 'package:retro/ui/theme/theme.dart';
 import 'package:window_size/window_size.dart';
@@ -37,7 +37,7 @@ class Retro extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
         ChangeNotifierProvider(create: (_) => CreateCustomViewModel()),
         ChangeNotifierProvider(create: (_) => CreateFinishViewModel()),
-        ChangeNotifierProvider(create: (_) => ViewOTRViewModel()),
+        ChangeNotifierProvider(create: (_) => InspectOTRViewModel()),
         ChangeNotifierProvider(create: (_) => CreateCustomSequencesViewModel()),
       ],
       child: MaterialApp(
@@ -63,7 +63,7 @@ class Retro extends StatelessWidget {
           '/': (context) => const HomeScreen(),
           '/create_selection': (context) => const CreateSelectionScreen(),
           '/create_custom': (context) => const CreateCustomScreen(),
-          '/view_otr': (context) => const ViewOTRScreen(),
+          '/view_otr': (context) => const InspectOTRScreen(),
           '/create_custom_sequences': (context) => const CreateCustomSequencesScreen(),
         },
       ),

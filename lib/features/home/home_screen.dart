@@ -41,9 +41,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   }),
               const SizedBox(width: 20),
               OptionCard(
-                  text: "View OTR",
+                  text: "Inspect OTR",
                   icon: Icons.visibility,
-                  onMouseEnter: () => viewModel.onCreateOTRCardFocused("View an OTR from SoH"),
+                  onMouseEnter: () => viewModel.onCreateOTRCardFocused("Inspect the contents of an OTR"),
                   onMouseLeave: viewModel.onCardFocusLost,
                   onTap: () {
                     Navigator.pushNamed(context, "/view_otr");
