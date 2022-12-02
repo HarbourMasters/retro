@@ -30,9 +30,11 @@ class CustomScaffold extends StatelessWidget {
 
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical:   CONTENT_PADDING_VERTICAL,
-          horizontal: CONTENT_PADDING_HORIZONTAL
+        padding: const EdgeInsets.only(
+          bottom: 0,
+          top:   CONTENT_PADDING_VERTICAL,
+          left: CONTENT_PADDING_HORIZONTAL,
+          right: CONTENT_PADDING_HORIZONTAL,
         ),
         child: Column(
           children: [

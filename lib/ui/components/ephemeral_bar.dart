@@ -45,9 +45,9 @@ class _EphemeralBarState extends State<EphemeralBar>
     final CreateFinishViewModel viewModel =
         Provider.of<CreateFinishViewModel>(context);
 
-    bool hasStagedFiles = viewModel.files.isNotEmpty;
+    bool hasStagedFiles = viewModel.entries.isNotEmpty;
     Color backgroundColor = hasStagedFiles ? Colors.green : Colors.blueAccent;
-    bool isExpanded = viewModel.currentState == AppState.creationFinalization;
+    bool isExpanded = viewModel.isEphemeralBarExpanded;
 
     Widget bottomBar = AnimatedContainer(
       width: MediaQuery.of(context).size.width,
@@ -76,13 +76,8 @@ class _EphemeralBarState extends State<EphemeralBar>
             if (hasStagedFiles && !isExpanded)
             TextButton(
               onPressed: () {
-                // Navigator.of(context).pushNamed('/create_finish');
-                if (viewModel.currentState == AppState.creationFinalization) {
-                  viewModel.onCreationState();
-                } else {
-                  viewModel.onCreationFinalizationState();
-                  expandController.forward();
-                }
+                viewModel.toggleEphemeralBar();
+                expandController.forward();
               },
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 2),
@@ -131,6 +126,9 @@ class _EphemeralBarState extends State<EphemeralBar>
     return SizedBox.fromSize(
         size: Size(size.width, max(size.height * animation.value, 24)),
         child: CreateFinishBottomBarModal(
-            bottomBar: bottomBar, dismissCallback: expandController.reverse));
+            bottomBar: bottomBar, dismissCallback: () { 
+              expandController.reverse();
+              viewModel.toggleEphemeralBar();
+            }));
   }
 }

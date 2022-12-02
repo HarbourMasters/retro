@@ -2,62 +2,93 @@ import 'dart:collection';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_storm/bridge/errors.dart';
 import 'package:flutter_storm/flutter_storm.dart';
 import 'package:flutter_storm/bridge/flags.dart';
-
-enum AppState { none, creation, creationFinalization, inspection }
+import 'package:retro/otr/types/sequence.dart';
+import 'package:retro/models/app_state.dart';
+import 'package:retro/models/stage_entry.dart';
+import 'package:tuple/tuple.dart';
 
 class CreateFinishViewModel with ChangeNotifier {
   AppState currentState = AppState.none;
-  HashMap<String, List<File>> files = HashMap();
+  HashMap<String, StageEntry> entries = HashMap();
   late BuildContext context;
+  bool isEphemeralBarExpanded = false;
   bool isGenerating = false;
 
   void bindGlobalContext(BuildContext ctx) {
     context = ctx;
   }
 
-  void onCreationState() {
-    currentState = AppState.creation;
-    notifyListeners();
-  }
-
-  void onInspectState() {
-    currentState = AppState.inspection;
-    notifyListeners();
-  }
-
-  void onCreationFinalizationState() {
-    currentState = AppState.creationFinalization;
-    notifyListeners();
-  }
-
   String displayState() {
-    bool hasStagedFiles = files.isNotEmpty;
-    return "${currentState.name}${hasStagedFiles && currentState != AppState.creationFinalization ? ' (staged)' : ''}";
+    bool hasStagedFiles = entries.isNotEmpty;
+    return "${currentState.name}${hasStagedFiles && currentState != AppState.changesStaged ? ' (staged)' : ''}";
   }
 
-  void onStageFiles(List<File> files, String path) {
-    if (this.files.containsKey(path)) {
-      this.files[path]!.addAll(files);
+  void toggleEphemeralBar() {
+    isEphemeralBarExpanded = !isEphemeralBarExpanded;
+    notifyListeners();
+  }
+
+  void resetState() {
+    currentState = AppState.none;
+    entries.clear();
+    notifyListeners();
+  }
+
+  // Stage Management
+  void onAddCustomStageEntry(List<File> files, String path) {
+    if (entries.containsKey(path) && entries[path] is CustomStageEntry) {
+      (entries[path] as CustomStageEntry).files.addAll(files);
+    } else if (entries.containsKey(path)) {
+      throw Exception("Cannot add custom stage entry to existing entry");
     } else {
-      this.files[path] = files;
+      entries[path] = CustomStageEntry(files);
     }
 
+    currentState = AppState.changesStaged;
+    notifyListeners();
+  }
+
+  void onAddCustomSequenceEntry(List<Tuple2<File, File>> pairs, String path) {
+    if (entries.containsKey(path) && entries[path] is CustomSequencesEntry) {
+      (entries[path] as CustomSequencesEntry).pairs.addAll(pairs);
+    } else if (entries.containsKey(path)) {
+      throw Exception("Cannot add custom sequence entry to existing entry");
+    } else {
+      entries[path] = CustomSequencesEntry(pairs);
+    }
+
+    currentState = AppState.changesStaged;
     notifyListeners();
   }
 
   void onRemoveFile(File file, String path) {
-    files[path]!.remove(file);
-    if (files[path]!.isEmpty) {
-      files.remove(path);
+    if (entries.containsKey(path) && entries[path] is CustomStageEntry) {
+      (entries[path] as CustomStageEntry).files.remove(file);
+    } else if (entries.containsKey(path) &&
+        entries[path] is CustomSequencesEntry) {
+      (entries[path] as CustomSequencesEntry).pairs.removeWhere((pair) =>
+          pair.item1.path == file.path || pair.item2.path == file.path);
+    } else {
+      throw Exception("Cannot remove file from non-existent entry");
+    }
+
+    if (entries[path]?.iterables.isEmpty == true) {
+      entries.remove(path);
+    }
+
+    if (entries.isEmpty) {
+      currentState = AppState.none;
     }
 
     notifyListeners();
   }
 
-  void onGenerateOTR() async {
+  void onGenerateOTR(Function onCompletion) async {
     String? outputFile = await FilePicker.platform.saveFile(
       dialogTitle: 'Please select an output file:',
       fileName: 'generated.otr',
@@ -67,31 +98,50 @@ class CreateFinishViewModel with ChangeNotifier {
       return;
     }
 
-    String? mpqHandle = await SFileCreateArchive(
-        outputFile, MPQ_CREATE_SIGNATURE | MPQ_CREATE_ARCHIVE_V4, 1024);
-
-    if (mpqHandle == null) {
-      // TODO: Show some kind of error
-      return;
+    File mpqOut = File(outputFile);
+    if (mpqOut.existsSync()) {
+      mpqOut.deleteSync();
     }
 
-    isGenerating = true;
-    notifyListeners();
-    // iterate over files and add them to the archive
-    for (String path in files.keys) {
-      List<File> files = this.files[path]!;
-      for (var file in files) {
-        String fileName = "$path/${file.path.split('/').last}";
-        String? fileHandle = await SFileCreateFile(
-            mpqHandle, fileName, file.lengthSync(), MPQ_FILE_COMPRESS);
-        await SFileWriteFile(fileHandle!, file.readAsBytesSync(),
-            file.lengthSync(), MPQ_COMPRESSION_ZLIB);
-        await SFileFinishFile(fileHandle);
+    try {
+      String? mpqHandle = await SFileCreateArchive(outputFile, MPQ_CREATE_SIGNATURE | MPQ_CREATE_ARCHIVE_V4, 1024);
+
+      isGenerating = true;
+      notifyListeners();
+
+      for (var entry in entries.entries) {
+        if (entry.value is CustomStageEntry) {
+          for (var file in (entry.value as CustomStageEntry).files) {
+            String fileName = "${entry.key}/${file.path.split('/').last}";
+            String? fileHandle = await SFileCreateFile(
+                mpqHandle!, fileName, file.lengthSync(), MPQ_FILE_COMPRESS);
+            await SFileWriteFile(fileHandle!, file.readAsBytesSync(),
+                file.lengthSync(), MPQ_COMPRESSION_ZLIB);
+            await SFileFinishFile(fileHandle);
+          }
+        } else if (entry.value is CustomSequencesEntry) {
+          for (var pair in (entry.value as CustomSequencesEntry).pairs) {
+            Sequence sequence = Sequence.fromSeqFile(pair);
+            String fileName = "${entry.key}/${sequence.path}";
+            Uint8List data = sequence.build();
+
+            String? fileHandle = await SFileCreateFile(
+                mpqHandle!, fileName, data.length, MPQ_FILE_COMPRESS);
+            await SFileWriteFile(
+                fileHandle!, data, data.length, MPQ_COMPRESSION_ZLIB);
+            await SFileFinishFile(fileHandle);
+          }
+        }
       }
-    }
 
-    await SFileCloseArchive(mpqHandle);
-    isGenerating = false;
-    notifyListeners();
+      await SFileCloseArchive(mpqHandle!);
+      isGenerating = false;
+      notifyListeners();
+
+      resetState();
+      onCompletion();
+    } on StormException catch (e) {
+      print(e);
+    }
   }
 }

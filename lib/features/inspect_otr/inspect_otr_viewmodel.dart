@@ -1,9 +1,10 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_storm/bridge/errors.dart';
 import 'package:flutter_storm/bridge/flags.dart';
 import 'package:flutter_storm/flutter_storm.dart';
 
-class ViewOTRViewModel extends ChangeNotifier {
+class InspectOTRViewModel extends ChangeNotifier {
   String? selectedOTRPath;
   List<String> filesInOTR = [];
   bool isProcessing = false;
@@ -35,7 +36,8 @@ class ViewOTRViewModel extends ChangeNotifier {
       return;
     }
 
-    String? otrHandle = await SFileOpenArchive(selectedOTRPath!, MPQ_OPEN_READ_ONLY);
+    String? otrHandle =
+        await SFileOpenArchive(selectedOTRPath!, MPQ_OPEN_READ_ONLY);
     if (otrHandle == null) {
       // TODO: Handle this error
       return;
@@ -59,13 +61,17 @@ class ViewOTRViewModel extends ChangeNotifier {
     notifyListeners();
 
     do {
-      fileFound = await SFileFindNextFile(hFind, findData) == 0;
-      if (fileFound) {
+      try {
+        await SFileFindNextFile(hFind, findData);
+        fileFound = true;
         String? fileName = await SFileFindGetDataForDataPointer(findData);
         if (fileName != null && fileName != "(signature)") {
           files.add(fileName);
         }
-      } else if (!fileFound /*&& GetLastError() != ERROR_NO_MORE_FILES*/) {}
+      } on StormException catch (e) {
+        print("Failed to find next file: ${e.message}");
+        fileFound = false;
+      }
     } while (fileFound);
 
     SFileFindClose(hFind);

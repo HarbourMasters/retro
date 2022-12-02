@@ -77,7 +77,7 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
             ),
             ElevatedButton(
               onPressed: viewModel.files.isNotEmpty && viewModel.isPathValid ? () {
-                finishViewModel.onStageFiles(viewModel.files, textFieldController.text);
+                finishViewModel.onAddCustomStageEntry(viewModel.files, textFieldController.text);
                 viewModel.onDiscardFiles();
                 Navigator.of(context).popUntil(ModalRoute.withName("/create_selection"));
               } : null,
