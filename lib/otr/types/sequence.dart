@@ -2,10 +2,9 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:retro/otr/resource.dart';
+import 'package:retro/otr/resource_type.dart';
 import 'package:retro/otr/version.dart';
 import 'package:tuple/tuple.dart';
-
-import '../resource_type.dart';
 
 class Sequence extends Resource {
 

@@ -17,7 +17,7 @@ abstract class Resource {
     writeBinary(Endianness.native.value); // 0x00
     writeInt32(resourceType.value);       // 0x04
     writeInt32(gameVersion.value);        // 0x08
-    writeInt64(0xDEADBEEFDEADBEEF);    // 0x0C
+    writeInt64(0xDEADBEEFDEADBEEF);       // 0x0C
     writeInt32(resourceVersion);          // 0x10
     writeInt64(0);                        // 0x14
     writeInt32(0);                        // 0x1C
