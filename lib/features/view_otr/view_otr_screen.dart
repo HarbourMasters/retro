@@ -17,6 +17,7 @@ class _ViewOTRScreenState extends State<ViewOTRScreen> {
 
     return CustomScaffold(
       title: "View OTR",
+      subtitle: "Inspect the contents of an OTR",
       onBackButtonPressed: () {
         viewModel.resetState();
         Navigator.of(context).pop();
@@ -32,7 +33,7 @@ class _ViewOTRScreenState extends State<ViewOTRScreen> {
                   enabled: false,
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
-                    labelText: viewModel.selectedOTRPath ?? 'OTR Path',
+                    labelText: viewModel.selectedOTRPath ?? 'No OTR Selected',
                   ),
                 )),
                 const SizedBox(width: 12),
