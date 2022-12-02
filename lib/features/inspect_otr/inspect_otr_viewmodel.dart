@@ -63,12 +63,14 @@ class InspectOTRViewModel extends ChangeNotifier {
     do {
       try {
         await SFileFindNextFile(hFind, findData);
+        fileFound = true;
         String? fileName = await SFileFindGetDataForDataPointer(findData);
         if (fileName != null && fileName != "(signature)") {
           files.add(fileName);
         }
       } on StormException catch (e) {
         print("Failed to find next file: ${e.message}");
+        fileFound = false;
       }
     } while (fileFound);
 
