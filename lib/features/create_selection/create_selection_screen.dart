@@ -18,27 +18,29 @@ class _CreateSelectionScreenState extends State<CreateSelectionScreen> {
         onBackButtonPressed: () {
           Navigator.of(context).pop();
         },
-        content: Column(children: [
-          const SizedBox(height: 20),
-          Row(
+        content: Expanded(
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              OptionCard(
-                  text: "Custom Sequences",
-                  icon: Icons.playlist_add,
-                  onTap: () {
-                    Navigator.of(context).pushNamed('/create_custom_sequences');
-                  }),
-              const SizedBox(width: 12),
-              OptionCard(
-                  text: "Custom",
-                  icon: Icons.settings_suggest,
-                  onTap: () {
-                    Navigator.of(context).pushNamed('/create_custom');
-                  }),
-            ],
-          ),
-        ]));
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  OptionCard(
+                      text: "Custom Sequences",
+                      icon: Icons.playlist_add,
+                      onTap: () {
+                        Navigator.of(context).pushNamed('/create_custom_sequences');
+                      }),
+                  const SizedBox(width: 20),
+                  OptionCard(
+                      text: "Custom",
+                      icon: Icons.settings_suggest,
+                      onTap: () {
+                        Navigator.of(context).pushNamed('/create_custom');
+                      }),
+                ],
+              )
+            ])));
   }
 }

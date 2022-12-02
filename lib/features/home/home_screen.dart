@@ -39,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: () {
                     Navigator.pushNamed(context, "/create_selection");
                   }),
-              const SizedBox(width: 8),
+              const SizedBox(width: 20),
               OptionCard(
                   text: "View OTR",
                   icon: Icons.visibility,
