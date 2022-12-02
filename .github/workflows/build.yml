@@ -19,11 +19,13 @@ jobs:
         cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:' # optional, change this to force refresh cache
         cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:' # optional, change this to specify the cache path
     - run: flutter config --enable-macos-desktop
-    - run: flutter build macos
+    - run: flutter build -v macos --release
+    - run: ditto -c -k --sequesterRsrc --keepParent retro.app $GITHUB_WORKSPACE/retro.zip
+      working-directory: build/macos/Build/Products/Release
     - uses: actions/upload-artifact@v3
       with:
         name: macos
-        path: build/macos/Build/Products/Release/*.app
+        path: retro.zip
   build-windows:
     runs-on: windows-latest
     steps:
@@ -35,7 +37,7 @@ jobs:
         cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:' # optional, change this to force refresh cache
         cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:' # optional, change this to specify the cache path
     - run: flutter config --enable-windows-desktop
-    - run: flutter build windows
+    - run: flutter build windows --release
     - uses: actions/upload-artifact@v3
       with:
         name: windows
