@@ -92,9 +92,7 @@ class _CreateFinishBottomBarModalState
                         padding: const EdgeInsets.only(top: 20.0),
                         child: ElevatedButton(
                           onPressed: viewModel.entries.isNotEmpty ? () {
-                            viewModel.onGenerateOTR(() {
-                              widget.dismissCallback();
-                            });
+                            viewModel.onGenerateOTR(widget.dismissCallback);
                           } : null,
                           style: ElevatedButton.styleFrom(backgroundColor: Colors.green, minimumSize: Size(
                             MediaQuery.of(context).size.width * 0.5, 50)
