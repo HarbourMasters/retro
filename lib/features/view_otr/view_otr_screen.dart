@@ -30,7 +30,6 @@ class _ViewOTRScreenState extends State<ViewOTRScreen> {
                 Expanded(
                     child: TextField(
                   enabled: false,
-                  // controller: textFieldController,
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
                     labelText: viewModel.selectedOTRPath ?? 'OTR Path',
