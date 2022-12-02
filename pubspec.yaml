@@ -32,7 +32,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
@@ -45,11 +44,24 @@ dependencies:
       path: plugins/window_size
   flutter_storm:
     git:
-      url: git@github.com:HarbourMasters/flutter_storm.git
+      url: https://github.com/HarbourMasters/flutter_storm
       ref: d2eacf3b23984718e231b1e64a62d66c0831f638
   tuple: ^2.0.1
 
+flutter_icons:
+  windows:
+    generate: true
+    image_path: "assets/icon.png"
+    icon_size: 256
+  macos:
+    generate: true
+    image_path: "assets/icon-macos.png"
+  linux:
+    generate: true
+    image_path: "assets/icon.png"
+
 dev_dependencies:
+  flutter_launcher_icons: "^0.11.0"
   flutter_test:
     sdk: flutter
 
