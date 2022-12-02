@@ -2,8 +2,6 @@ name: build
 on:
   pull_request:
   push:
-    branches:
-    - main
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -40,20 +38,19 @@ jobs:
       with:
         name: windows
         path: build/windows/runner/Release/*.exe
-  build-linux:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - uses: subosito/flutter-action@v2
-      with:
-        channel: 'stable' # or: 'beta', 'dev' or 'master'
-        cache: true
-        cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:' # optional, change this to force refresh cache
-        cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:' # optional, change this to specify the cache path
-    - run: flutter config --enable-linux-desktop
-    - run: flutter build linux
-    - uses: actions/upload-artifact@v3
-      with:
-        name: linux
-        path: build/linux/release/bundle/*.AppImage
-    
+  # build-linux:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - uses: subosito/flutter-action@v2
+  #     with:
+  #       channel: 'stable' # or: 'beta', 'dev' or 'master'
+  #       cache: true
+  #       cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:' # optional, change this to force refresh cache
+  #       cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:' # optional, change this to specify the cache path
+  #   - run: flutter config --enable-linux-desktop
+  #   - run: flutter build linux
+  #   - uses: actions/upload-artifact@v3
+  #     with:
+  #       name: linux
+  #       path: build/linux/release/bundle/*.AppImage
