@@ -83,8 +83,8 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
       
           String? fileName = await SFileFindGetDataForDataPointer(findData);
           String? fileHandle = await SFileOpenFileEx(otrHandle, fileName!, 0);
-          int? fileSize = SFileGetFileSize(fileHandle, 0);
-          Uint8List fileData = await SFileReadFile(fileHandle, fileSize);
+          int? fileSize = await SFileGetFileSize(fileHandle!);
+          Uint8List? fileData = await SFileReadFile(fileHandle, fileSize!);
 
           // TODO: Create resource, check if texture then write to disk at same path in selectedDirectory 
           
