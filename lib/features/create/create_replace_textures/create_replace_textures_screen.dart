@@ -117,7 +117,7 @@ Widget stepContent(CreateReplaceTexturesViewModel viewModel, BuildContext contex
               enabled: false,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
-                labelText: viewModel.selectedFolderPath ?? 'OTR Path',
+                labelText: viewModel.selectedOTRPath ?? 'OTR Path',
               ),
             )),
             const SizedBox(width: 12),

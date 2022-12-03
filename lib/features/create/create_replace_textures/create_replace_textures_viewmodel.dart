@@ -98,13 +98,8 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
             texture.open(fileData!);
             print("Found texture: $fileName! with type: ${texture.textureType}");
             print("Width: ${texture.width} Height: ${texture.height}");
-          } catch (e) {
-            print(e);
-            // Not a texture
-          }
-
+          } catch (e) { /* Not a texture */ }
         } on StormException catch (e) {
-          print("Failed to find next file: ${e.message}");
           fileFound = false;
         }
       } while (fileFound);
