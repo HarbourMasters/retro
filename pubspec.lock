@@ -136,8 +136,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "440452768aa6073d5817bcf8daf2fe6c981c5ac6"
-      resolved-ref: "440452768aa6073d5817bcf8daf2fe6c981c5ac6"
+      ref: d440637bf709af171b97301badce8895b10b6b26
+      resolved-ref: d440637bf709af171b97301badce8895b10b6b26
       url: "https://github.com/HarbourMasters/flutter_storm.git"
     source: git
     version: "0.0.1"
@@ -152,7 +152,7 @@ packages:
     source: sdk
     version: "0.0.0"
   image:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: image
       url: "https://pub.dartlang.org"

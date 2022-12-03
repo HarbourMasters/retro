@@ -47,5 +47,4 @@ class Sequence extends Resource {
       writeInt8(fontIndices[i]);
     }
   }
-
 }

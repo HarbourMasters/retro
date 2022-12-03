@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_storm/bridge/errors.dart';
 import 'package:flutter_storm/bridge/flags.dart';
 import 'package:flutter_storm/flutter_storm.dart';
+import 'package:retro/otr/types/texture.dart' as soh;
 
 enum CreateReplacementTexturesStep { question, selectFolder, selectOTR }
 
@@ -24,7 +25,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     currentStep = step;
     notifyListeners();
   }
-  
+
   onSelectFolder() async {
     String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
 
@@ -80,7 +81,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
         try {
           await SFileFindNextFile(hFind!, findData);
           fileFound = true;
-      
+
           String? fileName = await SFileFindGetDataForDataPointer(findData);
           if (fileName == null || fileName == "(signature)") {
             continue;
@@ -90,8 +91,17 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
           int? fileSize = await SFileGetFileSize(fileHandle!);
           Uint8List? fileData = await SFileReadFile(fileHandle, fileSize!);
 
-          // TODO: Create resource, check if texture then write to disk at same path in selectedDirectory 
-          
+          // TODO: Create resource, check if texture then write to disk at same path in selectedDirectory
+
+          try {
+            soh.Texture texture = soh.Texture.empty();
+            texture.open(fileData!);
+            print("Found texture: $fileName! with type: ${texture.textureType}");
+            print("Width: ${texture.width} Height: ${texture.height}");
+          } catch (e) {
+            print(e);
+            // Not a texture
+          }
 
         } on StormException catch (e) {
           print("Failed to find next file: ${e.message}");
