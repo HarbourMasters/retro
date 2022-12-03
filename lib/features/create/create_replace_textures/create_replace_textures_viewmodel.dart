@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
@@ -14,10 +15,14 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
   String? selectedFolderPath;
   String? selectedOTRPath;
   bool isProcessing = false;
+  List<String> processedFiles = [];
 
   reset() {
     currentStep = CreateReplacementTexturesStep.question;
     selectedFolderPath = null;
+    selectedOTRPath = null;
+    isProcessing = false;
+    processedFiles = [];
     notifyListeners();
   }
 
@@ -75,7 +80,16 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
 
       bool fileFound = false;
       isProcessing = true;
+      List<String> files = [];
       notifyListeners();
+
+
+      // if folder we'll export to exists, delete it
+      String otrNameWithoutExtension = selectedOTRPath!.split("/").last.split(".").first;
+      Directory dir = Directory("$selectedDirectory/$otrNameWithoutExtension");
+      if (dir.existsSync()) {
+        dir.deleteSync(recursive: true);
+      }
 
       do {
         try {
@@ -91,13 +105,20 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
           int? fileSize = await SFileGetFileSize(fileHandle!);
           Uint8List? fileData = await SFileReadFile(fileHandle, fileSize!);
 
-          // TODO: Create resource, check if texture then write to disk at same path in selectedDirectory
-
           try {
             soh.Texture texture = soh.Texture.empty();
             texture.open(fileData!);
             print("Found texture: $fileName! with type: ${texture.textureType}");
             print("Width: ${texture.width} Height: ${texture.height}");
+
+            // // Write to disk using the same path we found it in
+            String? filePath = "$selectedDirectory/$otrNameWithoutExtension/$fileName.png";
+            print("Writing to: $filePath");
+
+            File file = File(filePath);
+            file.createSync(recursive: true);
+            file.writeAsBytesSync(texture.toPNGBytes());
+            files.add(filePath);
           } catch (e) { /* Not a texture */ }
         } on StormException catch (e) {
           fileFound = false;
@@ -106,6 +127,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
 
       SFileFindClose(hFind!);
       isProcessing = false;
+      processedFiles = files;
       notifyListeners();
     } on StormException catch (e) {
       print("Failed to find next file: ${e.message}");

@@ -126,8 +126,8 @@ Widget stepContent(CreateReplaceTexturesViewModel viewModel, BuildContext contex
                 style: ElevatedButton.styleFrom(minimumSize: const Size(100, 50)),
                 child: const Text("Select"))
           ]),
-          if (viewModel.selectedOTRPath == null)
-             Padding(
+          if (viewModel.processedFiles.isEmpty && viewModel.isProcessing == false)
+             Expanded( child: Padding(
               padding: const EdgeInsets.only(top: 20),
               child: Column(
                 children: [
@@ -141,23 +141,28 @@ Widget stepContent(CreateReplaceTexturesViewModel viewModel, BuildContext contex
                   Text("4. Run this flow again and present your extraction folder", style: textTheme.bodyMedium),
                   Text("5. We generate an OTR with the changed textures! 🚀", style: textTheme.bodyMedium),
                 ],
-              )),
-          if (viewModel.selectedFolderPath != null)
-            const Padding(
-              padding: EdgeInsets.only(top: 20),
-              child: Text("Content")),
-          const Spacer(),
-          ElevatedButton(
-            onPressed: viewModel.selectedOTRPath?.isEmpty == false ? () {
-              viewModel.processOTR();
-
-              // Navigator.of(context).popUntil(ModalRoute.withName("/create_selection"));
-            } : null,
-            style: ElevatedButton.styleFrom(minimumSize: Size(
-              MediaQuery.of(context).size.width * 0.5, 50)
-            ),
-            child: const Text('Process')
-          )
+              ))),
+          if (viewModel.processedFiles.isNotEmpty || viewModel.isProcessing)
+            Expanded(child: Padding(
+              padding: const EdgeInsets.only(top: 20),
+              child: viewModel.isProcessing
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                    itemCount: viewModel.processedFiles.length,
+                    prototypeItem: const SizedBox(width: 0, height: 20),
+                    itemBuilder: (context, index) {
+                      return Text(viewModel.processedFiles[index]);
+                    }))),
+          Padding(
+            padding: const EdgeInsets.only(top: 20.0),
+            child: ElevatedButton(
+              onPressed: viewModel.selectedOTRPath?.isEmpty == false && !viewModel.isProcessing && viewModel.processedFiles.isEmpty
+                ? viewModel.processOTR : null,
+              style: ElevatedButton.styleFrom(minimumSize: Size(
+                MediaQuery.of(context).size.width * 0.5, 50)
+              ),
+              child: Text(viewModel.isProcessing ? 'Processing...' : viewModel.processedFiles.isNotEmpty ? 'Extracted ${viewModel.processedFiles.length} Textures' : 'Process')
+            ))
         ],
       );
   }
