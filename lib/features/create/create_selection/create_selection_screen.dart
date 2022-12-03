@@ -27,8 +27,15 @@ class _CreateSelectionScreenState extends State<CreateSelectionScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   OptionCard(
+                      text: "Replace Textures (non-HD)",
+                      icon: Icons.texture,
+                      onTap: () {
+                        Navigator.of(context).pushNamed('/create_replace_textures');
+                      }),
+                  const SizedBox(width: 20),
+                  OptionCard(
                       text: "Custom Sequences",
-                      icon: Icons.playlist_add,
+                      icon: Icons.library_music,
                       onTap: () {
                         Navigator.of(context).pushNamed('/create_custom_sequences');
                       }),

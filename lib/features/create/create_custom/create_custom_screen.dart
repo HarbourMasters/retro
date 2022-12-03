@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:retro/features/create_custom/create_custom_viewmodel.dart';
-import 'package:retro/features/create_finish/create_finish_viewmodel.dart';
+import 'package:retro/features/create/create_custom/create_custom_viewmodel.dart';
+import 'package:retro/features/create/create_finish/create_finish_viewmodel.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
 
 class CreateCustomScreen extends StatefulWidget {
