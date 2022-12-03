@@ -82,6 +82,10 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
           fileFound = true;
       
           String? fileName = await SFileFindGetDataForDataPointer(findData);
+          if (fileName == null || fileName == "(signature)") {
+            continue;
+          }
+
           String? fileHandle = await SFileOpenFileEx(otrHandle, fileName!, 0);
           int? fileSize = await SFileGetFileSize(fileHandle!);
           Uint8List? fileData = await SFileReadFile(fileHandle, fileSize!);
