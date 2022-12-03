@@ -63,21 +63,17 @@ class _CreateCustomSequencesScreenState extends State<CreateCustomSequencesScree
                                 }))),
               if (!viewModel.isProcessing && viewModel.sequenceMetaPairs.isEmpty)
                 const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                  child:
-                    ElevatedButton(
-                      onPressed: viewModel.sequenceMetaPairs.isNotEmpty ? () {
-                        finishViewModel.onAddCustomSequenceEntry(viewModel.sequenceMetaPairs, 'custom/music');
-                        viewModel.resetState();
-                        Navigator.of(context).popUntil(ModalRoute.withName("/create_selection"));
-                      } : null,
-                      style: ElevatedButton.styleFrom(minimumSize: Size(
-                        MediaQuery.of(context).size.width * 0.5, 50)
-                      ),
-                      child: const Text('Stage Files')
-                    )
-                ),
+                ElevatedButton(
+                  onPressed: viewModel.sequenceMetaPairs.isNotEmpty ? () {
+                    finishViewModel.onAddCustomSequenceEntry(viewModel.sequenceMetaPairs, 'custom/music');
+                    viewModel.resetState();
+                    Navigator.of(context).popUntil(ModalRoute.withName("/create_selection"));
+                  } : null,
+                  style: ElevatedButton.styleFrom(minimumSize: Size(
+                    MediaQuery.of(context).size.width * 0.5, 50)
+                  ),
+                  child: const Text('Stage Files')
+                )
             ])
         ))
       );
