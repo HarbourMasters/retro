@@ -48,6 +48,7 @@ dependencies:
       ref: d440637bf709af171b97301badce8895b10b6b26
   tuple: ^2.0.1
   image: ^3.2.2
+  crypto: ^3.0.2
 
 flutter_icons:
   windows:

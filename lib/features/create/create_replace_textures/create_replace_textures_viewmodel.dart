@@ -1,6 +1,9 @@
+import 'dart:collection';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:crypto/crypto.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_storm/bridge/errors.dart';
@@ -15,14 +18,14 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
   String? selectedFolderPath;
   String? selectedOTRPath;
   bool isProcessing = false;
-  List<String> processedFiles = [];
+  HashMap<String, String> processedFiles = HashMap();
 
   reset() {
     currentStep = CreateReplacementTexturesStep.question;
     selectedFolderPath = null;
     selectedOTRPath = null;
     isProcessing = false;
-    processedFiles = [];
+    processedFiles = HashMap();
     notifyListeners();
   }
 
@@ -80,13 +83,12 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
 
       bool fileFound = false;
       isProcessing = true;
-      List<String> files = [];
+      HashMap<String, String> processedFiles = HashMap();
       notifyListeners();
 
-
       // if folder we'll export to exists, delete it
-      String otrNameWithoutExtension = selectedOTRPath!.split("/").last.split(".").first;
-      Directory dir = Directory("$selectedDirectory/$otrNameWithoutExtension");
+      String otrName = selectedOTRPath!.split("/").last.split(".").first;
+      Directory dir = Directory("$selectedDirectory/$otrName");
       if (dir.existsSync()) {
         dir.deleteSync(recursive: true);
       }
@@ -108,26 +110,34 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
           try {
             soh.Texture texture = soh.Texture.empty();
             texture.open(fileData!);
-            print("Found texture: $fileName! with type: ${texture.textureType}");
-            print("Width: ${texture.width} Height: ${texture.height}");
+            print("Found texture: $fileName! with type: ${texture.textureType} and size: ${texture.width}x${texture.height}");
 
-            // // Write to disk using the same path we found it in
-            String? filePath = "$selectedDirectory/$otrNameWithoutExtension/$fileName.png";
-            print("Writing to: $filePath");
+            // Write to disk using the same path we found it in
+            String? textureOutputPath = "$selectedDirectory/$otrName/$fileName.png";
+            File textureFile = File(textureOutputPath);
+            textureFile.createSync(recursive: true);
+            Uint8List pngBytes = texture.toPNGBytes();
+            textureFile.writeAsBytesSync(pngBytes);
 
-            File file = File(filePath);
-            file.createSync(recursive: true);
-            file.writeAsBytesSync(texture.toPNGBytes());
-            files.add(filePath);
+            // Track file path and hash
+            String fileHash = sha256.convert(fileData).toString();
+            processedFiles[fileName] = fileHash;
           } catch (e) { /* Not a texture */ }
         } on StormException catch (e) {
           fileFound = false;
         }
       } while (fileFound);
 
+      // Write out the processed files to disk
+      String? manifestOutputPath = "$selectedDirectory/$otrName/manifest.json";
+      File manifestFile = File(manifestOutputPath);
+      manifestFile.createSync(recursive: true);
+      String dataToWrite = jsonEncode(processedFiles);
+      manifestFile.writeAsStringSync(dataToWrite);
+
       SFileFindClose(hFind!);
       isProcessing = false;
-      processedFiles = files;
+      this.processedFiles = processedFiles;
       notifyListeners();
     } on StormException catch (e) {
       print("Failed to find next file: ${e.message}");

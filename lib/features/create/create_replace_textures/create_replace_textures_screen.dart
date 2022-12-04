@@ -148,10 +148,10 @@ Widget stepContent(CreateReplaceTexturesViewModel viewModel, BuildContext contex
               child: viewModel.isProcessing
                 ? const Center(child: CircularProgressIndicator())
                 : ListView.builder(
-                    itemCount: viewModel.processedFiles.length,
+                    itemCount: viewModel.processedFiles.keys.length,
                     prototypeItem: const SizedBox(width: 0, height: 20),
                     itemBuilder: (context, index) {
-                      return Text(viewModel.processedFiles[index]);
+                      return Text(viewModel.processedFiles.keys.elementAt(index));
                     }))),
           Padding(
             padding: const EdgeInsets.only(top: 20.0),
