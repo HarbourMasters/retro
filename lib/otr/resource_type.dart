@@ -28,6 +28,6 @@ enum ResourceType {
   final int value;
 
   static ResourceType fromValue(int value) {
-    return ResourceType.values.firstWhere((ResourceType type) => type.value == value);
+    return ResourceType.values.firstWhere((ResourceType type) => type.value == value, orElse: () => ResourceType.unknown);
   }
 }

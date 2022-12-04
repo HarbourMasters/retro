@@ -1,7 +1,6 @@
 // ignore_for_file: constant_identifier_names
 import 'dart:typed_data';
 
-import 'package:image/image.dart';
 import 'package:retro/otr/resource.dart';
 import 'package:retro/otr/resource_type.dart';
 import 'package:retro/otr/version.dart';
@@ -38,6 +37,8 @@ class Texture extends Resource {
   int width, height;
   int texDataSize;
   Uint8List texData;
+  Texture? tlut;
+  bool isPalette = false;
 
   Texture(this.textureType, this.width, this.height, this.texDataSize, this.texData) : super(ResourceType.texture, 0, Version.deckard);
 
@@ -59,6 +60,11 @@ class Texture extends Resource {
     height = readInt32();
     texDataSize = readInt32();
     texData = readBytes(texDataSize);
+    isPalette = textureType == TextureType.Palette4bpp || textureType == TextureType.Palette8bpp;
+  }
+
+  void setTLUT(Texture tlut) {
+    this.tlut = tlut;
   }
 
   void fromPNGImage(Uint8List png){
@@ -66,6 +72,6 @@ class Texture extends Resource {
   }
 
   Uint8List toPNGBytes(){
-    return convertN64ToPNG()!;
+    return convertN64ToPNG()?? Uint8List(0);
   }
 }

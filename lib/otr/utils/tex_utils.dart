@@ -157,8 +157,27 @@ extension N64Graphics on Texture {
         }
         break;
       case TextureType.Palette4bpp:
+        pngImage = Image.palette(width, height);
+        for (int y = 0; y < height; y++) {
+          for (int x = 0; x < width; x += 2) {
+            for (int i = 0; i < 2; i++) {
+              int pos = ((y * width) + x) ~/ 2;
+              int paletteIndex = i == 0 ? (texData[pos] & 0xF0) >> 4 : texData[pos] & 0x0F;
+              pngImage.setIndexedPixel(x + i, y, paletteIndex, paletteIndex * 16);
+            }
+          }
+        }
+        break;
       case TextureType.Palette8bpp:
-        throw Exception("Unsupported texture type: ${textureType.toString()}");
+        pngImage = Image.palette(width, height);
+        for (int y = 0; y < height; y++) {
+          for (int x = 0; x < width; x++) {
+            int pos = ((y * width) + x) * 1;
+            int grayscale = texData[pos];
+            pngImage.setIndexedPixel(x, y, grayscale, grayscale);
+          }
+        }
+        break;
       case TextureType.Grayscale4bpp:
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x += 2) {
@@ -216,6 +235,23 @@ extension N64Graphics on Texture {
       default:
         return null;
     }
+
+    if(isPalette && tlut != null){
+      Image pal = decodePng(tlut!.toPNGBytes())!;
+
+      for (int y = 0; y < pal.height; y++) {
+        for (int x = 0; x < pal.width; x++) {
+          int index = y * pal.width + x;
+          if (index >= 16 * 16) {
+            continue;
+          }
+
+          RGBAPixel pixel = pal.getRGBPixel(y, x);
+          pngImage.setPaletteIndex(index, pixel.r, pixel.g, pixel.b, pixel.a);
+        }
+      }
+    }
+
     return Uint8List.fromList(encodePng(pngImage).toList());
   }
 }
@@ -232,7 +268,6 @@ extension PixelUtils on Image {
   }
 
   int getIndexedPixel(int y, int x) {
-    int pixel = getPixel(x, y);
-    return getRed(pixel);
+    return getPixel(x, y);
   }
 }

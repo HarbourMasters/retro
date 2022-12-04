@@ -87,7 +87,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
       notifyListeners();
 
       // if folder we'll export to exists, delete it
-      String otrName = selectedOTRPath!.split("/").last.split(".").first;
+      String otrName = selectedOTRPath!.split(Platform.pathSeparator).last.split(".").first;
       Directory dir = Directory("$selectedDirectory/$otrName");
       if (dir.existsSync()) {
         dir.deleteSync(recursive: true);
@@ -110,6 +110,11 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
           try {
             soh.Texture texture = soh.Texture.empty();
             texture.open(fileData!);
+
+            if(!texture.isValid){
+              continue;
+            }
+
             print("Found texture: $fileName! with type: ${texture.textureType} and size: ${texture.width}x${texture.height}");
 
             // Write to disk using the same path we found it in

@@ -13,6 +13,7 @@ abstract class Resource {
   int magicID = 0xDEADBEEFDEADBEEF;
   Endianness endianness = Endianness.native;
   int _baseLength = 0;
+  bool isValid = false;
 
   Resource(this.resourceType, this.resourceVersion, this.gameVersion);
 
@@ -69,17 +70,27 @@ abstract class Resource {
   // Reader methods
 
   void _readHeader() {
+
+    if(buffer.length < 0x40) {
+      isValid = false;
+      return;
+    }
+
     endianness = Endianness.fromValue(readBinary());
+
+    if(endianness == Endianness.unknown) {
+      isValid = false;
+      return;
+    }
+
     for (int i = 0; i < 3; i++) {
       readInt8();
     }
 
-    ResourceType type = ResourceType.fromValue(readInt32());
-
-    if(type != resourceType) {
-      throw Exception('Resource type mismatch: expected $resourceType, got $type');
+    isValid = ResourceType.fromValue(readInt32()) == resourceType;
+    if(!isValid){
+      return;
     }
-
     gameVersion     = Version.fromValue(readInt32());
     magicID         = readInt64();
     resourceVersion = readInt32(); // Resource minor version number
@@ -95,7 +106,9 @@ abstract class Resource {
     buffer = data.toList();
     _baseLength = buffer.length;
     _readHeader();
-    readResourceData();
+    if(isValid) {
+      readResourceData();
+    }
   }
 
   void seek(int offset, { bool fromStart = false}) {
