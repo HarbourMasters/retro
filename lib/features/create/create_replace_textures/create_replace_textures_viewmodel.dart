@@ -71,7 +71,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
 
     // for each png, check if it's in the manifest
     for (FileSystemEntity pngFile in pngFiles) {
-      String pngPathRelativeToFolder = pngFile.path.split("${selectedFolderPath!}${Platform.pathSeparator}").last.split('.').first;
+      String pngPathRelativeToFolder = pngFile.path.split("${selectedFolderPath!}${Platform.pathSeparator}").last.split('.').first.replaceAll("\\", "/");
       if (manifest.containsKey(pngPathRelativeToFolder)) {
         TextureManifestEntry manifestEntry = TextureManifestEntry.fromJson(manifest[pngPathRelativeToFolder]);
         // if it is, check if the file has changed
