@@ -21,3 +21,11 @@ class CustomSequencesEntry extends StageEntry {
   @override
   List<File> get iterables => pairs.map((e) => e.item1).toList();
 }
+
+class CustomTexturesEntry extends StageEntry {
+  final List<File> files;
+  CustomTexturesEntry(this.files);
+
+  @override
+  List<File> get iterables => files;
+}

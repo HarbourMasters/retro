@@ -14,11 +14,12 @@ import 'package:retro/otr/types/texture.dart' as soh;
 enum CreateReplacementTexturesStep { question, selectFolder, selectOTR }
 
 class CreateReplaceTexturesViewModel extends ChangeNotifier {
-  CreateReplacementTexturesStep currentStep = CreateReplacementTexturesStep.question;
+  CreateReplacementTexturesStep currentStep =
+      CreateReplacementTexturesStep.question;
   String? selectedFolderPath;
   String? selectedOTRPath;
   bool isProcessing = false;
-  HashMap<String, String> processedFiles = HashMap();
+  HashMap<String, dynamic> processedFiles = HashMap();
 
   reset() {
     currentStep = CreateReplacementTexturesStep.question;
@@ -40,6 +41,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     if (selectedDirectory != null) {
       selectedFolderPath = selectedDirectory;
       notifyListeners();
+      processFolder();
     }
   }
 
@@ -47,7 +49,48 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     isProcessing = true;
     notifyListeners();
 
-    // TODO: Walk folder check if file has changed and send to creation view model.
+    HashMap<String, List<File>> processedFiles = HashMap();
+
+    // search for and load manifest.json
+    String manifestPath = "$selectedFolderPath/manifest.json";
+    File manifestFile = File(manifestPath);
+    if (!manifestFile.existsSync()) {
+      // TODO: Handle this error
+      return;
+    }
+
+    String manifestContents = await manifestFile.readAsString();
+    Map<String, dynamic> manifest = jsonDecode(manifestContents);
+
+    // find all pngs in folder
+    List<FileSystemEntity> files = Directory(selectedFolderPath!).listSync(recursive: true);
+    List<FileSystemEntity> pngFiles = files.where((file) => file.path.endsWith('.png')).toList();
+
+    // for each png, check if it's in the manifest
+    for (FileSystemEntity pngFile in pngFiles) {
+      String pngPathRelativeToFolder = pngFile.path.split("${selectedFolderPath!}${Platform.pathSeparator}").last.split('.').first;
+      if (manifest.containsKey(pngPathRelativeToFolder)) {
+        // if it is, check if the file has changed
+        String pngFileHash = sha256.convert(await (pngFile as File).readAsBytes()).toString();
+        if (manifest[pngPathRelativeToFolder] != pngFileHash) {
+          // if it has, add it to the processed files list
+          print("Found file with changed hash: $pngPathRelativeToFolder");
+
+          String pathWithoutFilename = pngFile.path.split(Platform.pathSeparator).sublist(0, pngFile.path.split(Platform.pathSeparator).length - 1).join("/");
+          if(processedFiles.containsKey(pathWithoutFilename)){
+            processedFiles[pathWithoutFilename]!.add(pngFile);
+          } else {
+            processedFiles[pathWithoutFilename] = [pngFile];
+          }
+        }
+      } else {
+        print("Found file not present in manifest: $pngPathRelativeToFolder");
+      }
+    }
+
+    isProcessing = false;
+    this.processedFiles = processedFiles;
+    notifyListeners();
   }
 
   onSelectOTR() async {
@@ -77,7 +120,8 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     }
 
     try {
-      String? otrHandle = await SFileOpenArchive(selectedOTRPath!, MPQ_OPEN_READ_ONLY);
+      String? otrHandle =
+          await SFileOpenArchive(selectedOTRPath!, MPQ_OPEN_READ_ONLY);
       String? findData = await SFileFindCreateDataPointer();
       String? hFind = await SFileFindFirstFile(otrHandle!, "*", findData!);
 
@@ -103,7 +147,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
             continue;
           }
 
-          String? fileHandle = await SFileOpenFileEx(otrHandle, fileName!, 0);
+          String? fileHandle = await SFileOpenFileEx(otrHandle, fileName, 0);
           int? fileSize = await SFileGetFileSize(fileHandle!);
           Uint8List? fileData = await SFileReadFile(fileHandle, fileSize!);
 
@@ -118,17 +162,22 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
             print("Found texture: $fileName! with type: ${texture.textureType} and size: ${texture.width}x${texture.height}");
 
             // Write to disk using the same path we found it in
-            String? textureOutputPath = "$selectedDirectory/$otrName/$fileName.png";
+            String? textureOutputPath =
+                "$selectedDirectory/$otrName/$fileName.png";
             File textureFile = File(textureOutputPath);
             textureFile.createSync(recursive: true);
             Uint8List pngBytes = texture.toPNGBytes();
             textureFile.writeAsBytesSync(pngBytes);
 
             // Track file path and hash
-            String fileHash = sha256.convert(fileData).toString();
+            String fileHash = sha256.convert(textureFile.readAsBytesSync()).toString();
             processedFiles[fileName] = fileHash;
-          } catch (e) { /* Not a texture */ }
+          } catch (e) {/* Not a texture */}
         } on StormException catch (e) {
+          print("Got a StormLib error: ${e.message}");
+          fileFound = false;
+        } on Exception catch (e) {
+          print("Got an error: $e");
           fileFound = false;
         }
       } while (fileFound);
@@ -147,7 +196,5 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     } on StormException catch (e) {
       print("Failed to find next file: ${e.message}");
     }
-
-    // TOOD: Walk OTR and write PNs to disk at right pa
   }
 }

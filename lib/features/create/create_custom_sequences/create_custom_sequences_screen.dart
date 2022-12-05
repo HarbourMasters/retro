@@ -26,7 +26,7 @@ class _CreateCustomSequencesScreenState extends State<CreateCustomSequencesScree
         title: 'Add Custom Sequences',
         subtitle: 'Select a folder with sequences and meta files',
         onBackButtonPressed: () {
-          viewModel.resetState();
+          viewModel.reset();
           Navigator.of(context).pop();
         },
         content: Expanded(
@@ -66,7 +66,7 @@ class _CreateCustomSequencesScreenState extends State<CreateCustomSequencesScree
                 ElevatedButton(
                   onPressed: viewModel.sequenceMetaPairs.isNotEmpty ? () {
                     finishViewModel.onAddCustomSequenceEntry(viewModel.sequenceMetaPairs, 'custom/music');
-                    viewModel.resetState();
+                    viewModel.reset();
                     Navigator.of(context).popUntil(ModalRoute.withName("/create_selection"));
                   } : null,
                   style: ElevatedButton.styleFrom(minimumSize: Size(

@@ -9,7 +9,7 @@ class InspectOTRViewModel extends ChangeNotifier {
   List<String> filesInOTR = [];
   bool isProcessing = false;
 
-  resetState() {
+  reset() {
     selectedOTRPath = null;
     filesInOTR = [];
     isProcessing = false;

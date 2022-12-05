@@ -11,6 +11,7 @@ import 'package:retro/otr/types/sequence.dart';
 import 'package:retro/models/app_state.dart';
 import 'package:retro/models/stage_entry.dart';
 import 'package:tuple/tuple.dart';
+import 'package:retro/otr/types/texture.dart' as soh;
 
 class CreateFinishViewModel with ChangeNotifier {
   AppState currentState = AppState.none;
@@ -33,7 +34,7 @@ class CreateFinishViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  void resetState() {
+  void reset() {
     currentState = AppState.none;
     entries.clear();
     notifyListeners();
@@ -60,6 +61,22 @@ class CreateFinishViewModel with ChangeNotifier {
       throw Exception("Cannot add custom sequence entry to existing entry");
     } else {
       entries[path] = CustomSequencesEntry(pairs);
+    }
+
+    currentState = AppState.changesStaged;
+    notifyListeners();
+  }
+
+  onAddCustomTextureEntry(HashMap<String, List<File>> replacementMap) {
+    for (var entry in replacementMap.entries) {
+      if (entries.containsKey(entry.key) &&
+          entries[entry.key] is CustomTexturesEntry) {
+        (entries[entry.key] as CustomTexturesEntry).files.addAll(entry.value);
+      } else if (entries.containsKey(entry.key)) {
+        throw Exception("Cannot add custom texture entry to existing entry");
+      } else {
+        entries[entry.key] = CustomTexturesEntry(entry.value);
+      }
     }
 
     currentState = AppState.changesStaged;
@@ -104,7 +121,8 @@ class CreateFinishViewModel with ChangeNotifier {
     }
 
     try {
-      String? mpqHandle = await SFileCreateArchive(outputFile, MPQ_CREATE_SIGNATURE | MPQ_CREATE_ARCHIVE_V4, 1024);
+      String? mpqHandle = await SFileCreateArchive(
+          outputFile, MPQ_CREATE_SIGNATURE | MPQ_CREATE_ARCHIVE_V4, 1024);
 
       isGenerating = true;
       notifyListeners();
@@ -112,11 +130,9 @@ class CreateFinishViewModel with ChangeNotifier {
       for (var entry in entries.entries) {
         if (entry.value is CustomStageEntry) {
           for (var file in (entry.value as CustomStageEntry).files) {
-            String fileName = "${entry.key}/${file.path.split('/').last}";
-            String? fileHandle = await SFileCreateFile(
-                mpqHandle!, fileName, file.lengthSync(), MPQ_FILE_COMPRESS);
-            await SFileWriteFile(fileHandle!, file.readAsBytesSync(),
-                file.lengthSync(), MPQ_COMPRESSION_ZLIB);
+            String fileName = "${entry.key}/${file.path.split(Platform.pathSeparator).last}";
+            String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, file.lengthSync(), MPQ_FILE_COMPRESS);
+            await SFileWriteFile(fileHandle!, file.readAsBytesSync(), file.lengthSync(), MPQ_COMPRESSION_ZLIB);
             await SFileFinishFile(fileHandle);
           }
         } else if (entry.value is CustomSequencesEntry) {
@@ -125,10 +141,24 @@ class CreateFinishViewModel with ChangeNotifier {
             String fileName = "${entry.key}/${sequence.path}";
             Uint8List data = sequence.build();
 
-            String? fileHandle = await SFileCreateFile(
-                mpqHandle!, fileName, data.length, MPQ_FILE_COMPRESS);
-            await SFileWriteFile(
-                fileHandle!, data, data.length, MPQ_COMPRESSION_ZLIB);
+            String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, data.length, MPQ_FILE_COMPRESS);
+            await SFileWriteFile(fileHandle!, data, data.length, MPQ_COMPRESSION_ZLIB);
+            await SFileFinishFile(fileHandle);
+          }
+        } else if (entry.value is CustomTexturesEntry) {
+          for (var file in (entry.value as CustomTexturesEntry).files) {
+            soh.Texture texture = soh.Texture.empty();
+            texture.fromPNGImage(file.readAsBytesSync());
+            Uint8List data = texture.build();
+
+            if (texture.width > 256 || texture.height > 256) {
+              print("Texture ${file.path} is too large. Maximum dimensions are 256x256. Skipping.");
+              continue;
+            }
+
+            String fileName = "${entry.key}/${file.path.split(Platform.pathSeparator).last}";
+            String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, data.length, MPQ_FILE_COMPRESS);
+            await SFileWriteFile(fileHandle!, data, data.length, MPQ_COMPRESSION_ZLIB);
             await SFileFinishFile(fileHandle);
           }
         }
@@ -138,7 +168,7 @@ class CreateFinishViewModel with ChangeNotifier {
       isGenerating = false;
       notifyListeners();
 
-      resetState();
+      reset();
       onCompletion();
     } on StormException catch (e) {
       print(e);

@@ -9,7 +9,7 @@ class CreateCustomSequencesViewModel extends ChangeNotifier {
   List<Tuple2<File, File>> sequenceMetaPairs = [];
   bool isProcessing = false;
 
-  resetState() {
+  reset() {
     selectedFolderPath = null;
     sequenceMetaPairs = [];
     isProcessing = false;
@@ -38,10 +38,10 @@ class CreateCustomSequencesViewModel extends ChangeNotifier {
 
     List<Tuple2<File, File>> sequenceMetaPairs = [];
     for (FileSystemEntity sequenceFile in sequenceFiles) {
-      String sequenceFileName = sequenceFile.path.split('/').last;
+      String sequenceFileName = sequenceFile.path.split(Platform.pathSeparator).last;
       String sequenceFileNameWithoutExtension = sequenceFileName.split('.').first;
       for (FileSystemEntity metaFile in metaFiles) {
-        String metaFileName = metaFile.path.split('/').last;
+        String metaFileName = metaFile.path.split(Platform.pathSeparator).last;
         String metaFileNameWithoutExtension = metaFileName.split('.').first;
         if (sequenceFileNameWithoutExtension == metaFileNameWithoutExtension) {
           sequenceMetaPairs.add(Tuple2(sequenceFile as File, metaFile as File));

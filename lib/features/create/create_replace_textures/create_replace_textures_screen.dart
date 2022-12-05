@@ -1,6 +1,10 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:retro/features/create/create_finish/create_finish_viewmodel.dart';
 import 'package:retro/features/create/create_replace_textures/create_replace_textures_viewmodel.dart';
+import 'package:retro/otr/utils/language_ext.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
 
 class CreateReplaceTexturesScreen extends StatefulWidget {
@@ -14,8 +18,8 @@ class CreateReplaceTexturesScreen extends StatefulWidget {
 class _CreateReplaceTexturesScreenState extends State<CreateReplaceTexturesScreen> {
   @override
   Widget build(BuildContext context) {
-    final CreateReplaceTexturesViewModel viewModel =
-        Provider.of<CreateReplaceTexturesViewModel>(context);
+    final CreateReplaceTexturesViewModel viewModel = Provider.of<CreateReplaceTexturesViewModel>(context);
+    final CreateFinishViewModel finishViewModel = Provider.of<CreateFinishViewModel>(context);
 
     return CustomScaffold(
       title: "Replace Textures",
@@ -27,13 +31,13 @@ class _CreateReplaceTexturesScreenState extends State<CreateReplaceTexturesScree
       content: Expanded(
         child: Padding(
             padding: const EdgeInsets.all(20),
-            child: stepContent(viewModel, context))
+            child: stepContent(viewModel, finishViewModel, context))
       )
     );
   }
 }
 
-Widget stepContent(CreateReplaceTexturesViewModel viewModel, BuildContext context) {
+Widget stepContent(CreateReplaceTexturesViewModel viewModel, CreateFinishViewModel finishViewModel, BuildContext context) {
   final ThemeData theme = Theme.of(context);
   final TextTheme textTheme = theme.textTheme;
 
@@ -92,20 +96,33 @@ Widget stepContent(CreateReplaceTexturesViewModel viewModel, BuildContext contex
                 style: ElevatedButton.styleFrom(minimumSize: const Size(100, 50)),
                 child: const Text("Select"))
           ]),
-          if (viewModel.selectedFolderPath != null)
-            const Text("Content"),
-          const Spacer(),
-          ElevatedButton(
-            onPressed: viewModel.selectedFolderPath?.isEmpty == false ? () {
-              viewModel.processFolder();
-
-              // Navigator.of(context).popUntil(ModalRoute.withName("/create_selection"));
-            } : null,
-            style: ElevatedButton.styleFrom(minimumSize: Size(
-              MediaQuery.of(context).size.width * 0.5, 50)
-            ),
-            child: const Text('Process')
-          )
+          if (viewModel.processedFiles.isEmpty && viewModel.isProcessing == false)
+            const Spacer(),
+          if (viewModel.processedFiles.isNotEmpty || viewModel.isProcessing)
+            Expanded(child: Padding(
+              padding: const EdgeInsets.only(top: 20),
+              child: viewModel.isProcessing
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                    itemCount: viewModel.processedFiles.keys.length,
+                    prototypeItem: const SizedBox(width: 0, height: 20),
+                    itemBuilder: (context, index) {
+                      String key = viewModel.processedFiles.keys.elementAt(index);
+                      return Text("$key (${viewModel.processedFiles[key]?.length ?? 0})");
+                    }))),
+          Padding(
+            padding: const EdgeInsets.only(top: 20.0),
+            child: ElevatedButton(
+              onPressed: viewModel.processedFiles.isNotEmpty ? () {
+                finishViewModel.onAddCustomTextureEntry(cast(viewModel.processedFiles));
+                viewModel.reset();
+                Navigator.of(context).popUntil(ModalRoute.withName("/create_selection"));
+              } : null,
+              style: ElevatedButton.styleFrom(minimumSize: Size(
+                MediaQuery.of(context).size.width * 0.5, 50)
+              ),
+              child: const Text('Stage Textures')
+            ))
         ],
       );
     case CreateReplacementTexturesStep.selectOTR:
