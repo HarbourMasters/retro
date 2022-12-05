@@ -91,6 +91,10 @@ class CreateFinishViewModel with ChangeNotifier {
         entries[path] is CustomSequencesEntry) {
       (entries[path] as CustomSequencesEntry).pairs.removeWhere((pair) =>
           pair.item1.path == file.path || pair.item2.path == file.path);
+    } else if (entries.containsKey(path) &&
+        entries[path] is CustomTexturesEntry) {
+      (entries[path] as CustomTexturesEntry).pairs.removeWhere((pair) =>
+          pair.item1.path == file.path);
     } else {
       throw Exception("Cannot remove file from non-existent entry");
     }
@@ -131,7 +135,7 @@ class CreateFinishViewModel with ChangeNotifier {
       for (var entry in entries.entries) {
         if (entry.value is CustomStageEntry) {
           for (var file in (entry.value as CustomStageEntry).files) {
-            String fileName = "${entry.key}/${file.path.split(Platform.pathSeparator).last}";
+            String fileName = "${entry.key}/${file.path.split("/").last}";
             String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, file.lengthSync(), MPQ_FILE_COMPRESS);
             await SFileWriteFile(fileHandle!, file.readAsBytesSync(), file.lengthSync(), MPQ_COMPRESSION_ZLIB);
             await SFileFinishFile(fileHandle);
@@ -158,7 +162,7 @@ class CreateFinishViewModel with ChangeNotifier {
               continue;
             }
 
-            String fileName = "${entry.key}/${pair.item1.path.split(Platform.pathSeparator).last}";
+            String fileName = "${entry.key}/${pair.item1.path.split("/").last.split(".").first}";
             String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, data.length, MPQ_FILE_COMPRESS);
             await SFileWriteFile(fileHandle!, data, data.length, MPQ_COMPRESSION_ZLIB);
             await SFileFinishFile(fileHandle);

@@ -7,7 +7,6 @@ import 'package:retro/features/create/create_replace_textures/components/folder_
 import 'package:retro/features/create/create_replace_textures/components/otr_content_view.dart';
 import 'package:retro/features/create/create_replace_textures/components/question_content_view.dart';
 import 'package:retro/features/create/create_replace_textures/create_replace_textures_viewmodel.dart';
-import 'package:retro/otr/utils/language_ext.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
 
 class CreateReplaceTexturesScreen extends StatefulWidget {

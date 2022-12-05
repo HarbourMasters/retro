@@ -20,6 +20,7 @@ enum TextureType {
 
   final int value;
   final double pixelMultiplier;
+  int get bitSize => (8 * pixelMultiplier).round();
   const TextureType(this.value, this.pixelMultiplier);
 
   int getBufferSize(int width, int height) {
@@ -73,5 +74,13 @@ class Texture extends Resource {
 
   Uint8List toPNGBytes(){
     return convertN64ToPNG()?? Uint8List(0);
+  }
+
+  int getTMEMSize(){
+    return (width / (64 / textureType.bitSize)).ceil() * height;
+  }
+
+  int getMaxTMEMSize(){
+    return isPalette ? 2048 : 4096;
   }
 }

@@ -13,6 +13,7 @@ import 'package:retro/models/texture_manifest_entry.dart';
 import 'package:retro/otr/types/texture.dart' as soh;
 import 'package:retro/otr/types/texture.dart';
 import 'package:tuple/tuple.dart';
+import 'package:retro/otr/utils/path.dart' as p;
 
 enum CreateReplacementTexturesStep { question, selectFolder, selectOTR }
 
@@ -42,7 +43,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
 
     if (selectedDirectory != null) {
-      selectedFolderPath = selectedDirectory;
+      selectedFolderPath = p.normalize(selectedDirectory);
       notifyListeners();
       processFolder();
     }
@@ -55,7 +56,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     HashMap<String, List<Tuple2<File, TextureType>>> processedFiles = HashMap();
 
     // search for and load manifest.json
-    String manifestPath = "$selectedFolderPath/manifest.json";
+    String manifestPath = p.normalize("$selectedFolderPath/manifest.json");
     File manifestFile = File(manifestPath);
     if (!manifestFile.existsSync()) {
       // TODO: Handle this error
@@ -70,17 +71,18 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     List<FileSystemEntity> pngFiles = files.where((file) => file.path.endsWith('.png')).toList();
 
     // for each png, check if it's in the manifest
-    for (FileSystemEntity pngFile in pngFiles) {
-      String pngPathRelativeToFolder = pngFile.path.split("${selectedFolderPath!}${Platform.pathSeparator}").last.split('.').first.replaceAll("\\", "/");
+    for (FileSystemEntity rawFile in pngFiles) {
+      File pngFile = File(p.normalize(rawFile.path));
+      String pngPathRelativeToFolder = p.normalize(pngFile.path.split("${selectedFolderPath!}/").last.split('.').first);
       if (manifest.containsKey(pngPathRelativeToFolder)) {
         TextureManifestEntry manifestEntry = TextureManifestEntry.fromJson(manifest[pngPathRelativeToFolder]);
         // if it is, check if the file has changed
-        String pngFileHash = sha256.convert((pngFile as File).readAsBytesSync()).toString();
+        String pngFileHash = sha256.convert((pngFile).readAsBytesSync()).toString();
         if (manifestEntry.hash != pngFileHash) {
           // if it has, add it to the processed files list
           print("Found file with changed hash: $pngPathRelativeToFolder");
 
-          String pathWithoutFilename = pngFile.path.split(Platform.pathSeparator).sublist(0, pngFile.path.split(Platform.pathSeparator).length - 1).join("/");
+          String pathWithoutFilename = p.normalize(pngPathRelativeToFolder.split("/").sublist(0, pngPathRelativeToFolder.split("/").length - 1).join("/"));
           if(processedFiles.containsKey(pathWithoutFilename)){
             processedFiles[pathWithoutFilename]!.add(Tuple2(pngFile, manifestEntry.textureType));
           } else {
