@@ -39,7 +39,7 @@ Widget FolderContent(
                 prototypeItem: const SizedBox(width: 0, height: 20),
                 itemBuilder: (context, index) {
                   String key = viewModel.processedFiles.keys.elementAt(index);
-                  return Text("$key (${viewModel.processedFiles[key]?.length ?? 0})");
+                  return Text("$key (${viewModel.processedFiles[key]?.length ?? 0} tex)");
                 }))),
       Padding(
         padding: const EdgeInsets.only(top: 20.0),
