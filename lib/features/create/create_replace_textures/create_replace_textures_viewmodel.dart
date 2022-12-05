@@ -9,7 +9,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_storm/bridge/errors.dart';
 import 'package:flutter_storm/bridge/flags.dart';
 import 'package:flutter_storm/flutter_storm.dart';
+import 'package:retro/models/texture_manifest_entry.dart';
 import 'package:retro/otr/types/texture.dart' as soh;
+import 'package:retro/otr/types/texture.dart';
+import 'package:tuple/tuple.dart';
 
 enum CreateReplacementTexturesStep { question, selectFolder, selectOTR }
 
@@ -49,7 +52,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     isProcessing = true;
     notifyListeners();
 
-    HashMap<String, List<File>> processedFiles = HashMap();
+    HashMap<String, List<Tuple2<File, TextureType>>> processedFiles = HashMap();
 
     // search for and load manifest.json
     String manifestPath = "$selectedFolderPath/manifest.json";
@@ -70,17 +73,18 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     for (FileSystemEntity pngFile in pngFiles) {
       String pngPathRelativeToFolder = pngFile.path.split("${selectedFolderPath!}${Platform.pathSeparator}").last.split('.').first;
       if (manifest.containsKey(pngPathRelativeToFolder)) {
+        TextureManifestEntry manifestEntry = TextureManifestEntry.fromJson(manifest[pngPathRelativeToFolder]);
         // if it is, check if the file has changed
-        String pngFileHash = sha256.convert(await (pngFile as File).readAsBytes()).toString();
-        if (manifest[pngPathRelativeToFolder] != pngFileHash) {
+        String pngFileHash = sha256.convert((pngFile as File).readAsBytesSync()).toString();
+        if (manifestEntry.hash != pngFileHash) {
           // if it has, add it to the processed files list
           print("Found file with changed hash: $pngPathRelativeToFolder");
 
           String pathWithoutFilename = pngFile.path.split(Platform.pathSeparator).sublist(0, pngFile.path.split(Platform.pathSeparator).length - 1).join("/");
           if(processedFiles.containsKey(pathWithoutFilename)){
-            processedFiles[pathWithoutFilename]!.add(pngFile);
+            processedFiles[pathWithoutFilename]!.add(Tuple2(pngFile, manifestEntry.textureType));
           } else {
-            processedFiles[pathWithoutFilename] = [pngFile];
+            processedFiles[pathWithoutFilename] = [Tuple2(pngFile, manifestEntry.textureType)];
           }
         }
       } else {
@@ -127,7 +131,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
 
       bool fileFound = false;
       isProcessing = true;
-      HashMap<String, String> processedFiles = HashMap();
+      HashMap<String, TextureManifestEntry> processedFiles = HashMap();
       notifyListeners();
 
       // if folder we'll export to exists, delete it
@@ -162,8 +166,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
             print("Found texture: $fileName! with type: ${texture.textureType} and size: ${texture.width}x${texture.height}");
 
             // Write to disk using the same path we found it in
-            String? textureOutputPath =
-                "$selectedDirectory/$otrName/$fileName.png";
+            String? textureOutputPath = "$selectedDirectory/$otrName/$fileName.png";
             File textureFile = File(textureOutputPath);
             textureFile.createSync(recursive: true);
             Uint8List pngBytes = texture.toPNGBytes();
@@ -171,7 +174,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
 
             // Track file path and hash
             String fileHash = sha256.convert(textureFile.readAsBytesSync()).toString();
-            processedFiles[fileName] = fileHash;
+            processedFiles[fileName] = TextureManifestEntry(fileHash, texture.textureType);
           } catch (e) {/* Not a texture */}
         } on StormException catch (e) {
           print("Got a StormLib error: ${e.message}");

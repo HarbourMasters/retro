@@ -10,6 +10,7 @@ import 'package:flutter_storm/bridge/flags.dart';
 import 'package:retro/otr/types/sequence.dart';
 import 'package:retro/models/app_state.dart';
 import 'package:retro/models/stage_entry.dart';
+import 'package:retro/otr/types/texture.dart';
 import 'package:tuple/tuple.dart';
 import 'package:retro/otr/types/texture.dart' as soh;
 
@@ -67,11 +68,11 @@ class CreateFinishViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  onAddCustomTextureEntry(HashMap<String, List<File>> replacementMap) {
+  onAddCustomTextureEntry(HashMap<String, List<Tuple2<File, TextureType>>> replacementMap) {
     for (var entry in replacementMap.entries) {
       if (entries.containsKey(entry.key) &&
           entries[entry.key] is CustomTexturesEntry) {
-        (entries[entry.key] as CustomTexturesEntry).files.addAll(entry.value);
+        (entries[entry.key] as CustomTexturesEntry).pairs.addAll(entry.value);
       } else if (entries.containsKey(entry.key)) {
         throw Exception("Cannot add custom texture entry to existing entry");
       } else {
@@ -146,17 +147,18 @@ class CreateFinishViewModel with ChangeNotifier {
             await SFileFinishFile(fileHandle);
           }
         } else if (entry.value is CustomTexturesEntry) {
-          for (var file in (entry.value as CustomTexturesEntry).files) {
+          for (var pair in (entry.value as CustomTexturesEntry).pairs) {
             soh.Texture texture = soh.Texture.empty();
-            texture.fromPNGImage(file.readAsBytesSync());
+            texture.textureType = pair.item2;
+            texture.fromPNGImage(pair.item1.readAsBytesSync());
             Uint8List data = texture.build();
 
             if (texture.width > 256 || texture.height > 256) {
-              print("Texture ${file.path} is too large. Maximum dimensions are 256x256. Skipping.");
+              print("Texture ${pair.item1.path} is too large. Maximum dimensions are 256x256. Skipping.");
               continue;
             }
 
-            String fileName = "${entry.key}/${file.path.split(Platform.pathSeparator).last}";
+            String fileName = "${entry.key}/${pair.item1.path.split(Platform.pathSeparator).last}";
             String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, data.length, MPQ_FILE_COMPRESS);
             await SFileWriteFile(fileHandle!, data, data.length, MPQ_COMPRESSION_ZLIB);
             await SFileFinishFile(fileHandle);
