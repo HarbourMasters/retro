@@ -37,21 +37,27 @@ class InspectOTRViewModel extends ChangeNotifier {
     }
 
     try {
-      String? otrHandle = await SFileOpenArchive(selectedOTRPath!, MPQ_OPEN_READ_ONLY);
-      String? findData = await SFileFindCreateDataPointer();
-      String? hFind = await SFileFindFirstFile(otrHandle!, "*", findData!);
-
       bool fileFound = false;
       List<String> files = [];
       isProcessing = true;
       notifyListeners();
+      
+      String? otrHandle = await SFileOpenArchive(selectedOTRPath!, MPQ_OPEN_READ_ONLY);
+      String? findData = await SFileFindCreateDataPointer();
+      String? hFind = await SFileFindFirstFile(otrHandle!, "*", findData!);
+
+      String? fileName = await SFileFindGetDataForDataPointer(findData);
+      if (fileName != null && fileName != "(signature)" && fileName != "(listfile)" && fileName != "(attributes)") {
+        files.add(fileName);
+      }
 
       do {
         try {
           await SFileFindNextFile(hFind!, findData);
           fileFound = true;
           String? fileName = await SFileFindGetDataForDataPointer(findData);
-          if (fileName != null && fileName != "(signature)") {
+          print("File name: $fileName");
+          if (fileName != null && fileName != "(signature)" && fileName != "(listfile)" && fileName != "(attributes)") {
             files.add(fileName);
           }
         } on StormException catch (e) {

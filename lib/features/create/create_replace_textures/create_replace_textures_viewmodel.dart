@@ -126,15 +126,16 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     }
 
     try {
+      bool fileFound = false;
+      isProcessing = true;
+      HashMap<String, TextureManifestEntry> processedFiles = HashMap();
+      
+      notifyListeners();
+
       String? otrHandle =
           await SFileOpenArchive(selectedOTRPath!, MPQ_OPEN_READ_ONLY);
       String? findData = await SFileFindCreateDataPointer();
       String? hFind = await SFileFindFirstFile(otrHandle!, "*", findData!);
-
-      bool fileFound = false;
-      isProcessing = true;
-      HashMap<String, TextureManifestEntry> processedFiles = HashMap();
-      notifyListeners();
 
       // if folder we'll export to exists, delete it
       String otrName = selectedOTRPath!.split(Platform.pathSeparator).last.split(".").first;
@@ -143,41 +144,29 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
         dir.deleteSync(recursive: true);
       }
 
+      // process first file
+      String? fileName = await SFileFindGetDataForDataPointer(findData);
+      await processFile(fileName!, otrHandle, "$selectedDirectory/$otrName/$fileName.png", (TextureManifestEntry entry) {
+        processedFiles[fileName] = entry;
+      });
+
       do {
         try {
           await SFileFindNextFile(hFind!, findData);
           fileFound = true;
 
           String? fileName = await SFileFindGetDataForDataPointer(findData);
-          if (fileName == null || fileName == "(signature)") {
+          if (fileName == null || fileName == "(signature)" || fileName == "(listfile)" || fileName == "(attributes)") {
             continue;
           }
 
-          String? fileHandle = await SFileOpenFileEx(otrHandle, fileName, 0);
-          int? fileSize = await SFileGetFileSize(fileHandle!);
-          Uint8List? fileData = await SFileReadFile(fileHandle, fileSize!);
+          bool processed = await processFile(fileName, otrHandle, "$selectedDirectory/$otrName/$fileName.png", (TextureManifestEntry entry) {
+            processedFiles[fileName] = entry;
+          });
 
-          try {
-            soh.Texture texture = soh.Texture.empty();
-            texture.open(fileData!);
-
-            if(!texture.isValid){
-              continue;
-            }
-
-            print("Found texture: $fileName! with type: ${texture.textureType} and size: ${texture.width}x${texture.height}");
-
-            // Write to disk using the same path we found it in
-            String? textureOutputPath = "$selectedDirectory/$otrName/$fileName.png";
-            File textureFile = File(textureOutputPath);
-            textureFile.createSync(recursive: true);
-            Uint8List pngBytes = texture.toPNGBytes();
-            textureFile.writeAsBytesSync(pngBytes);
-
-            // Track file path and hash
-            String fileHash = sha256.convert(textureFile.readAsBytesSync()).toString();
-            processedFiles[fileName] = TextureManifestEntry(fileHash, texture.textureType);
-          } catch (e) {/* Not a texture */}
+          if (!processed) {
+            continue;
+          }          
         } on StormException catch (e) {
           print("Got a StormLib error: ${e.message}");
           fileFound = false;
@@ -201,5 +190,41 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     } on StormException catch (e) {
       print("Failed to find next file: ${e.message}");
     }
+  }
+}
+
+Future<bool> processFile(
+  String fileName,
+  String otrHandle,
+  String outputPath,
+  Function onProcessed 
+) async {
+  String? fileHandle = await SFileOpenFileEx(otrHandle, fileName, 0);
+  int? fileSize = await SFileGetFileSize(fileHandle!);
+  Uint8List? fileData = await SFileReadFile(fileHandle, fileSize!);
+
+  try {
+    soh.Texture texture = soh.Texture.empty();
+    texture.open(fileData!);
+
+    if(!texture.isValid){
+      return false;
+    }
+
+    print("Found texture: $fileName! with type: ${texture.textureType} and size: ${texture.width}x${texture.height}");
+
+    // Write to disk using the same path we found it in
+    File textureFile = File(outputPath);
+    textureFile.createSync(recursive: true);
+    Uint8List pngBytes = texture.toPNGBytes();
+    textureFile.writeAsBytesSync(pngBytes);
+
+    // Track file path and hash
+    String fileHash = sha256.convert(textureFile.readAsBytesSync()).toString();
+    onProcessed(TextureManifestEntry(fileHash, texture.textureType));
+    return true;
+  } catch (e) {
+    // Not a texture
+    return false;
   }
 }
