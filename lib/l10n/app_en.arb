@@ -1,0 +1,10 @@
+{
+    "appTitle": "Retro",
+    "@appTitle": {
+      "description": "The title of the tool"
+    },
+    "home_createOption": "Create OTR",
+    "@home_createOption": {
+        "description": "The text for the option to create a new OTR"
+    }
+}

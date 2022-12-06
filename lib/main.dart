@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:window_size/window_size.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:retro/features/create/create_custom/create_custom_screen.dart';
 import 'package:retro/features/create/create_custom/create_custom_viewmodel.dart';
 import 'package:retro/features/create/create_custom_sequences/create_custom_sequences_screen.dart';
@@ -15,7 +18,6 @@ import 'package:retro/features/inspect_otr/inspect_otr_screen.dart';
 import 'package:retro/features/inspect_otr/inspect_otr_viewmodel.dart';
 import 'package:retro/ui/components/ephemeral_bar.dart';
 import 'package:retro/ui/theme/theme.dart';
-import 'package:window_size/window_size.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,6 +47,16 @@ class Retro extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'Retro',
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en', ''),
+          Locale('fr', '')
+        ],
         darkTheme: darkTheme(),
         theme: lightTheme(),
         themeMode: ThemeMode.dark,
