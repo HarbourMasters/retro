@@ -156,13 +156,15 @@ class CreateFinishViewModel with ChangeNotifier {
             soh.Texture texture = soh.Texture.empty();
             texture.textureType = pair.item2;
             texture.fromPNGImage(pair.item1.readAsBytesSync());
-            Uint8List data = texture.build();
 
-            if (texture.width > 256 || texture.height > 256) {
-              log("Texture ${pair.item1.path} is too large. Maximum dimensions are 256x256. Skipping.");
-              continue;
+            if (texture.getTMEMSize() > texture.getMaxTMEMSize()) {
+              log("Texture ${pair.item1.path} is too large. TMem found ${texture.getTMEMSize()}. Writing it as rgba32.");
+              texture.changeTextureFormat(TextureType.RGBA32bpp);
+              texture.enableBiggerTMEM();
+              texture.textureType = pair.item2;
             }
 
+            Uint8List data = texture.build();
             String fileName = "${entry.key}/${pair.item1.path.split("/").last.split(".").first}";
             String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, data.length, MPQ_FILE_COMPRESS);
             await SFileWriteFile(fileHandle!, data, data.length, MPQ_COMPRESSION_ZLIB);

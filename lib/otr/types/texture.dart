@@ -40,6 +40,8 @@ class Texture extends Resource {
   Uint8List texData;
   Texture? tlut;
   bool isPalette = false;
+  bool hasBiggerTMEM = false;
+  Function()? onPostBuild;
 
   Texture(this.textureType, this.width, this.height, this.texDataSize, this.texData) : super(ResourceType.texture, 0, Version.deckard);
 
@@ -50,6 +52,11 @@ class Texture extends Resource {
     writeInt32(textureType.value);
     writeInt32(width);
     writeInt32(height);
+
+    if(gameVersion == Version.flynn){
+      writeInt8(hasBiggerTMEM ? 1 : 0);
+    }
+
     writeInt32(texDataSize);
     appendData(texData);
   }
@@ -59,6 +66,11 @@ class Texture extends Resource {
     textureType = TextureType.fromValue(readInt32());
     width = readInt32();
     height = readInt32();
+
+    if(gameVersion == Version.flynn){
+      hasBiggerTMEM = readInt8() == 1;
+    }
+
     texDataSize = readInt32();
     texData = readBytes(texDataSize);
     isPalette = textureType == TextureType.Palette4bpp || textureType == TextureType.Palette8bpp;
@@ -72,8 +84,20 @@ class Texture extends Resource {
     convertPNGToN64(png);
   }
 
+  void changeTextureFormat(TextureType type){
+    if(type == textureType) return;
+    Uint8List png = convertN64ToPNG()!;
+    textureType = type;
+    convertPNGToN64(png);
+  }
+
   Uint8List toPNGBytes(){
     return convertN64ToPNG()?? Uint8List(0);
+  }
+
+  void enableBiggerTMEM(){
+    gameVersion = Version.flynn;
+    hasBiggerTMEM = true;
   }
 
   int getTMEMSize(){
