@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_storm/bridge/errors.dart';
 import 'package:flutter_storm/bridge/flags.dart';
 import 'package:flutter_storm/flutter_storm.dart';
+import 'package:retro/utils/log.dart';
 
 class InspectOTRViewModel extends ChangeNotifier {
   String? selectedOTRPath;
@@ -41,7 +42,7 @@ class InspectOTRViewModel extends ChangeNotifier {
       List<String> files = [];
       isProcessing = true;
       notifyListeners();
-      
+
       String? otrHandle = await SFileOpenArchive(selectedOTRPath!, MPQ_OPEN_READ_ONLY);
       String? findData = await SFileFindCreateDataPointer();
       String? hFind = await SFileFindFirstFile(otrHandle!, "*", findData!);
@@ -56,12 +57,12 @@ class InspectOTRViewModel extends ChangeNotifier {
           await SFileFindNextFile(hFind!, findData);
           fileFound = true;
           String? fileName = await SFileFindGetDataForDataPointer(findData);
-          print("File name: $fileName");
+          log("File name: $fileName");
           if (fileName != null && fileName != "(signature)" && fileName != "(listfile)" && fileName != "(attributes)") {
             files.add(fileName);
           }
         } on StormException catch (e) {
-          print("Failed to find next file: ${e.message}");
+          log("Failed to find next file: ${e.message}");
           fileFound = false;
         }
       } while (fileFound);
@@ -71,7 +72,7 @@ class InspectOTRViewModel extends ChangeNotifier {
       isProcessing = false;
       notifyListeners();
     } on StormException catch (e) {
-      print("Failed to set locale: ${e.message}");
+      log("Failed to set locale: ${e.message}");
       return;
     }
   }
