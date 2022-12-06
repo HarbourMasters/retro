@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:retro/otr/resource.dart';
 import 'package:retro/otr/resource_type.dart';
 import 'package:retro/otr/version.dart';
-import 'package:retro/otr/utils/tex_utils.dart';
+import 'package:retro/utils/tex_utils.dart';
 
 enum TextureType {
   Error (0, 0),
