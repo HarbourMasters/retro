@@ -1,12 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:retro/features/create_custom/create_custom_screen.dart';
-import 'package:retro/features/create_custom/create_custom_viewmodel.dart';
-import 'package:retro/features/create_custom_sequences/create_custom_sequences_screen.dart';
-import 'package:retro/features/create_custom_sequences/create_custom_sequences_viewmodel.dart';
-import 'package:retro/features/create_finish/create_finish_viewmodel.dart';
-import 'package:retro/features/create_selection/create_selection_screen.dart';
+import 'package:retro/features/create/create_custom/create_custom_screen.dart';
+import 'package:retro/features/create/create_custom/create_custom_viewmodel.dart';
+import 'package:retro/features/create/create_custom_sequences/create_custom_sequences_screen.dart';
+import 'package:retro/features/create/create_custom_sequences/create_custom_sequences_viewmodel.dart';
+import 'package:retro/features/create/create_finish/create_finish_viewmodel.dart';
+import 'package:retro/features/create/create_replace_textures/create_replace_textures_screen.dart';
+import 'package:retro/features/create/create_replace_textures/create_replace_textures_viewmodel.dart';
+import 'package:retro/features/create/create_selection/create_selection_screen.dart';
 import 'package:retro/features/home/home_screen.dart';
 import 'package:retro/features/home/home_viewmodel.dart';
 import 'package:retro/features/inspect_otr/inspect_otr_screen.dart';
@@ -39,6 +41,7 @@ class Retro extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CreateFinishViewModel()),
         ChangeNotifierProvider(create: (_) => InspectOTRViewModel()),
         ChangeNotifierProvider(create: (_) => CreateCustomSequencesViewModel()),
+        ChangeNotifierProvider(create: (_) => CreateReplaceTexturesViewModel()),
       ],
       child: MaterialApp(
         title: 'Retro',
@@ -65,6 +68,7 @@ class Retro extends StatelessWidget {
           '/create_custom': (context) => const CreateCustomScreen(),
           '/view_otr': (context) => const InspectOTRScreen(),
           '/create_custom_sequences': (context) => const CreateCustomSequencesScreen(),
+          '/create_replace_textures': (context) => const CreateReplaceTexturesScreen(),
         },
       ),
     );

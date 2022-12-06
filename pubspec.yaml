@@ -45,8 +45,11 @@ dependencies:
   flutter_storm:
     git:
       url: https://github.com/HarbourMasters/flutter_storm.git
-      ref: accd492c7be7f326ad2842422622d80f1849d5c1
+      ref: d440637bf709af171b97301badce8895b10b6b26
   tuple: ^2.0.1
+  image:
+    git: https://github.com/KiritoDv/image_ex.git
+  crypto: ^3.0.2
 
 flutter_icons:
   windows:
@@ -61,7 +64,6 @@ flutter_icons:
     image_path: "assets/icon.png"
 
 dev_dependencies:
-  flutter_launcher_icons: "^0.11.0"
   flutter_test:
     sdk: flutter
 

@@ -19,7 +19,7 @@ class _InspectOTRScreenState extends State<InspectOTRScreen> {
       title: "Inspect OTR",
       subtitle: "Inspect the contents of an OTR",
       onBackButtonPressed: () {
-        viewModel.resetState();
+        viewModel.reset();
         Navigator.of(context).pop();
       },
       content: Expanded(

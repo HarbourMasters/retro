@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:retro/features/create_finish/create_finish_screen.dart';
-import 'package:retro/features/create_finish/create_finish_viewmodel.dart';
+import 'package:retro/features/create/create_finish/create_finish_screen.dart';
+import 'package:retro/features/create/create_finish/create_finish_viewmodel.dart';
 import 'package:retro/ui/theme/colors.dart';
 import 'package:url_launcher/url_launcher.dart';
 

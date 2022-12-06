@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:retro/features/create_finish/create_finish_viewmodel.dart';
+import 'package:retro/features/create/create_finish/create_finish_viewmodel.dart';
 import 'package:retro/features/home/home_viewmodel.dart';
 import 'package:retro/ui/components/option_card.dart';
 

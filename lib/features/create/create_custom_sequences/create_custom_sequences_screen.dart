@@ -1,8 +1,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:retro/features/create_custom_sequences/create_custom_sequences_viewmodel.dart';
-import 'package:retro/features/create_finish/create_finish_viewmodel.dart';
+import 'package:retro/features/create/create_custom_sequences/create_custom_sequences_viewmodel.dart';
+import 'package:retro/features/create/create_finish/create_finish_viewmodel.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
 
 class CreateCustomSequencesScreen extends StatefulWidget {
@@ -26,7 +26,7 @@ class _CreateCustomSequencesScreenState extends State<CreateCustomSequencesScree
         title: 'Add Custom Sequences',
         subtitle: 'Select a folder with sequences and meta files',
         onBackButtonPressed: () {
-          viewModel.resetState();
+          viewModel.reset();
           Navigator.of(context).pop();
         },
         content: Expanded(
@@ -63,21 +63,17 @@ class _CreateCustomSequencesScreenState extends State<CreateCustomSequencesScree
                                 }))),
               if (!viewModel.isProcessing && viewModel.sequenceMetaPairs.isEmpty)
                 const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                  child:
-                    ElevatedButton(
-                      onPressed: viewModel.sequenceMetaPairs.isNotEmpty ? () {
-                        finishViewModel.onAddCustomSequenceEntry(viewModel.sequenceMetaPairs, 'custom/music');
-                        viewModel.resetState();
-                        Navigator.of(context).popUntil(ModalRoute.withName("/create_selection"));
-                      } : null,
-                      style: ElevatedButton.styleFrom(minimumSize: Size(
-                        MediaQuery.of(context).size.width * 0.5, 50)
-                      ),
-                      child: const Text('Stage Files')
-                    )
-                ),
+                ElevatedButton(
+                  onPressed: viewModel.sequenceMetaPairs.isNotEmpty ? () {
+                    finishViewModel.onAddCustomSequenceEntry(viewModel.sequenceMetaPairs, 'custom/music');
+                    viewModel.reset();
+                    Navigator.of(context).popUntil(ModalRoute.withName("/create_selection"));
+                  } : null,
+                  style: ElevatedButton.styleFrom(minimumSize: Size(
+                    MediaQuery.of(context).size.width * 0.5, 50)
+                  ),
+                  child: const Text('Stage Files')
+                )
             ])
         ))
       );

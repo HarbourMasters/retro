@@ -1,5 +1,6 @@
 enum ResourceType {
   // Common
+  unknown(-1),
   archive(0x4F415243), // OARC (UNUSED)
   displayList(0x4F444C54), // ODLT
   vertex(0x4F565458), // OVTX
@@ -25,4 +26,8 @@ enum ResourceType {
 
   const ResourceType(this.value);
   final int value;
+
+  static ResourceType fromValue(int value) {
+    return ResourceType.values.firstWhere((ResourceType type) => type.value == value, orElse: () => ResourceType.unknown);
+  }
 }
