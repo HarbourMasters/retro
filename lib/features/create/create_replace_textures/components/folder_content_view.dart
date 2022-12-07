@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:retro/features/create/create_finish/create_finish_viewmodel.dart';
 import 'package:retro/features/create/create_replace_textures/create_replace_textures_viewmodel.dart';
 import 'package:retro/otr/utils/language_ext.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 // ignore: non_constant_identifier_names
 Widget FolderContent(
@@ -9,6 +10,7 @@ Widget FolderContent(
   CreateFinishViewModel finishViewModel,
   BuildContext context,
 ) {
+  final AppLocalizations i18n = AppLocalizations.of(context)!;
   return Column(
     children: [
       Row(children: [
@@ -18,14 +20,14 @@ Widget FolderContent(
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
             labelText: viewModel.selectedFolderPath ??
-                'Custom Texture Replacements Folder',
+                i18n.otrReplaceTextures_customTexturePath,
           ),
         )),
         const SizedBox(width: 12),
         ElevatedButton(
             onPressed: viewModel.onSelectFolder,
             style: ElevatedButton.styleFrom(minimumSize: const Size(100, 50)),
-            child: const Text("Select"))
+            child: Text(i18n.otrReplaceTextures_selectButton))
       ]),
       if (viewModel.processedFiles.isEmpty && viewModel.isProcessing == false)
         const Spacer(),
@@ -52,7 +54,7 @@ Widget FolderContent(
           style: ElevatedButton.styleFrom(minimumSize: Size(
             MediaQuery.of(context).size.width * 0.5, 50)
           ),
-          child: const Text('Stage Textures')
+          child: Text(i18n.otrReplaceTextures_stageTextures)
         ))
     ],
   );

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:retro/features/create/create_custom/create_custom_viewmodel.dart';
 import 'package:retro/features/create/create_finish/create_finish_viewmodel.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CreateCustomScreen extends StatefulWidget {
   const CreateCustomScreen({super.key});
@@ -26,10 +27,11 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
     final TextTheme textTheme = theme.textTheme;
     final CreateCustomViewModel viewModel = Provider.of<CreateCustomViewModel>(context);
     final CreateFinishViewModel finishViewModel = Provider.of<CreateFinishViewModel>(context);
+    final AppLocalizations i18n = AppLocalizations.of(context)!;
 
     return CustomScaffold(
-      title: 'Via Path',
-      subtitle: 'Select files to place at path',
+      title: i18n.createCustomScreen_title,
+      subtitle: i18n.createCustomScreen_subtitle,
       onBackButtonPressed: () {
         viewModel.onDiscardFiles();
         Navigator.of(context).pop();
@@ -41,9 +43,9 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
           children: [
             TextField(
               controller: textFieldController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 border: OutlineInputBorder(),
-                labelText: 'Path',
+                labelText: i18n.createCustomScreen_labelPath,
               ),
               onChanged: (String value) {
                 viewModel.onPathChanged(value);
@@ -54,7 +56,7 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
               child: OutlinedButton(
                 onPressed: viewModel.onSelectFiles,
                 style: ElevatedButton.styleFrom(minimumSize: const Size(200, 50)),
-                child: const Text('Select Files')
+                child: Text(i18n.createCustomScreen_selectButton)
               ),
             ),
             Padding(
@@ -62,7 +64,7 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Files to insert: ${viewModel.files.length}',
+                  'i18n.createCustomScreen_fileToInsert: ${viewModel.files.length}', // TODO Fix this one to use localisation properly
                   style: textTheme.subtitle1,
                 ),
               ),
@@ -84,7 +86,7 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
               style: ElevatedButton.styleFrom(minimumSize: Size(
                 MediaQuery.of(context).size.width * 0.5, 50)
               ),
-              child: const Text('Stage Files')
+              child: Text(i18n.createCustomScreen_stageFiles)
             ),
           ],
         )

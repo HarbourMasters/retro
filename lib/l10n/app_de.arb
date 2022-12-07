@@ -1,0 +1,18 @@
+{
+    "appTitle": "Retro",
+    "home_createOption": "Erstelle OTR",
+    "home_createOptionSubtitle": "Erstelle eine OTR für SoH",
+    "home_inspectOption": "Überprüfe OTR",
+    "home_inspectOptionSubtitle": "Überprüfe die Inhalte einer OTR",
+    "createSelectionScreen_title": "Erstelle eine Auswahl",
+    "createSelectionScreen_subtitle": "Select the type of selection you want to create",
+    "createSelectionScreen_nonHdTex": "Tausche Texturen aus (nicht-HD)",
+    "createSelectionScreen_customSequences": "Benutzidentifizierte Sequenzen",
+    "createSelectionScreen_custom": "Benutzeridentifiziert",
+    "replace_replaceTextureOption": "Tausche Texturen aus",
+    "replace_replaceTextureOptionDescription": "Tausche Texturen einer OTR durch andere Texturen (nicht-HD) aus",
+    "questionConentView_mainQuestion": "Hast du bereits einen Austausch-Texturen Ordner?",
+    "questionConentView_mainText": "Falls du einen von diesem Tool generierten Ordner für Austausch-Texturen hast, wähle Ja.\nFalls du keinen hast, wähle Nein und wir werden sofort mit dem Erstellen von Austuasch-Texturen starten.",
+    "questionConentView_yes": "Ja",
+    "questionConentView_no": "Nein"
+}

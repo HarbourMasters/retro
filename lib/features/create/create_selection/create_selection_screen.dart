@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
 import 'package:retro/ui/components/option_card.dart';
 
@@ -12,9 +13,10 @@ class CreateSelectionScreen extends StatefulWidget {
 class _CreateSelectionScreenState extends State<CreateSelectionScreen> {
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations i18n = AppLocalizations.of(context)!;
     return CustomScaffold(
-        title: 'Create Selection',
-        subtitle: 'Select the type of selection you want to create',
+        title: i18n.createSelectionScreen_title,
+        subtitle: i18n.createSelectionScreen_subtitle,
         onBackButtonPressed: () {
           Navigator.of(context).pop();
         },
@@ -27,21 +29,21 @@ class _CreateSelectionScreenState extends State<CreateSelectionScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   OptionCard(
-                      text: "Replace Textures (non-HD)",
+                      text: i18n.createSelectionScreen_nonHdTex,
                       icon: Icons.texture,
                       onTap: () {
                         Navigator.of(context).pushNamed('/create_replace_textures');
                       }),
                   const SizedBox(width: 20),
                   OptionCard(
-                      text: "Custom Sequences",
+                      text: i18n.createSelectionScreen_customSequences,
                       icon: Icons.library_music,
                       onTap: () {
                         Navigator.of(context).pushNamed('/create_custom_sequences');
                       }),
                   const SizedBox(width: 20),
                   OptionCard(
-                      text: "Custom",
+                      text: i18n.createSelectionScreen_custom,
                       icon: Icons.settings_suggest,
                       onTap: () {
                         Navigator.of(context).pushNamed('/create_custom');

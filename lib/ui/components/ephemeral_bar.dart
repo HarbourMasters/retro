@@ -6,6 +6,7 @@ import 'package:retro/features/create/create_finish/create_finish_screen.dart';
 import 'package:retro/features/create/create_finish/create_finish_viewmodel.dart';
 import 'package:retro/ui/theme/colors.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class EphemeralBar extends StatefulWidget {
   const EphemeralBar({Key? key}) : super(key: key);
@@ -44,6 +45,7 @@ class _EphemeralBarState extends State<EphemeralBar>
     final TextTheme textTheme = theme.textTheme;
     final CreateFinishViewModel viewModel =
         Provider.of<CreateFinishViewModel>(context);
+    final AppLocalizations i18n = AppLocalizations.of(context)!;
 
     bool hasStagedFiles = viewModel.entries.isNotEmpty;
     Color backgroundColor = hasStagedFiles ? Colors.green : Colors.blueAccent;
@@ -82,7 +84,7 @@ class _EphemeralBarState extends State<EphemeralBar>
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 2),
                 child: Text(
-                  'Finalize OTR ⚡️',
+                  i18n.ephemeralBar_finalizeOtr,
                   style: textTheme.bodyText2!.copyWith(
                     color: colorScheme.onSurface,
                     fontWeight: FontWeight.bold
