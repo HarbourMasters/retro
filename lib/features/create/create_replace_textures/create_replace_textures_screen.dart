@@ -26,8 +26,8 @@ class _CreateReplaceTexturesScreenState extends State<CreateReplaceTexturesScree
     final AppLocalizations i18n = AppLocalizations.of(context)!;
 
     return CustomScaffold(
-      title: i18n.createReaplceTexturesOption,
-      subtitle: i18n.createReaplceTexturesOptionDescription,
+      title: i18n.createReaplceTexturesScreen_Option,
+      subtitle: i18n.createReaplceTexturesScreen_OptionDescription,
       onBackButtonPressed: () {
         viewModel.reset();
         Navigator.pop(context);
