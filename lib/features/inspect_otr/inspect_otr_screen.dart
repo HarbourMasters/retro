@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:retro/features/inspect_otr/inspect_otr_viewmodel.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class InspectOTRScreen extends StatefulWidget {
   const InspectOTRScreen({super.key});
@@ -14,10 +15,11 @@ class _InspectOTRScreenState extends State<InspectOTRScreen> {
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<InspectOTRViewModel>(context);
+    final AppLocalizations i18n = AppLocalizations.of(context)!;
 
     return CustomScaffold(
-      title: "Inspect OTR",
-      subtitle: "Inspect the contents of an OTR",
+      title: i18n.inspectOtrScreen_inspectOtr,
+      subtitle: i18n.inspectOtrScreen_inspectOtrSubtitle,
       onBackButtonPressed: () {
         viewModel.reset();
         Navigator.of(context).pop();
@@ -33,7 +35,7 @@ class _InspectOTRScreenState extends State<InspectOTRScreen> {
                   enabled: false,
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
-                    labelText: viewModel.selectedOTRPath ?? 'No OTR Selected',
+                    labelText: viewModel.selectedOTRPath ?? i18n.inspectOtrScreen_noOtrSelected,
                   ),
                 )),
                 const SizedBox(width: 12),
@@ -41,7 +43,7 @@ class _InspectOTRScreenState extends State<InspectOTRScreen> {
                     onPressed: viewModel.onSelectOTR,
                     style: ElevatedButton.styleFrom(
                         minimumSize: const Size(100, 50)),
-                    child: const Text("Select"))
+                    child: Text(i18n.inspectOtrScreen_selectButton))
               ]),
               if (viewModel.isProcessing || viewModel.filesInOTR.isNotEmpty)
                 Expanded(

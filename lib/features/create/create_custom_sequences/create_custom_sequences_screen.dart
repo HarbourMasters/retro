@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:retro/features/create/create_custom_sequences/create_custom_sequences_viewmodel.dart';
 import 'package:retro/features/create/create_finish/create_finish_viewmodel.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CreateCustomSequencesScreen extends StatefulWidget {
   const CreateCustomSequencesScreen({super.key});
@@ -17,14 +18,15 @@ class _CreateCustomSequencesScreenState extends State<CreateCustomSequencesScree
   Widget build(BuildContext context) {
     final CreateCustomSequencesViewModel viewModel = Provider.of<CreateCustomSequencesViewModel>(context);
     final CreateFinishViewModel finishViewModel = Provider.of<CreateFinishViewModel>(context);
+    final AppLocalizations i18n = AppLocalizations.of(context)!;
 
     String nameWithoutExtension(String path, String basePath) {
       return path.split("$basePath/").last.split('.').first;
     }
 
     return CustomScaffold(
-        title: 'Add Custom Sequences',
-        subtitle: 'Select a folder with sequences and meta files',
+        title: i18n.createCustomSequences_addCustomSequences,
+        subtitle: i18n.createCustomSequences_addCustomSequencesDescription,
         onBackButtonPressed: () {
           viewModel.reset();
           Navigator.of(context).pop();
@@ -39,7 +41,7 @@ class _CreateCustomSequencesScreenState extends State<CreateCustomSequencesScree
                   enabled: false,
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
-                    labelText: viewModel.selectedFolderPath ?? 'Sequences Folder Path',
+                    labelText: viewModel.selectedFolderPath ?? i18n.createCustomSequences_SequencesFolderPath,
                   ),
                 )),
                 const SizedBox(width: 12),
@@ -47,7 +49,7 @@ class _CreateCustomSequencesScreenState extends State<CreateCustomSequencesScree
                     onPressed: viewModel.onSelectFolder,
                     style: ElevatedButton.styleFrom(
                         minimumSize: const Size(100, 50)),
-                    child: const Text("Select"))
+                    child: Text(i18n.createCustomSequences_selectButton))
               ]),
               if (viewModel.isProcessing || viewModel.sequenceMetaPairs.isNotEmpty)
                 Expanded(
@@ -72,7 +74,7 @@ class _CreateCustomSequencesScreenState extends State<CreateCustomSequencesScree
                   style: ElevatedButton.styleFrom(minimumSize: Size(
                     MediaQuery.of(context).size.width * 0.5, 50)
                   ),
-                  child: const Text('Stage Files')
+                  child: Text(i18n.createCustomSequences_stageFiles)
                 )
             ])
         ))

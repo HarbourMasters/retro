@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:retro/features/create/create_finish/create_finish_viewmodel.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CreateFinishBottomBarModal extends StatefulWidget {
   final Widget bottomBar;
@@ -29,6 +30,7 @@ class _CreateFinishBottomBarModalState
     final CreateFinishViewModel viewModel =
         Provider.of<CreateFinishViewModel>(context);
     int itemCount = 0;
+    final AppLocalizations i18n = AppLocalizations.of(context)!;
     for (var element in viewModel.entries.values) {
       itemCount += element.iterables.length;
     }
@@ -64,8 +66,8 @@ class _CreateFinishBottomBarModalState
         widget.bottomBar,
         Expanded(
           child: CustomScaffold(
-              title: 'Finish',
-              subtitle: 'Review your OTR details',
+              title: i18n.createFinishScreen_finish,
+              subtitle: i18n.createFinishScreen_finishSubtitle,
               topRightWidget: IconButton(
                   icon: const Icon(Icons.close),
                   onPressed: () { widget.dismissCallback(); }),
@@ -99,7 +101,7 @@ class _CreateFinishBottomBarModalState
                                   strokeWidth: 3,
                                 ),
                               )
-                            : const Text('Generate OTR')
+                            : Text(i18n.createFinishScreen_generateOtr)
                         ),
                       ),
                     ],
