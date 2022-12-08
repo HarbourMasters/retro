@@ -20,14 +20,14 @@ Widget FolderContent(
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
             labelText: viewModel.selectedFolderPath ??
-                i18n.otrReplaceTextures_customTexturePath,
+                i18n.folderContentView_customTexturePath,
           ),
         )),
         const SizedBox(width: 12),
         ElevatedButton(
             onPressed: viewModel.onSelectFolder,
             style: ElevatedButton.styleFrom(minimumSize: const Size(100, 50)),
-            child: Text(i18n.otrReplaceTextures_selectButton))
+            child: Text(i18n.folderContentView_selectButton))
       ]),
       if (viewModel.processedFiles.isEmpty && viewModel.isProcessing == false)
         const Spacer(),
@@ -54,7 +54,7 @@ Widget FolderContent(
           style: ElevatedButton.styleFrom(minimumSize: Size(
             MediaQuery.of(context).size.width * 0.5, 50)
           ),
-          child: Text(i18n.otrReplaceTextures_stageTextures)
+          child: Text(i18n.folderContentView_stageTextures)
         ))
     ],
   );

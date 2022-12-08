@@ -17,14 +17,14 @@ Widget OTRContent(CreateReplaceTexturesViewModel viewModel, BuildContext context
           enabled: false,
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
-            labelText: viewModel.selectedOTRPath ?? i18n.otrReplaceTextures_otrPath,
+            labelText: viewModel.selectedOTRPath ?? i18n.otrContentView_otrPath,
           ),
         )),
         const SizedBox(width: 12),
         ElevatedButton(
             onPressed: viewModel.onSelectOTR,
             style: ElevatedButton.styleFrom(minimumSize: const Size(100, 50)),
-            child: Text(i18n.otrReplaceTextures_otrSelect))
+            child: Text(i18n.otrContentView_otrSelect))
       ]),
       if (viewModel.processedFiles.isEmpty && viewModel.isProcessing == false)
           Expanded( child: Padding(
@@ -32,14 +32,14 @@ Widget OTRContent(CreateReplaceTexturesViewModel viewModel, BuildContext context
           child: Column(
             children: [
               Text(
-                i18n.otrReplaceTextures_details,
+                i18n.otrContentView_details,
                 style: textTheme.headline5,
               ),
-              Text(i18n.otrReplaceTextures_step1, style: textTheme.bodyMedium),
-              Text(i18n.otrReplaceTextures_step2, style: textTheme.bodyMedium),
-              Text(i18n.otrReplaceTextures_step3, style: textTheme.bodyMedium),
-              Text(i18n.otrReplaceTextures_step4, style: textTheme.bodyMedium),
-              Text(i18n.otrReplaceTextures_step5, style: textTheme.bodyMedium),
+              Text(i18n.otrContentView_step1, style: textTheme.bodyMedium),
+              Text(i18n.otrContentView_step2, style: textTheme.bodyMedium),
+              Text(i18n.otrContentView_step3, style: textTheme.bodyMedium),
+              Text(i18n.otrContentView_step4, style: textTheme.bodyMedium),
+              Text(i18n.otrContentView_step5, style: textTheme.bodyMedium),
             ],
           ))),
       if (viewModel.processedFiles.isNotEmpty || viewModel.isProcessing)
@@ -61,7 +61,7 @@ Widget OTRContent(CreateReplaceTexturesViewModel viewModel, BuildContext context
           style: ElevatedButton.styleFrom(minimumSize: Size(
             MediaQuery.of(context).size.width * 0.5, 50)
           ),
-          child: Text(viewModel.isProcessing ? i18n.otrReplaceTextures_processing : viewModel.processedFiles.isNotEmpty ? 'Extracted ${viewModel.processedFiles.length} Textures' : 'Process') // TODO Better management of this for localization
+          child: Text(viewModel.isProcessing ? i18n.otrContentView_processing : viewModel.processedFiles.isNotEmpty ? 'Extracted ${viewModel.processedFiles.length} Textures' : 'Process') // TODO Better management of this for localization
         ))
     ],
   );
