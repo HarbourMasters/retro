@@ -35,7 +35,7 @@
     "createFinishScreen_finish": "Finish",
     "createFinishScreen_finishSubtitle": "Review your OTR details",
     "createFinishScreen_generateOtr": "Generate OTR",
-    "ephemeralBar_finalizeOtr": "Finalize OTR ⚡️",
+    "components_ephemeralBar_finalizeOtr": "Finalize OTR ⚡️",
     "createCustomScreen_title": "Via Path",
     "createCustomScreen_subtitle": "Select files to place at path",
     "createCustomScreen_labelPath": "Path",

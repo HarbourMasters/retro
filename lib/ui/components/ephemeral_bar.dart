@@ -84,7 +84,7 @@ class _EphemeralBarState extends State<EphemeralBar>
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 2),
                 child: Text(
-                  i18n.ephemeralBar_finalizeOtr,
+                  i18n.components_ephemeralBar_finalizeOtr,
                   style: textTheme.bodyText2!.copyWith(
                     color: colorScheme.onSurface,
                     fontWeight: FontWeight.bold
