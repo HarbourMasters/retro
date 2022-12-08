@@ -64,7 +64,7 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'i18n.createCustomScreen_fileToInsert: ${viewModel.files.length}', // TODO Fix this one to use localisation properly
+                  '${i18n.createCustomScreen_fileToInsert}${viewModel.files.length}',
                   style: textTheme.subtitle1,
                 ),
               ),

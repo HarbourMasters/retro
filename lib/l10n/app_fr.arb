@@ -40,7 +40,7 @@
     "createCustomScreen_subtitle": "Sélectionnez les fichiers à placer dans le chemin",
     "createCustomScreen_labelPath": "Chemin",
     "createCustomScreen_selectButton": "Sélectionnez les fichiers",
-    "createCustomScreen_fileToInsert": "Fichiers à ajouter:",
+    "createCustomScreen_fileToInsert": "Fichiers à ajouter: ",
     "createCustomScreen_stageFiles": "Indexer les fichiers",
     "inspectOtrScreen_inspectOtr": "Inspecter un OTR",
     "inspectOtrScreen_inspectOtrSubtitle": "Inspecter le contenu d'un OTR",
