@@ -62,10 +62,16 @@ class _OptionCardState extends State<OptionCard> {
           ),
         ),
       ),
-      const SizedBox(height: 20),
-      Text(widget.text,
-          style: textTheme.bodyText1
-              ?.copyWith(color: colorScheme.onSurface.withOpacity(0.5))),
+      SizedBox(
+          width: 180,
+          height: 50,
+          child: Text(
+          widget.text,
+            style: textTheme.bodyText1
+              ?.copyWith(color: colorScheme.onSurface.withOpacity(0.5)),
+            textAlign: TextAlign.center,
+        )),
     ]);
   }
+  
 }
