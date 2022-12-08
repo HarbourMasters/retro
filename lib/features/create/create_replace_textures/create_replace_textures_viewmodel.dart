@@ -12,8 +12,9 @@ import 'package:flutter_storm/flutter_storm.dart';
 import 'package:retro/models/texture_manifest_entry.dart';
 import 'package:retro/otr/types/texture.dart' as soh;
 import 'package:retro/otr/types/texture.dart';
+import 'package:retro/utils/log.dart';
 import 'package:tuple/tuple.dart';
-import 'package:retro/otr/utils/path.dart' as p;
+import 'package:retro/utils/path.dart' as p;
 
 enum CreateReplacementTexturesStep { question, selectFolder, selectOTR }
 
@@ -80,7 +81,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
         String pngFileHash = sha256.convert((pngFile).readAsBytesSync()).toString();
         if (manifestEntry.hash != pngFileHash) {
           // if it has, add it to the processed files list
-          print("Found file with changed hash: $pngPathRelativeToFolder");
+          log("Found file with changed hash: $pngPathRelativeToFolder");
 
           String pathWithoutFilename = p.normalize(pngPathRelativeToFolder.split("/").sublist(0, pngPathRelativeToFolder.split("/").length - 1).join("/"));
           if(processedFiles.containsKey(pathWithoutFilename)){
@@ -90,7 +91,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
           }
         }
       } else {
-        print("Found file not present in manifest: $pngPathRelativeToFolder");
+        log("Found file not present in manifest: $pngPathRelativeToFolder");
       }
     }
 
@@ -129,7 +130,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
       bool fileFound = false;
       isProcessing = true;
       HashMap<String, TextureManifestEntry> processedFiles = HashMap();
-      
+
       notifyListeners();
 
       String? otrHandle =
@@ -166,12 +167,12 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
 
           if (!processed) {
             continue;
-          }          
+          }
         } on StormException catch (e) {
-          print("Got a StormLib error: ${e.message}");
+          log("Got a StormLib error: ${e.message}");
           fileFound = false;
         } on Exception catch (e) {
-          print("Got an error: $e");
+          log("Got an error: $e");
           fileFound = false;
         }
       } while (fileFound);
@@ -188,7 +189,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
       this.processedFiles = processedFiles;
       notifyListeners();
     } on StormException catch (e) {
-      print("Failed to find next file: ${e.message}");
+      log("Failed to find next file: ${e.message}");
     }
   }
 }
@@ -197,7 +198,7 @@ Future<bool> processFile(
   String fileName,
   String otrHandle,
   String outputPath,
-  Function onProcessed 
+  Function onProcessed
 ) async {
   String? fileHandle = await SFileOpenFileEx(otrHandle, fileName, 0);
   int? fileSize = await SFileGetFileSize(fileHandle!);
@@ -211,7 +212,7 @@ Future<bool> processFile(
       return false;
     }
 
-    print("Found texture: $fileName! with type: ${texture.textureType} and size: ${texture.width}x${texture.height}");
+    log("Found texture: $fileName! with type: ${texture.textureType} and size: ${texture.width}x${texture.height}");
 
     // Write to disk using the same path we found it in
     File textureFile = File(outputPath);

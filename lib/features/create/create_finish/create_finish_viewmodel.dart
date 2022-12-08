@@ -11,6 +11,7 @@ import 'package:retro/otr/types/sequence.dart';
 import 'package:retro/models/app_state.dart';
 import 'package:retro/models/stage_entry.dart';
 import 'package:retro/otr/types/texture.dart';
+import 'package:retro/utils/log.dart';
 import 'package:tuple/tuple.dart';
 import 'package:retro/otr/types/texture.dart' as soh;
 
@@ -158,7 +159,7 @@ class CreateFinishViewModel with ChangeNotifier {
             Uint8List data = texture.build();
 
             if (texture.width > 256 || texture.height > 256) {
-              print("Texture ${pair.item1.path} is too large. Maximum dimensions are 256x256. Skipping.");
+              log("Texture ${pair.item1.path} is too large. Maximum dimensions are 256x256. Skipping.");
               continue;
             }
 
@@ -177,7 +178,7 @@ class CreateFinishViewModel with ChangeNotifier {
       reset();
       onCompletion();
     } on StormException catch (e) {
-      print(e);
+      log(e);
     }
   }
 }
