@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:retro/utils/log.dart';
 import 'package:tuple/tuple.dart';
+import 'package:path/path.dart' as p;
 
 class CreateCustomSequencesViewModel extends ChangeNotifier {
   String? selectedFolderPath;
@@ -34,19 +36,17 @@ class CreateCustomSequencesViewModel extends ChangeNotifier {
     notifyListeners();
     List<FileSystemEntity> files = Directory(selectedFolderPath!).listSync(recursive: true);
     List<FileSystemEntity> sequenceFiles = files.where((file) => file.path.endsWith('.seq')).toList();
-    List<FileSystemEntity> metaFiles = files.where((file) => file.path.endsWith('.meta')).toList();
 
     List<Tuple2<File, File>> sequenceMetaPairs = [];
     for (FileSystemEntity sequenceFile in sequenceFiles) {
       String sequenceFileName = sequenceFile.path.split(Platform.pathSeparator).last;
-      String sequenceFileNameWithoutExtension = sequenceFileName.split('.').first;
-      for (FileSystemEntity metaFile in metaFiles) {
-        String metaFileName = metaFile.path.split(Platform.pathSeparator).last;
-        String metaFileNameWithoutExtension = metaFileName.split('.').first;
-        if (sequenceFileNameWithoutExtension == metaFileNameWithoutExtension) {
-          sequenceMetaPairs.add(Tuple2(sequenceFile as File, metaFile as File));
-        }
+      String sequenceFileNameWithoutExtension = p.basenameWithoutExtension(sequenceFileName);
+      File metaFile = File(p.join(sequenceFile.parent.path, '$sequenceFileNameWithoutExtension.meta'));
+      if(!metaFile.existsSync()) {
+        log('Meta file not found for sequence file: $sequenceFileName! Skipping.', level: LogLevel.error);
+        continue;
       }
+      sequenceMetaPairs.add(Tuple2(sequenceFile as File, metaFile));
     }
 
     this.sequenceMetaPairs = sequenceMetaPairs;

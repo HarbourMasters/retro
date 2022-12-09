@@ -146,7 +146,6 @@ class CreateFinishViewModel with ChangeNotifier {
             Sequence sequence = Sequence.fromSeqFile(pair);
             String fileName = "${entry.key}/${sequence.path}";
             Uint8List data = sequence.build();
-
             String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, data.length, MPQ_FILE_COMPRESS);
             await SFileWriteFile(fileHandle!, data, data.length, MPQ_COMPRESSION_ZLIB);
             await SFileFinishFile(fileHandle);
@@ -178,7 +177,7 @@ class CreateFinishViewModel with ChangeNotifier {
       reset();
       onCompletion();
     } on StormException catch (e) {
-      log(e);
+      log(e.message);
     }
   }
 }
