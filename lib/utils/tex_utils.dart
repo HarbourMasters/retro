@@ -268,6 +268,10 @@ extension PixelUtils on Image {
   }
 
   int getIndexedPixel(int y, int x) {
-    return getPixel(x, y);
+    try {
+      return getRed(getPixel(x, y));
+    } catch (e) {
+      return 0;
+    }
   }
 }

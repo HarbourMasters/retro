@@ -108,8 +108,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: d440637bf709af171b97301badce8895b10b6b26
-      resolved-ref: d440637bf709af171b97301badce8895b10b6b26
+      ref: e5005e99eb045126214cc7e83c78bc723ada56ef
+      resolved-ref: e5005e99eb045126214cc7e83c78bc723ada56ef
       url: "https://github.com/HarbourMasters/flutter_storm.git"
     source: git
     version: "0.0.1"
@@ -126,11 +126,9 @@ packages:
   image:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: b8e882034bfa797423d446486bd459889d3bb1e0
-      url: "https://github.com/KiritoDv/image_ex.git"
-    source: git
+      path: "../image_ex"
+      relative: true
+    source: path
     version: "3.2.2"
   js:
     dependency: transitive

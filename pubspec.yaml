@@ -48,7 +48,7 @@ dependencies:
       ref: e5005e99eb045126214cc7e83c78bc723ada56ef
   tuple: ^2.0.1
   image:
-    git: https://github.com/KiritoDv/image_ex.git
+    path: ../image_ex
   crypto: ^3.0.2
 
 flutter_icons:

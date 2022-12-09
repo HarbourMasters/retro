@@ -69,7 +69,7 @@ class CreateFinishViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  onAddCustomTextureEntry(HashMap<String, List<Tuple2<File, TextureType>>> replacementMap) {
+  onAddCustomTextureEntry(HashMap<String, List<Tuple2<File, soh.Texture>>> replacementMap) {
     for (var entry in replacementMap.entries) {
       if (entries.containsKey(entry.key) &&
           entries[entry.key] is CustomTexturesEntry) {
@@ -147,6 +147,10 @@ class CreateFinishViewModel with ChangeNotifier {
             String fileName = "${entry.key}/${sequence.path}";
             Uint8List data = sequence.build();
 
+            if((await SFileHasFile(mpqHandle!, fileName, 0, 0))!){
+              continue;
+            }
+
             String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, data.length, MPQ_FILE_COMPRESS);
             await SFileWriteFile(fileHandle!, data, data.length, MPQ_COMPRESSION_ZLIB);
             await SFileFinishFile(fileHandle);
@@ -154,14 +158,14 @@ class CreateFinishViewModel with ChangeNotifier {
         } else if (entry.value is CustomTexturesEntry) {
           for (var pair in (entry.value as CustomTexturesEntry).pairs) {
             soh.Texture texture = soh.Texture.empty();
-            texture.textureType = pair.item2;
+            texture.textureType = pair.item2.textureType;
             texture.fromPNGImage(pair.item1.readAsBytesSync());
-
-            if (texture.getTMEMSize() > texture.getMaxTMEMSize()) {
+            int tmemSize = texture.getTMEMSize();
+            int maxTmemSize = pair.item2.getTMEMSize();
+            if (tmemSize > maxTmemSize) {
               log("Texture ${pair.item1.path} is too large. TMem found ${texture.getTMEMSize()}. Writing it as rgba32.");
               texture.changeTextureFormat(TextureType.RGBA32bpp);
               texture.enableBiggerTMEM();
-              texture.textureType = pair.item2;
             }
 
             Uint8List data = texture.build();
@@ -180,7 +184,7 @@ class CreateFinishViewModel with ChangeNotifier {
       reset();
       onCompletion();
     } on StormException catch (e) {
-      log(e);
+      log(e.message);
     }
   }
 }

@@ -54,7 +54,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     isProcessing = true;
     notifyListeners();
 
-    HashMap<String, List<Tuple2<File, TextureType>>> processedFiles = HashMap();
+    HashMap<String, List<Tuple2<File, soh.Texture>>> processedFiles = HashMap();
 
     // search for and load manifest.json
     String manifestPath = p.normalize("$selectedFolderPath/manifest.json");
@@ -85,9 +85,9 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
 
           String pathWithoutFilename = p.normalize(pngPathRelativeToFolder.split("/").sublist(0, pngPathRelativeToFolder.split("/").length - 1).join("/"));
           if(processedFiles.containsKey(pathWithoutFilename)){
-            processedFiles[pathWithoutFilename]!.add(Tuple2(pngFile, manifestEntry.textureType));
+            processedFiles[pathWithoutFilename]!.add(Tuple2(pngFile, manifestEntry.texture));
           } else {
-            processedFiles[pathWithoutFilename] = [Tuple2(pngFile, manifestEntry.textureType)];
+            processedFiles[pathWithoutFilename] = [Tuple2(pngFile, manifestEntry.texture)];
           }
         }
       } else {
@@ -222,7 +222,7 @@ Future<bool> processFile(
 
     // Track file path and hash
     String fileHash = sha256.convert(textureFile.readAsBytesSync()).toString();
-    onProcessed(TextureManifestEntry(fileHash, texture.textureType));
+    onProcessed(TextureManifestEntry(fileHash, texture));
     return true;
   } catch (e) {
     // Not a texture

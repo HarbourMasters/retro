@@ -34,18 +34,17 @@ enum TextureType {
 
 class Texture extends Resource {
 
-  TextureType textureType;
+  TextureType internalTextureType = TextureType.Error;
   int width, height;
   int texDataSize;
   Uint8List texData;
   Texture? tlut;
   bool isPalette = false;
   bool hasBiggerTMEM = false;
-  Function()? onPostBuild;
 
-  Texture(this.textureType, this.width, this.height, this.texDataSize, this.texData) : super(ResourceType.texture, 0, Version.deckard);
+  Texture(this.width, this.height, this.texDataSize, this.texData) : super(ResourceType.texture, 0, Version.deckard);
 
-  Texture.empty() : this(TextureType.Error, 0, 0, 0, Uint8List(0));
+  Texture.empty() : this(0, 0, 0, Uint8List(0));
 
   @override
   void writeResourceData() {
@@ -73,11 +72,26 @@ class Texture extends Resource {
 
     texDataSize = readInt32();
     texData = readBytes(texDataSize);
+  }
+
+  TextureType get textureType {
+    return internalTextureType;
+  }
+
+  set textureType(TextureType tex) {
+    internalTextureType = tex;
     isPalette = textureType == TextureType.Palette4bpp || textureType == TextureType.Palette8bpp;
   }
 
   void setTLUT(Texture tlut) {
     this.tlut = tlut;
+  }
+
+  void _validatePalette(Uint8List png){
+    if(!isPalette) return;
+    bool valid = png[0x19] == 3;
+    textureType = valid ? textureType : TextureType.RGBA32bpp;
+    isPalette = valid;
   }
 
   void fromPNGImage(Uint8List png){
@@ -87,7 +101,6 @@ class Texture extends Resource {
   void changeTextureFormat(TextureType type){
     if(type == textureType) return;
     Uint8List png = convertN64ToPNG()!;
-    textureType = type;
     convertPNGToN64(png);
   }
 
