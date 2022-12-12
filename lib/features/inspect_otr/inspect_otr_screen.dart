@@ -24,6 +24,17 @@ class _InspectOTRScreenState extends State<InspectOTRScreen> {
         viewModel.reset();
         Navigator.of(context).pop();
       },
+      topRightWidget: SizedBox(
+        width: 300,
+        child: TextField(
+          decoration: InputDecoration(
+            border: const OutlineInputBorder(),
+            labelText: i18n.inspectOtrScreen_search,
+            prefixIcon: const Icon(Icons.search),
+          ),
+          onChanged: viewModel.onSearch,
+        ),
+      ),
       content: Expanded(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -45,17 +56,17 @@ class _InspectOTRScreenState extends State<InspectOTRScreen> {
                         minimumSize: const Size(100, 50)),
                     child: Text(i18n.inspectOtrScreen_selectButton))
               ]),
-              if (viewModel.isProcessing || viewModel.filesInOTR.isNotEmpty)
+              if (viewModel.isProcessing || viewModel.filteredFilesInOTR.isNotEmpty)
                 Expanded(
                     child: viewModel.isProcessing
                         ? const Center(child: CircularProgressIndicator())
                         : Padding(
                             padding: const EdgeInsets.only(top: 10),
                             child: ListView.builder(
-                                itemCount: viewModel.filesInOTR.length,
+                                itemCount: viewModel.filteredFilesInOTR.length,
                                 prototypeItem: const SizedBox(width: 0, height: 20),
                                 itemBuilder: (context, index) {
-                                  return Text(viewModel.filesInOTR[index]);
+                                  return Text(viewModel.filteredFilesInOTR[index]);
                                 })))
             ],
           ),

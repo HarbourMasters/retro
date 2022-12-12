@@ -45,5 +45,6 @@
     "inspectOtrScreen_inspectOtr": "Überprüfe OTR",
     "inspectOtrScreen_inspectOtrSubtitle": "Überprüfe die Inhalte einer OTR",
     "inspectOtrScreen_noOtrSelected": "Keine OTR ausgewählt",
-    "inspectOtrScreen_selectButton": "Wähle"
+    "inspectOtrScreen_selectButton": "Wähle",
+    "inspectOtrScreen_search": "Suchen"
 }

@@ -8,6 +8,7 @@ import 'package:retro/utils/log.dart';
 class InspectOTRViewModel extends ChangeNotifier {
   String? selectedOTRPath;
   List<String> filesInOTR = [];
+  List<String> filteredFilesInOTR = [];
   bool isProcessing = false;
 
   reset() {
@@ -69,11 +70,19 @@ class InspectOTRViewModel extends ChangeNotifier {
 
       SFileFindClose(hFind!);
       filesInOTR = files;
+      filteredFilesInOTR = files;
       isProcessing = false;
       notifyListeners();
     } on StormException catch (e) {
       log("Failed to set locale: ${e.message}");
       return;
     }
+  }
+
+  onSearch(String query) {
+    filteredFilesInOTR = filesInOTR
+      .where((element) => element.toLowerCase().contains(query.toLowerCase()))
+      .toList();
+    notifyListeners();
   }
 }
