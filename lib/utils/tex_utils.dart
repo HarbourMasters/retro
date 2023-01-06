@@ -11,6 +11,11 @@ extension N64Graphics on Texture {
 
   void convertPNGToN64(Uint8List image) {
     Image pngImage = decodeImage(image)!;
+
+    if (isPalette && !pngImage.hasPalette) {
+      throw Exception('PNG image does not have a palette');
+    }
+
     width = pngImage.width;
     height = pngImage.height;
     switch(textureType){
@@ -249,6 +254,14 @@ extension N64Graphics on Texture {
     return Uint8List.fromList(encodePng(pngImage).toList());
   }
 
+  bool isValid(Uint8List data) {
+    if (isPalette && !decodePng(data)!.hasPalette) {
+      return false;
+    }
+
+    return true;
+  }
+  
   bool get hasAlpha =>
     isPalette || textureType == TextureType.RGBA32bpp || textureType == TextureType.RGBA16bpp || textureType == TextureType.GrayscaleAlpha16bpp || textureType == TextureType.GrayscaleAlpha8bpp || textureType == TextureType.GrayscaleAlpha4bpp;
 

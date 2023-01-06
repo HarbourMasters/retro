@@ -159,9 +159,17 @@ class CreateFinishViewModel with ChangeNotifier {
           }
         } else if (entry.value is CustomTexturesEntry) {
           for (var pair in (entry.value as CustomTexturesEntry).pairs) {
+            log("Processing texture ${pair.item1.path} as ${pair.item2.textureType}");
+
             soh.Texture texture = soh.Texture.empty();
             texture.textureType = pair.item2.textureType;
-            texture.fromPNGImage(pair.item1.readAsBytesSync());
+
+            try {
+              texture.fromPNGImage(pair.item1.readAsBytesSync());
+            } catch (e) {
+              log("Failed to convert texture ${pair.item1.path} from PNG. Error: $e");
+              continue;
+            }
 
             if (pair.item2.textureWidth != texture.width || pair.item2.textureHeight != texture.height) {
               log("Texture ${pair.item1.path} is not the same size as the original. Writing it as rgba32.");
