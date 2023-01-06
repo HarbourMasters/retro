@@ -32,6 +32,18 @@ enum TextureType {
   }
 }
 
+class TextureMetadata {
+  int width;
+  int height;
+  bool hasBiggerTMEM = false;
+
+  TextureMetadata(this.width, this.height, this.hasBiggerTMEM);
+
+  static TextureMetadata fromTexture(Texture texture, { bool hasBiggerTMEM = false }) {
+    return TextureMetadata(texture.width, texture.height, hasBiggerTMEM);
+  }
+}
+
 class Texture extends Resource {
 
   TextureType internalTextureType = TextureType.Error;
@@ -53,7 +65,7 @@ class Texture extends Resource {
     writeInt32(height);
 
     if(gameVersion == Version.flynn){
-      writeInt8(hasBiggerTMEM ? 1 : 0);
+      writeBool(hasBiggerTMEM);
     }
 
     writeInt32(texDataSize);
@@ -67,7 +79,7 @@ class Texture extends Resource {
     height = readInt32();
 
     if(gameVersion == Version.flynn){
-      hasBiggerTMEM = readInt8() == 1;
+      hasBiggerTMEM = readBool();
     }
 
     texDataSize = readInt32();
@@ -101,6 +113,7 @@ class Texture extends Resource {
   void changeTextureFormat(TextureType type){
     if(type == textureType) return;
     Uint8List png = convertN64ToPNG()!;
+    textureType = type;
     convertPNGToN64(png);
   }
 

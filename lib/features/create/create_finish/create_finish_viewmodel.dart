@@ -162,10 +162,13 @@ class CreateFinishViewModel with ChangeNotifier {
             texture.fromPNGImage(pair.item1.readAsBytesSync());
             int tmemSize = texture.getTMEMSize();
             int maxTmemSize = pair.item2.getTMEMSize();
+
             if (tmemSize > maxTmemSize) {
               log("Texture ${pair.item1.path} is too large. TMem found ${texture.getTMEMSize()}. Writing it as rgba32.");
               texture.changeTextureFormat(TextureType.RGBA32bpp);
               texture.enableBiggerTMEM();
+              // texture.textureType = TextureType.RGBA32bpp;
+              // texture.fromPNGImage(pair.item1.readAsBytesSync());
             }
 
             Uint8List data = texture.build();

@@ -49,6 +49,10 @@ abstract class Resource {
     buffer.addAll([value, 0, 0, 0]);
   }
 
+  void writeBool(bool value) {
+    buffer.addAll([value ? 1 : 0]);
+  }
+
   void writeInt8(int value) {
     buffer.addAll([value]);
   }
@@ -59,6 +63,10 @@ abstract class Resource {
 
   void writeInt64(int value) {
     buffer.addAll(Uint8List(8)..buffer.asInt64List()[0] = value);
+  }
+
+  void writeFloat32(double value) {
+    buffer.addAll(Uint8List(4)..buffer.asFloat32List()[0] = value);
   }
 
   void writeString(String value) {
@@ -123,6 +131,10 @@ abstract class Resource {
 
   int readBinary() {
     return readInt8();
+  }
+
+  bool readBool() {
+    return readInt8() == 1;
   }
 
   int readInt8() {

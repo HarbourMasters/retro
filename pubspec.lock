@@ -126,10 +126,10 @@ packages:
   image:
     dependency: "direct main"
     description:
-      path: "../image_ex"
-      relative: true
-    source: path
-    version: "3.2.2"
+      name: image
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.0.7"
   js:
     dependency: transitive
     description:
