@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_storm/bridge/errors.dart';
 import 'package:flutter_storm/flutter_storm.dart';
 import 'package:flutter_storm/bridge/flags.dart';
+import 'package:retro/models/texture_manifest_entry.dart';
 import 'package:retro/otr/types/sequence.dart';
 import 'package:retro/models/app_state.dart';
 import 'package:retro/models/stage_entry.dart';
@@ -69,7 +70,7 @@ class CreateFinishViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  onAddCustomTextureEntry(HashMap<String, List<Tuple2<File, soh.Texture>>> replacementMap) {
+  onAddCustomTextureEntry(HashMap<String, List<Tuple2<File, TextureManifestEntry>>> replacementMap) {
     for (var entry in replacementMap.entries) {
       if (entries.containsKey(entry.key) &&
           entries[entry.key] is CustomTexturesEntry) {
@@ -160,15 +161,11 @@ class CreateFinishViewModel with ChangeNotifier {
             soh.Texture texture = soh.Texture.empty();
             texture.textureType = pair.item2.textureType;
             texture.fromPNGImage(pair.item1.readAsBytesSync());
-            int tmemSize = texture.getTMEMSize();
-            int maxTmemSize = pair.item2.getTMEMSize();
 
-            if (tmemSize > maxTmemSize) {
-              log("Texture ${pair.item1.path} is too large. TMem found ${texture.getTMEMSize()}. Writing it as rgba32.");
+            if (pair.item2.textureWidth != texture.width || pair.item2.textureHeight != texture.height) {
+              log("Texture ${pair.item1.path} is not the same size as the original. Writing it as rgba32.");
               texture.changeTextureFormat(TextureType.RGBA32bpp);
-              texture.enableBiggerTMEM();
-              // texture.textureType = TextureType.RGBA32bpp;
-              // texture.fromPNGImage(pair.item1.readAsBytesSync());
+              texture.markAsDifferentSizeThanOriginal();
             }
 
             Uint8List data = texture.build();

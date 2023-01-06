@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:retro/models/texture_manifest_entry.dart';
 import 'package:retro/otr/types/texture.dart';
 import 'package:tuple/tuple.dart';
 
@@ -24,7 +25,7 @@ class CustomSequencesEntry extends StageEntry {
 }
 
 class CustomTexturesEntry extends StageEntry {
-  final List<Tuple2<File, Texture>> pairs;
+  final List<Tuple2<File, TextureManifestEntry>> pairs;
   CustomTexturesEntry(this.pairs);
 
   @override

@@ -32,27 +32,14 @@ enum TextureType {
   }
 }
 
-class TextureMetadata {
-  int width;
-  int height;
-  bool hasBiggerTMEM = false;
-
-  TextureMetadata(this.width, this.height, this.hasBiggerTMEM);
-
-  static TextureMetadata fromTexture(Texture texture, { bool hasBiggerTMEM = false }) {
-    return TextureMetadata(texture.width, texture.height, hasBiggerTMEM);
-  }
-}
-
 class Texture extends Resource {
-
   TextureType internalTextureType = TextureType.Error;
   int width, height;
   int texDataSize;
   Uint8List texData;
   Texture? tlut;
   bool isPalette = false;
-  bool hasBiggerTMEM = false;
+  bool differentSizeThanOriginal = false;
 
   Texture(this.width, this.height, this.texDataSize, this.texData) : super(ResourceType.texture, 0, Version.deckard);
 
@@ -64,8 +51,9 @@ class Texture extends Resource {
     writeInt32(width);
     writeInt32(height);
 
-    if(gameVersion == Version.flynn){
-      writeBool(hasBiggerTMEM);
+    // TODO: Replace this with version that introduces HD texture replacement
+    if (gameVersion == Version.flynn) {
+      writeBool(differentSizeThanOriginal);
     }
 
     writeInt32(texDataSize);
@@ -78,8 +66,9 @@ class Texture extends Resource {
     width = readInt32();
     height = readInt32();
 
-    if(gameVersion == Version.flynn){
-      hasBiggerTMEM = readBool();
+    // TODO: Replace this with version that introduces HD texture replacement
+    if (gameVersion == Version.flynn) {
+      differentSizeThanOriginal = readBool();
     }
 
     texDataSize = readInt32();
@@ -95,42 +84,23 @@ class Texture extends Resource {
     isPalette = textureType == TextureType.Palette4bpp || textureType == TextureType.Palette8bpp;
   }
 
-  void setTLUT(Texture tlut) {
-    this.tlut = tlut;
-  }
-
-  void _validatePalette(Uint8List png){
-    if(!isPalette) return;
-    bool valid = png[0x19] == 3;
-    textureType = valid ? textureType : TextureType.RGBA32bpp;
-    isPalette = valid;
-  }
-
-  void fromPNGImage(Uint8List png){
+  void fromPNGImage(Uint8List png) {
     convertPNGToN64(png);
   }
 
-  void changeTextureFormat(TextureType type){
+  void changeTextureFormat(TextureType type) {
     if(type == textureType) return;
     Uint8List png = convertN64ToPNG()!;
     textureType = type;
     convertPNGToN64(png);
   }
 
-  Uint8List toPNGBytes(){
+  Uint8List toPNGBytes() {
     return convertN64ToPNG()?? Uint8List(0);
   }
 
-  void enableBiggerTMEM(){
+  void markAsDifferentSizeThanOriginal() {
     gameVersion = Version.flynn;
-    hasBiggerTMEM = true;
-  }
-
-  int getTMEMSize(){
-    return (width / (64 / textureType.bitSize)).ceil() * height;
-  }
-
-  int getMaxTMEMSize(){
-    return isPalette ? 2048 : 4096;
+    differentSizeThanOriginal = true;
   }
 }
