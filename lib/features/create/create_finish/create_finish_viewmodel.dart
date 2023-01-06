@@ -15,7 +15,6 @@ import 'package:retro/otr/types/texture.dart';
 import 'package:retro/utils/log.dart';
 import 'package:tuple/tuple.dart';
 import 'package:retro/otr/types/texture.dart' as soh;
-import 'package:retro/utils/tex_utils.dart';
 
 class CreateFinishViewModel with ChangeNotifier {
   AppState currentState = AppState.none;

@@ -135,14 +135,4 @@ class Texture extends Resource {
   int getMaxTMEMSize(){
     return isPalette ? 2048 : 4096;
   }
-
-  bool canBeConverted(Uint8List data){
-    Image pngImage = decodePng(data)!;
-
-    if(isPalette && !!pngImage.hasPalette){
-      return false;
-    }
-
-    return true;
-  }
 }
