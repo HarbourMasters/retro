@@ -1,6 +1,7 @@
 // ignore_for_file: constant_identifier_names
 import 'dart:typed_data';
 
+import 'package:image/image.dart';
 import 'package:retro/otr/resource.dart';
 import 'package:retro/otr/resource_type.dart';
 import 'package:retro/otr/version.dart';
@@ -32,6 +33,15 @@ enum TextureType {
   }
 }
 
+enum TextureFlags {
+  NONE (0),
+  LOAD_AS_RAW (1 << 0);
+
+  final int shift;
+
+  const TextureFlags(this.shift);
+}
+
 class TextureMetadata {
   int width;
   int height;
@@ -51,8 +61,8 @@ class Texture extends Resource {
   int texDataSize;
   Uint8List texData;
   Texture? tlut;
+  int textureFlags = 0;
   bool isPalette = false;
-  bool hasBiggerTMEM = false;
 
   Texture(this.width, this.height, this.texDataSize, this.texData) : super(ResourceType.texture, 0, Version.deckard);
 
@@ -65,7 +75,7 @@ class Texture extends Resource {
     writeInt32(height);
 
     if(gameVersion == Version.flynn){
-      writeBool(hasBiggerTMEM);
+      writeInt32(textureFlags);
     }
 
     writeInt32(texDataSize);
@@ -79,7 +89,7 @@ class Texture extends Resource {
     height = readInt32();
 
     if(gameVersion == Version.flynn){
-      hasBiggerTMEM = readBool();
+      textureFlags = readInt32();
     }
 
     texDataSize = readInt32();
@@ -99,13 +109,6 @@ class Texture extends Resource {
     this.tlut = tlut;
   }
 
-  void _validatePalette(Uint8List png){
-    if(!isPalette) return;
-    bool valid = png[0x19] == 3;
-    textureType = valid ? textureType : TextureType.RGBA32bpp;
-    isPalette = valid;
-  }
-
   void fromPNGImage(Uint8List png){
     convertPNGToN64(png);
   }
@@ -123,7 +126,7 @@ class Texture extends Resource {
 
   void enableBiggerTMEM(){
     gameVersion = Version.flynn;
-    hasBiggerTMEM = true;
+    textureFlags |= TextureFlags.LOAD_AS_RAW.shift;
   }
 
   int getTMEMSize(){
@@ -132,5 +135,15 @@ class Texture extends Resource {
 
   int getMaxTMEMSize(){
     return isPalette ? 2048 : 4096;
+  }
+
+  bool canBeConverted(Uint8List data){
+    Image pngImage = decodePng(data)!;
+
+    if(isPalette && !!pngImage.hasPalette){
+      return false;
+    }
+
+    return true;
   }
 }

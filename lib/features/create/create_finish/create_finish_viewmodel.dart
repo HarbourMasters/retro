@@ -14,6 +14,7 @@ import 'package:retro/otr/types/texture.dart';
 import 'package:retro/utils/log.dart';
 import 'package:tuple/tuple.dart';
 import 'package:retro/otr/types/texture.dart' as soh;
+import 'package:retro/utils/tex_utils.dart';
 
 class CreateFinishViewModel with ChangeNotifier {
   AppState currentState = AppState.none;
@@ -157,18 +158,25 @@ class CreateFinishViewModel with ChangeNotifier {
           }
         } else if (entry.value is CustomTexturesEntry) {
           for (var pair in (entry.value as CustomTexturesEntry).pairs) {
+            Uint8List data = pair.item1.readAsBytesSync();
             soh.Texture texture = soh.Texture.empty();
             texture.textureType = pair.item2.textureType;
-            texture.fromPNGImage(pair.item1.readAsBytesSync());
+
+            if(!texture.canBeConverted(data)){
+              log("Texture ${pair.item1.path} is not a valid texture");
+              continue;
+            }
+
+            texture.fromPNGImage(data);
             int tmemSize = texture.getTMEMSize();
             int maxTmemSize = pair.item2.getTMEMSize();
 
             if (tmemSize > maxTmemSize) {
               log("Texture ${pair.item1.path} is too large. TMem found ${texture.getTMEMSize()}. Writing it as rgba32.");
-              texture.changeTextureFormat(TextureType.RGBA32bpp);
+              // texture.changeTextureFormat(TextureType.RGBA32bpp);
               texture.enableBiggerTMEM();
-              // texture.textureType = TextureType.RGBA32bpp;
-              // texture.fromPNGImage(pair.item1.readAsBytesSync());
+              texture.textureType = TextureType.RGBA32bpp;
+              texture.fromPNGImage(pair.item1.readAsBytesSync());
             }
 
             Uint8List data = texture.build();
