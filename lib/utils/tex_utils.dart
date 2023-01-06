@@ -6,7 +6,7 @@ import 'package:retro/otr/types/texture.dart';
 extension N64Graphics on Texture {
 
   Uint8List pixelsToPNG(Uint8List data){
-    return Uint8List.fromList(encodePng(Image.fromBytes(width: width, height: height, bytes: data.buffer)).toList());
+    return encodePng(Image.fromBytes(width: width, height: height, bytes: data.buffer, numChannels: 4)).buffer.asUint8List();
   }
 
   void convertPNGToN64(Uint8List image) {
@@ -205,7 +205,6 @@ extension N64Graphics on Texture {
 
               int grayscale = ((data & 0x0E) >> 1) * 32;
 				      int alpha = (data & 0x01) * 255;
-
               pngImage.setPixel(x + i, y, ColorInt8.rgba(grayscale, grayscale, grayscale, alpha));
             }
           }

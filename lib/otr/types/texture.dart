@@ -40,6 +40,10 @@ enum TextureFlags {
   final int shift;
 
   const TextureFlags(this.shift);
+
+   operator | (TextureFlags other) {
+    return shift | other.shift;
+  }
 }
 
 class TextureMetadata {
@@ -123,9 +127,9 @@ class Texture extends Resource {
     return convertN64ToPNG()?? Uint8List(0);
   }
 
-  void markAsDifferentSizeThanOriginal() {
+  void setTextureFlags(TextureFlags flags) {
     gameVersion = Version.flynn;
-    textureFlags |= TextureFlags.LOAD_AS_RAW.shift;
+    textureFlags |= flags.shift;
   }
 
   int getTMEMSize(){

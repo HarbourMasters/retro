@@ -152,7 +152,7 @@ class CreateFinishViewModel with ChangeNotifier {
               continue;
             }
 
-            String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, data.length, MPQ_FILE_COMPRESS);
+            String? fileHandle = await SFileCreateFile(mpqHandle, fileName, data.length, MPQ_FILE_COMPRESS);
             await SFileWriteFile(fileHandle!, data, data.length, MPQ_COMPRESSION_ZLIB);
             await SFileFinishFile(fileHandle);
           }
@@ -173,7 +173,7 @@ class CreateFinishViewModel with ChangeNotifier {
             if (pair.item2.textureWidth != texture.width || pair.item2.textureHeight != texture.height) {
               log("Texture ${pair.item1.path} is not the same size as the original. Writing it as rgba32.");
               texture.changeTextureFormat(TextureType.RGBA32bpp);
-              texture.markAsDifferentSizeThanOriginal();
+              texture.setTextureFlags(TextureFlags.LOAD_AS_RAW);
             }
 
             Uint8List data = texture.build();
