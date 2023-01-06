@@ -55,7 +55,6 @@ class TextureMetadata {
 }
 
 class Texture extends Resource {
-
   TextureType internalTextureType = TextureType.Error;
   int width, height;
   int texDataSize;
@@ -113,18 +112,18 @@ class Texture extends Resource {
     convertPNGToN64(png);
   }
 
-  void changeTextureFormat(TextureType type){
+  void changeTextureFormat(TextureType type) {
     if(type == textureType) return;
     Uint8List png = convertN64ToPNG()!;
     textureType = type;
     convertPNGToN64(png);
   }
 
-  Uint8List toPNGBytes(){
+  Uint8List toPNGBytes() {
     return convertN64ToPNG()?? Uint8List(0);
   }
 
-  void enableBiggerTMEM(){
+  void markAsDifferentSizeThanOriginal() {
     gameVersion = Version.flynn;
     textureFlags |= TextureFlags.LOAD_AS_RAW.shift;
   }

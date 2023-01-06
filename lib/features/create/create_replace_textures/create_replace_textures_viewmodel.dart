@@ -11,7 +11,6 @@ import 'package:flutter_storm/bridge/flags.dart';
 import 'package:flutter_storm/flutter_storm.dart';
 import 'package:retro/models/texture_manifest_entry.dart';
 import 'package:retro/otr/types/texture.dart' as soh;
-import 'package:retro/otr/types/texture.dart';
 import 'package:retro/utils/log.dart';
 import 'package:tuple/tuple.dart';
 import 'package:retro/utils/path.dart' as p;
@@ -54,7 +53,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     isProcessing = true;
     notifyListeners();
 
-    HashMap<String, List<Tuple2<File, soh.Texture>>> processedFiles = HashMap();
+    HashMap<String, List<Tuple2<File, TextureManifestEntry>>> processedFiles = HashMap();
 
     // search for and load manifest.json
     String manifestPath = p.normalize("$selectedFolderPath/manifest.json");
@@ -85,9 +84,9 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
 
           String pathWithoutFilename = p.normalize(pngPathRelativeToFolder.split("/").sublist(0, pngPathRelativeToFolder.split("/").length - 1).join("/"));
           if(processedFiles.containsKey(pathWithoutFilename)){
-            processedFiles[pathWithoutFilename]!.add(Tuple2(pngFile, manifestEntry.texture));
+            processedFiles[pathWithoutFilename]!.add(Tuple2(pngFile, manifestEntry));
           } else {
-            processedFiles[pathWithoutFilename] = [Tuple2(pngFile, manifestEntry.texture)];
+            processedFiles[pathWithoutFilename] = [Tuple2(pngFile, manifestEntry)];
           }
         }
       } else {
@@ -222,7 +221,7 @@ Future<bool> processFile(
 
     // Track file path and hash
     String fileHash = sha256.convert(textureFile.readAsBytesSync()).toString();
-    onProcessed(TextureManifestEntry(fileHash, texture));
+    onProcessed(TextureManifestEntry(fileHash, texture.internalTextureType, texture.width, texture.height));
     return true;
   } catch (e) {
     // Not a texture

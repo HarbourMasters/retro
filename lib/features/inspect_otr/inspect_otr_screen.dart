@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:retro/features/inspect_otr/inspect_otr_viewmodel.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class InspectOTRScreen extends StatefulWidget {
   const InspectOTRScreen({super.key});
@@ -14,14 +15,26 @@ class _InspectOTRScreenState extends State<InspectOTRScreen> {
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<InspectOTRViewModel>(context);
+    final AppLocalizations i18n = AppLocalizations.of(context)!;
 
     return CustomScaffold(
-      title: "Inspect OTR",
-      subtitle: "Inspect the contents of an OTR",
+      title: i18n.inspectOtrScreen_inspectOtr,
+      subtitle: i18n.inspectOtrScreen_inspectOtrSubtitle,
       onBackButtonPressed: () {
         viewModel.reset();
         Navigator.of(context).pop();
       },
+      topRightWidget: SizedBox(
+        width: 300,
+        child: TextField(
+          decoration: InputDecoration(
+            border: const OutlineInputBorder(),
+            labelText: i18n.inspectOtrScreen_search,
+            prefixIcon: const Icon(Icons.search),
+          ),
+          onChanged: viewModel.onSearch,
+        ),
+      ),
       content: Expanded(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -33,7 +46,7 @@ class _InspectOTRScreenState extends State<InspectOTRScreen> {
                   enabled: false,
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
-                    labelText: viewModel.selectedOTRPath ?? 'No OTR Selected',
+                    labelText: viewModel.selectedOTRPath ?? i18n.inspectOtrScreen_noOtrSelected,
                   ),
                 )),
                 const SizedBox(width: 12),
@@ -41,19 +54,19 @@ class _InspectOTRScreenState extends State<InspectOTRScreen> {
                     onPressed: viewModel.onSelectOTR,
                     style: ElevatedButton.styleFrom(
                         minimumSize: const Size(100, 50)),
-                    child: const Text("Select"))
+                    child: Text(i18n.inspectOtrScreen_selectButton))
               ]),
-              if (viewModel.isProcessing || viewModel.filesInOTR.isNotEmpty)
+              if (viewModel.isProcessing || viewModel.filteredFilesInOTR.isNotEmpty)
                 Expanded(
                     child: viewModel.isProcessing
                         ? const Center(child: CircularProgressIndicator())
                         : Padding(
                             padding: const EdgeInsets.only(top: 10),
                             child: ListView.builder(
-                                itemCount: viewModel.filesInOTR.length,
+                                itemCount: viewModel.filteredFilesInOTR.length,
                                 prototypeItem: const SizedBox(width: 0, height: 20),
                                 itemBuilder: (context, index) {
-                                  return Text(viewModel.filesInOTR[index]);
+                                  return Text(viewModel.filteredFilesInOTR[index]);
                                 })))
             ],
           ),
