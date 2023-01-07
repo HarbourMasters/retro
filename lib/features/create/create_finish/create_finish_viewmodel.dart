@@ -128,7 +128,7 @@ class CreateFinishViewModel with ChangeNotifier {
 
     try {
       String? mpqHandle = await SFileCreateArchive(
-          outputFile, MPQ_CREATE_SIGNATURE | MPQ_CREATE_ARCHIVE_V4, 1024);
+          outputFile, MPQ_CREATE_SIGNATURE | MPQ_CREATE_ARCHIVE_V2, 1024);
 
       isGenerating = true;
       notifyListeners();
