@@ -34,7 +34,6 @@ enum TextureType {
 }
 
 enum TextureFlags {
-  NONE (0),
   LOAD_AS_RAW (1 << 0);
 
   final int shift;
@@ -108,10 +107,6 @@ class Texture extends Resource {
     isPalette = textureType == TextureType.Palette4bpp || textureType == TextureType.Palette8bpp;
   }
 
-  void setTLUT(Texture tlut) {
-    this.tlut = tlut;
-  }
-
   void fromPNGImage(Uint8List png){
     convertPNGToN64(png);
   }
@@ -130,13 +125,5 @@ class Texture extends Resource {
   void setTextureFlags(TextureFlags flags) {
     gameVersion = Version.flynn;
     textureFlags |= flags.shift;
-  }
-
-  int getTMEMSize(){
-    return (width / (64 / textureType.bitSize)).ceil() * height;
-  }
-
-  int getMaxTMEMSize(){
-    return isPalette ? 2048 : 4096;
   }
 }
