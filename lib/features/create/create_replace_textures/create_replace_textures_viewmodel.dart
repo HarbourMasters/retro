@@ -11,6 +11,7 @@ import 'package:flutter_storm/bridge/flags.dart';
 import 'package:flutter_storm/flutter_storm.dart';
 import 'package:retro/models/texture_manifest_entry.dart';
 import 'package:retro/otr/types/texture.dart' as soh;
+import 'package:retro/otr/types/texture.dart';
 import 'package:retro/utils/log.dart';
 import 'package:tuple/tuple.dart';
 import 'package:retro/utils/path.dart' as p;
@@ -204,7 +205,7 @@ Future<bool> processFile(
   Uint8List? fileData = await SFileReadFile(fileHandle, fileSize!);
 
   try {
-    soh.Texture texture = soh.Texture.empty();
+    soh.Texture texture = soh.Texture.empty(TextureType.Error);
     texture.open(fileData!);
 
     if(!texture.isValid){

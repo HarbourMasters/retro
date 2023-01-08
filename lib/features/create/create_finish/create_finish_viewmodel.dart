@@ -129,7 +129,7 @@ class CreateFinishViewModel with ChangeNotifier {
 
     try {
       String? mpqHandle = await SFileCreateArchive(
-          outputFile, MPQ_CREATE_SIGNATURE | MPQ_CREATE_ARCHIVE_V4, 1024);
+          outputFile, MPQ_CREATE_SIGNATURE | MPQ_CREATE_ARCHIVE_V4, 4096);
 
       isGenerating = true;
       notifyListeners();
@@ -160,8 +160,16 @@ class CreateFinishViewModel with ChangeNotifier {
           for (var pair in (entry.value as CustomTexturesEntry).pairs) {
             log("Processing texture ${pair.item1.path} as ${pair.item2.textureType}");
 
-            soh.Texture texture = soh.Texture.empty();
-            texture.textureType = pair.item2.textureType;
+            soh.Texture texture = soh.Texture.empty(pair.item2.textureType);
+            bool isHDTexture = pair.item2.textureWidth != texture.width || pair.item2.textureHeight != texture.height;
+
+            if (isHDTexture) {
+              log("Texture ${pair.item1.path} is not the same size as the original. Writing it as rgba32.");
+              texture.setTextureFlags(TextureFlags.LOAD_AS_RAW);
+              if(!texture.isPalette) {
+                texture.textureType = TextureType.RGBA32bpp;
+              }
+            }
 
             try {
               texture.fromPNGImage(pair.item1.readAsBytesSync());
@@ -170,10 +178,8 @@ class CreateFinishViewModel with ChangeNotifier {
               continue;
             }
 
-            if (pair.item2.textureWidth != texture.width || pair.item2.textureHeight != texture.height) {
-              log("Texture ${pair.item1.path} is not the same size as the original. Writing it as rgba32.");
+            if(texture.isPalette && isHDTexture){
               texture.changeTextureFormat(TextureType.RGBA32bpp);
-              texture.setTextureFlags(TextureFlags.LOAD_AS_RAW);
             }
 
             Uint8List data = texture.build();

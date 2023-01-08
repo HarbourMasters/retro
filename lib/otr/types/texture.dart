@@ -40,7 +40,7 @@ enum TextureFlags {
 
   const TextureFlags(this.shift);
 
-   operator | (TextureFlags other) {
+  operator | (TextureFlags other) {
     return shift | other.shift;
   }
 }
@@ -66,9 +66,9 @@ class Texture extends Resource {
   int textureFlags = 0;
   bool isPalette = false;
 
-  Texture(this.width, this.height, this.texDataSize, this.texData) : super(ResourceType.texture, 0, Version.deckard);
+  Texture(this.width, this.height, this.texDataSize, this.texData, this.internalTextureType) : super(ResourceType.texture, 0, Version.deckard);
 
-  Texture.empty() : this(0, 0, 0, Uint8List(0));
+  Texture.empty(TextureType type) : this(0, 0, 0, Uint8List(0), type);
 
   @override
   void writeResourceData() {
@@ -113,8 +113,8 @@ class Texture extends Resource {
 
   void changeTextureFormat(TextureType type) {
     if(type == textureType) return;
-    Uint8List png = convertN64ToPNG()!;
     textureType = type;
+    Uint8List png = convertN64ToPNG()!;
     convertPNGToN64(png);
   }
 

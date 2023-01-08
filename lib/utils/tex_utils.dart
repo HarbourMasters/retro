@@ -13,7 +13,7 @@ extension N64Graphics on Texture {
     Image pngImage = decodeImage(image)!;
 
     if (isPalette && !pngImage.hasPalette) {
-      throw Exception('PNG image does not have a palette');
+      textureType = TextureType.RGBA32bpp;
     }
 
     width = pngImage.width;
@@ -41,8 +41,19 @@ extension N64Graphics on Texture {
         }
         break;
       case TextureType.RGBA32bpp:
-        texData = Uint8List.fromList(pngImage.getBytes(order: ChannelOrder.rgba));
-        texDataSize = texData.length;
+        texDataSize = textureType.getBufferSize(width, height);
+        texData = Uint8List(texDataSize);
+
+        for (int y = 0; y < height; y++) {
+          for (int x = 0; x < width; x++) {
+            Pixel pixel = pngImage.getPixel(x, y);
+            int pos = ((y * width) + x) * 4;
+            texData[pos]     = pixel.r.toInt();
+            texData[pos + 1] = pixel.g.toInt();
+            texData[pos + 2] = pixel.b.toInt();
+            texData[pos + 3] = pixel.a.toInt();
+          }
+        }
         break;
       case TextureType.Palette4bpp:
         texDataSize = textureType.getBufferSize(width, height);
@@ -139,7 +150,7 @@ extension N64Graphics on Texture {
 
   Uint8List? convertN64ToPNG(){
     Image pngImage = Image(width: width, height: height, numChannels: hasAlpha ? 4 : 3, withPalette: isPalette);
-    switch(textureType){
+    switch(internalTextureType){
       case TextureType.RGBA32bpp:
         return pixelsToPNG(texData);
       case TextureType.RGBA16bpp:
@@ -260,7 +271,7 @@ extension N64Graphics on Texture {
 
     return true;
   }
-  
+
   bool get hasAlpha =>
     isPalette || textureType == TextureType.RGBA32bpp || textureType == TextureType.RGBA16bpp || textureType == TextureType.GrayscaleAlpha16bpp || textureType == TextureType.GrayscaleAlpha8bpp || textureType == TextureType.GrayscaleAlpha4bpp;
 
