@@ -159,31 +159,32 @@ class CreateFinishViewModel with ChangeNotifier {
         } else if (entry.value is CustomTexturesEntry) {
           for (var pair in (entry.value as CustomTexturesEntry).pairs) {
             log("Processing texture ${pair.item1.path} as ${pair.item2.textureType}");
+            // TODO: Write a proper otr file because this is awful
 
-            soh.Texture texture = soh.Texture.empty(pair.item2.textureType);
-            bool isHDTexture = pair.item2.textureWidth != texture.width || pair.item2.textureHeight != texture.height;
+            // soh.Texture texture = soh.Texture.empty(TextureType.RGBA32bpp);
+            // bool isHDTexture = pair.item2.textureWidth != texture.width || pair.item2.textureHeight != texture.height;
 
-            if (isHDTexture) {
-              log("Texture ${pair.item1.path} is not the same size as the original. Writing it as rgba32.");
-              texture.setTextureFlags(TextureFlags.LOAD_AS_RAW);
-              if(!texture.isPalette) {
-                texture.textureType = TextureType.RGBA32bpp;
-              }
-            }
+            // if (isHDTexture) {
+            //   log("Texture ${pair.item1.path} is not the same size as the original. Writing it as rgba32.");
+            //   texture.setTextureFlags(TextureFlags.LOAD_AS_RAW);
+            //   if(!texture.isPalette) {
+            //     texture.textureType = TextureType.RGBA32bpp;
+            //   }
+            // }
 
-            try {
-              texture.fromPNGImage(pair.item1.readAsBytesSync());
-            } catch (e) {
-              log("Failed to convert texture ${pair.item1.path} from PNG. Error: $e");
-              continue;
-            }
+            // try {
+            //   texture.fromPNGImage(pair.item1.readAsBytesSync());
+            // } catch (e) {
+            //   log("Failed to convert texture ${pair.item1.path} from PNG. Error: $e");
+            //   continue;
+            // }
 
-            if(texture.isPalette && isHDTexture){
-              texture.changeTextureFormat(TextureType.RGBA32bpp);
-            }
+            // if(texture.isPalette && isHDTexture){
+            //   texture.changeTextureFormat(TextureType.RGBA32bpp);
+            // }
 
-            Uint8List data = texture.build();
-            String fileName = "${entry.key}/${pair.item1.path.split("/").last.split(".").first}";
+            Uint8List data = pair.item1.readAsBytesSync();
+            String fileName = "raw/${entry.key}/${pair.item1.path.split("/").last.split(".").first}";
             String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, data.length, MPQ_FILE_COMPRESS);
             await SFileWriteFile(fileHandle!, data, data.length, MPQ_COMPRESSION_ZLIB);
             await SFileFinishFile(fileHandle);
