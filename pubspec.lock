@@ -131,12 +131,10 @@ packages:
   image:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: b8e882034bfa797423d446486bd459889d3bb1e0
-      url: "https://github.com/KiritoDv/image_ex.git"
-    source: git
-    version: "3.2.2"
+      name: image
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.0.8"
   intl:
     dependency: "direct main"
     description:

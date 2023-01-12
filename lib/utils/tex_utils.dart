@@ -3,17 +3,9 @@ import 'dart:typed_data';
 import 'package:image/image.dart';
 import 'package:retro/otr/types/texture.dart';
 
-class RGBAPixel {
-  int r, g, b, a;
-  RGBAPixel(this.r, this.g, this.b, this.a);
-}
-
-int scale5_8(val) => (((val) * 0xFF) / 0x1F);
-
 extension N64Graphics on Texture {
-
-  Uint8List pixelsToPNG(Uint8List data){
-    return Uint8List.fromList(encodePng(Image.fromBytes(width, height, data)).toList());
+  Uint8List pixelsToPNG(Uint8List data) {
+    return encodePng(Image.fromBytes(width: width, height: height, bytes: data.buffer, numChannels: 4)).buffer.asUint8List();
   }
 
   void convertPNGToN64(Uint8List image) {
@@ -24,10 +16,11 @@ extension N64Graphics on Texture {
       case TextureType.RGBA16bpp:
         texDataSize = textureType.getBufferSize(width, height);
         texData = Uint8List(texDataSize);
+        
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x++) {
             int pos = ((y * width) + x) * 2;
-            RGBAPixel pixel = pngImage.getRGBPixel(y, x);
+            Pixel pixel = pngImage.getPixel(x, y);
 
             int r = pixel.r ~/ 8;
             int g = pixel.g ~/ 8;
@@ -43,17 +36,30 @@ extension N64Graphics on Texture {
         }
         break;
       case TextureType.RGBA32bpp:
-        texData = Uint8List.fromList(pngImage.getBytes(format: Format.rgba));
-        texDataSize = texData.length;
+        texDataSize = textureType.getBufferSize(width, height);
+        texData = Uint8List(texDataSize);
+
+        for (int y = 0; y < height; y++) {
+          for (int x = 0; x < width; x++) {
+            int pos = ((y * width) + x) * 4;
+            Pixel pixel = pngImage.getPixel(x, y);
+
+            texData[pos + 0] = pixel.r.toInt();
+            texData[pos + 1] = pixel.g.toInt();
+            texData[pos + 2] = pixel.b.toInt();
+            texData[pos + 3] = pixel.a.toInt();
+          }
+        }
         break;
       case TextureType.Palette4bpp:
         texDataSize = textureType.getBufferSize(width, height);
         texData = Uint8List(texDataSize);
+
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x++) {
             int pos = ((y * width) + x) ~/ 2;
-            int r1 = pngImage.getIndexedPixel(y, x);
-            int r2 = pngImage.getIndexedPixel(y, x + 1);
+            int r1 = pngImage.getPixel(x, y).index.toInt();
+            int r2 = pngImage.getPixel(x + 1, y).index.toInt();
 
             texData[pos] = (r1 << 4) | (r2);
           }
@@ -65,7 +71,7 @@ extension N64Graphics on Texture {
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x++) {
             int pos = ((y * width) + x);
-            texData[pos] = pngImage.getIndexedPixel(y, x);
+            texData[pos] = pngImage.getPixel(x, y).index.toInt();
           }
         }
         break;
@@ -75,8 +81,8 @@ extension N64Graphics on Texture {
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x += 2) {
             int pos = ((y * width) + x) ~/ 2;
-            int r1 = pngImage.getRGBPixel(y, x).r;
-            int r2 = pngImage.getRGBPixel(y, x + 1).r;
+            int r1 = pngImage.getPixel(x, y).r.toInt();
+            int r2 = pngImage.getPixel(x + 1, y).r.toInt();
 
             texData[pos] = (((r1 ~/ 16) << 4) + (r2 / 16)).toInt();
           }
@@ -88,7 +94,7 @@ extension N64Graphics on Texture {
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x++) {
             int pos = (y * width) + x;
-            texData[pos] = pngImage.getRGBPixel(y, x).r;
+            texData[pos] = pngImage.getPixel(x, y).r.toInt();
           }
         }
         break;
@@ -101,8 +107,8 @@ extension N64Graphics on Texture {
             int data = 0;
 
             for (int i = 0; i < 2; i++) {
-              RGBAPixel pixel = pngImage.getRGBPixel(y, x + i);
-              int cR = pixel.r;
+              Pixel pixel = pngImage.getPixel(x + i, y);
+              int cR = pixel.r.toInt();
               int alphaBit = pixel.a != 0 ? 1 : 0;
               data |= i == 0 ? (((cR ~/ 32) << 1) + alphaBit) << 4 : ((cR ~/ 32) << 1) + alphaBit;
             }
@@ -116,7 +122,7 @@ extension N64Graphics on Texture {
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x++) {
             int pos = ((y * width) + x) * 1;
-            RGBAPixel pixel = pngImage.getRGBPixel(y, x);
+            Pixel pixel = pngImage.getPixel(x, y);
             texData[pos] = ((pixel.r ~/ 16) << 4) + (pixel.a ~/ 16);
           }
         }
@@ -127,9 +133,9 @@ extension N64Graphics on Texture {
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x++) {
             int pos = ((y * width) + x) * 2;
-            RGBAPixel pixel = pngImage.getRGBPixel(y, x);
-            texData[pos]     = pixel.r;
-            texData[pos + 1] = pixel.a;
+            Pixel pixel = pngImage.getPixel(x, y);
+            texData[pos]     = pixel.r.toInt();
+            texData[pos + 1] = pixel.a.toInt();
           }
         }
         break;
@@ -139,7 +145,7 @@ extension N64Graphics on Texture {
   }
 
   Uint8List? convertN64ToPNG(){
-    Image pngImage = Image(width, height);
+    Image pngImage = Image(width: width, height: height, numChannels: hasAlpha ? 4 : 3, withPalette: isPalette);
     switch(textureType){
       case TextureType.RGBA32bpp:
         return pixelsToPNG(texData);
@@ -152,29 +158,29 @@ extension N64Graphics on Texture {
             int g = (data & 0x07C0) >> 6;
             int b = (data & 0x003E) >> 1;
             int a = (data & 0x01);
-            pngImage.setPixel(x, y, getColor(r * 8, g * 8, b * 8, a * 255));
+            pngImage.setPixel(x, y, ColorInt8.rgba(r * 8, g * 8, b * 8, a * 255));
           }
         }
         break;
       case TextureType.Palette4bpp:
-        pngImage = Image.palette(width, height);
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x += 2) {
             for (int i = 0; i < 2; i++) {
               int pos = ((y * width) + x) ~/ 2;
               int paletteIndex = i == 0 ? (texData[pos] & 0xF0) >> 4 : texData[pos] & 0x0F;
-              pngImage.setIndexedPixel(x + i, y, paletteIndex, paletteIndex * 16);
+              pngImage.palette!.setRgba(paletteIndex, paletteIndex * 16, paletteIndex * 16, paletteIndex * 16, 255);
+              pngImage.setPixel(x + i, y, ColorInt8.rgb(paletteIndex, 0, 0));
             }
           }
         }
         break;
       case TextureType.Palette8bpp:
-        pngImage = Image.palette(width, height);
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x++) {
             int pos = ((y * width) + x) * 1;
             int grayscale = texData[pos];
-            pngImage.setIndexedPixel(x, y, grayscale, grayscale);
+            pngImage.palette!.setRgba(grayscale, grayscale, grayscale, grayscale, 255);
+            pngImage.setPixel(x, y, ColorInt8.rgb(grayscale, 0, 0));
           }
         }
         break;
@@ -184,7 +190,7 @@ extension N64Graphics on Texture {
             int pos = ((y * width) + x) ~/ 2;
             for(int i = 0; i < 2; i++){
               int v = i == 0 ? (texData[pos] & 0xF0) : texData[pos] & 0x0F << 4;
-              pngImage.setPixel(x + i, y, getColor(v, v, v));
+              pngImage.setPixel(x + i, y, ColorInt8.rgb(v, v, v));
             }
           }
         }
@@ -193,7 +199,7 @@ extension N64Graphics on Texture {
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x++) {
             int pos = (y * width) + x;
-            pngImage.setPixel(x, y, getColor(texData[pos], texData[pos], texData[pos]));
+            pngImage.setPixel(x, y, ColorInt8.rgb(texData[pos], texData[pos], texData[pos]));
           }
         }
         break;
@@ -207,7 +213,7 @@ extension N64Graphics on Texture {
               int grayscale = ((data & 0x0E) >> 1) * 32;
 				      int alpha = (data & 0x01) * 255;
 
-              pngImage.setPixel(x + i, y, getColor(grayscale, grayscale, grayscale, alpha));
+              pngImage.setPixel(x + i, y, ColorInt8.rgba(grayscale, grayscale, grayscale, alpha));
             }
           }
         }
@@ -218,7 +224,7 @@ extension N64Graphics on Texture {
             int pos = ((y * width) + x) * 1;
             int grayscale = texData[pos] & 0xF0;
 			      int alpha = (texData[pos] & 0x0F) << 4;
-            pngImage.setPixel(x, y, getColor(grayscale, grayscale, grayscale, alpha));
+            pngImage.setPixel(x, y, ColorInt8.rgba(grayscale, grayscale, grayscale, alpha));
           }
         }
         break;
@@ -228,7 +234,7 @@ extension N64Graphics on Texture {
             int pos = ((y * width) + x) * 2;
             int grayscale = texData[pos];
             int alpha     = texData[pos + 1];
-            pngImage.setPixel(x, y, getColor(grayscale, grayscale, grayscale, alpha));
+            pngImage.setPixel(x, y, ColorInt8.rgba(grayscale, grayscale, grayscale, alpha));
           }
         }
         break;
@@ -246,28 +252,15 @@ extension N64Graphics on Texture {
             continue;
           }
 
-          RGBAPixel pixel = pal.getRGBPixel(y, x);
-          pngImage.setPaletteIndex(index, pixel.r, pixel.g, pixel.b, pixel.a);
+          Pixel pixel = pal.getPixel(x, y);
+          pngImage.palette!.setRgba(index, pixel.r, pixel.g, pixel.b, pixel.a);
         }
       }
     }
 
     return Uint8List.fromList(encodePng(pngImage).toList());
   }
-}
 
-extension PixelUtils on Image {
-  RGBAPixel getRGBPixel(int y, int x) {
-    int pixel = getPixel(x, y);
-    return RGBAPixel(
-      getRed(pixel),
-      getGreen(pixel),
-      getBlue(pixel),
-      getAlpha(pixel),
-    );
-  }
-
-  int getIndexedPixel(int y, int x) {
-    return getPixel(x, y);
-  }
+  bool get hasAlpha =>
+    isPalette || textureType == TextureType.RGBA32bpp || textureType == TextureType.RGBA16bpp || textureType == TextureType.GrayscaleAlpha16bpp || textureType == TextureType.GrayscaleAlpha8bpp || textureType == TextureType.GrayscaleAlpha4bpp;
 }
