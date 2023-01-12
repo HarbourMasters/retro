@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_storm/bridge/errors.dart';
 import 'package:flutter_storm/flutter_storm.dart';
 import 'package:flutter_storm/bridge/flags.dart';
+import 'package:retro/models/texture_manifest_entry.dart';
 import 'package:retro/otr/types/sequence.dart';
 import 'package:retro/models/app_state.dart';
 import 'package:retro/models/stage_entry.dart';
@@ -69,7 +70,7 @@ class CreateFinishViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  onAddCustomTextureEntry(HashMap<String, List<Tuple2<File, TextureType>>> replacementMap) {
+  onAddCustomTextureEntry(HashMap<String, List<Tuple2<File, TextureManifestEntry>>> replacementMap) {
     for (var entry in replacementMap.entries) {
       if (entries.containsKey(entry.key) &&
           entries[entry.key] is CustomTexturesEntry) {
@@ -128,7 +129,7 @@ class CreateFinishViewModel with ChangeNotifier {
 
     try {
       String? mpqHandle = await SFileCreateArchive(
-          outputFile, MPQ_CREATE_SIGNATURE | MPQ_CREATE_ARCHIVE_V2, 1024);
+          outputFile, MPQ_CREATE_SIGNATURE | MPQ_CREATE_ARCHIVE_V2, 12288);
 
       isGenerating = true;
       notifyListeners();
@@ -153,15 +154,17 @@ class CreateFinishViewModel with ChangeNotifier {
         } else if (entry.value is CustomTexturesEntry) {
           for (var pair in (entry.value as CustomTexturesEntry).pairs) {
             soh.Texture texture = soh.Texture.empty();
-            texture.textureType = pair.item2;
-            texture.fromPNGImage(pair.item1.readAsBytesSync());
-            Uint8List data = texture.build();
-
-            if (texture.width > 256 || texture.height > 256) {
-              log("Texture ${pair.item1.path} is too large. Maximum dimensions are 256x256. Skipping.");
-              continue;
+            texture.textureType = pair.item2.textureType;
+            
+            bool isNotOriginalSize = pair.item2.textureWidth != texture.width || pair.item2.textureHeight != texture.height;
+            if (isNotOriginalSize) {
+              texture.textureType = TextureType.RGBA32bpp;
+              texture.setTextureFlags(LOAD_AS_RAW);
             }
 
+            texture.fromPNGImage(pair.item1.readAsBytesSync());
+
+            Uint8List data = texture.build();
             String fileName = "${entry.key}/${pair.item1.path.split("/").last.split(".").first}";
             String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, data.length, MPQ_FILE_COMPRESS);
             await SFileWriteFile(fileHandle!, data, data.length, MPQ_COMPRESSION_ZLIB);

@@ -12,11 +12,11 @@ extension N64Graphics on Texture {
     Image pngImage = decodeImage(image)!;
     width = pngImage.width;
     height = pngImage.height;
-    switch(textureType){
+    texDataSize = textureType.getBufferSize(width, height);
+    texData = Uint8List(texDataSize);
+
+    switch(textureType) {
       case TextureType.RGBA16bpp:
-        texDataSize = textureType.getBufferSize(width, height);
-        texData = Uint8List(texDataSize);
-        
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x++) {
             int pos = ((y * width) + x) * 2;
@@ -36,9 +36,6 @@ extension N64Graphics on Texture {
         }
         break;
       case TextureType.RGBA32bpp:
-        texDataSize = textureType.getBufferSize(width, height);
-        texData = Uint8List(texDataSize);
-
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x++) {
             int pos = ((y * width) + x) * 4;
@@ -52,8 +49,6 @@ extension N64Graphics on Texture {
         }
         break;
       case TextureType.Palette4bpp:
-        texDataSize = textureType.getBufferSize(width, height);
-        texData = Uint8List(texDataSize);
 
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x++) {
@@ -66,8 +61,6 @@ extension N64Graphics on Texture {
         }
         break;
       case TextureType.Palette8bpp:
-        texDataSize = textureType.getBufferSize(width, height);
-        texData = Uint8List(texDataSize);
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x++) {
             int pos = ((y * width) + x);
@@ -76,8 +69,6 @@ extension N64Graphics on Texture {
         }
         break;
       case TextureType.Grayscale4bpp:
-        texDataSize = textureType.getBufferSize(width, height);
-        texData = Uint8List(texDataSize);
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x += 2) {
             int pos = ((y * width) + x) ~/ 2;
@@ -89,8 +80,6 @@ extension N64Graphics on Texture {
         }
         break;
       case TextureType.Grayscale8bpp:
-        texDataSize = textureType.getBufferSize(width, height);
-        texData = Uint8List(texDataSize);
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x++) {
             int pos = (y * width) + x;
@@ -99,8 +88,6 @@ extension N64Graphics on Texture {
         }
         break;
       case TextureType.GrayscaleAlpha4bpp:
-        texDataSize = textureType.getBufferSize(width, height);
-        texData = Uint8List(texDataSize);
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x += 2) {
             int pos = ((y * width) + x) ~/ 2;
@@ -117,8 +104,6 @@ extension N64Graphics on Texture {
         }
         break;
       case TextureType.GrayscaleAlpha8bpp:
-        texDataSize = textureType.getBufferSize(width, height);
-        texData = Uint8List(texDataSize);
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x++) {
             int pos = ((y * width) + x) * 1;
@@ -128,8 +113,6 @@ extension N64Graphics on Texture {
         }
         break;
       case TextureType.GrayscaleAlpha16bpp:
-        texDataSize = textureType.getBufferSize(width, height);
-        texData = Uint8List(texDataSize);
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x++) {
             int pos = ((y * width) + x) * 2;
@@ -144,11 +127,12 @@ extension N64Graphics on Texture {
     }
   }
 
-  Uint8List? convertN64ToPNG(){
+  Uint8List? convertN64ToPNG() {
     Image pngImage = Image(width: width, height: height, numChannels: hasAlpha ? 4 : 3, withPalette: isPalette);
     switch(textureType){
       case TextureType.RGBA32bpp:
-        return pixelsToPNG(texData);
+          pngImage = Image.fromBytes(width: width, height: height, bytes: texData.buffer, numChannels: 4);
+          break;
       case TextureType.RGBA16bpp:
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x++) {
@@ -258,7 +242,7 @@ extension N64Graphics on Texture {
       }
     }
 
-    return Uint8List.fromList(encodePng(pngImage).toList());
+    return encodePng(pngImage);
   }
 
   bool get hasAlpha =>
