@@ -164,6 +164,14 @@ class CreateFinishViewModel with ChangeNotifier {
 
             texture.fromPNGImage(pair.item1.readAsBytesSync());
 
+            if (pair.item2.textureType == TextureType.Palette8bpp || pair.item2.textureType == TextureType.Palette4bpp) {
+              if (texture.isPalette) {
+                texture.textureType = pair.item2.textureType;
+              }
+            } else {
+              texture.textureType = pair.item2.textureType;
+            }
+
             Uint8List data = texture.build();
             String fileName = "${entry.key}/${pair.item1.path.split("/").last.split(".").first}";
             String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, data.length, MPQ_FILE_COMPRESS);

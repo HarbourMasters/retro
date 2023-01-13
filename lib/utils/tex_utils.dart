@@ -14,6 +14,7 @@ extension N64Graphics on Texture {
     height = pngImage.height;
     texDataSize = textureType.getBufferSize(width, height);
     texData = Uint8List(texDataSize);
+    isPalette = pngImage.hasPalette;
 
     switch(textureType) {
       case TextureType.RGBA16bpp:
