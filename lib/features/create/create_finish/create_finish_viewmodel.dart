@@ -3,10 +3,11 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Image;
 import 'package:flutter_storm/bridge/errors.dart';
 import 'package:flutter_storm/flutter_storm.dart';
 import 'package:flutter_storm/bridge/flags.dart';
+import 'package:image/image.dart';
 import 'package:retro/models/texture_manifest_entry.dart';
 import 'package:retro/otr/types/sequence.dart';
 import 'package:retro/models/app_state.dart';
@@ -154,25 +155,17 @@ class CreateFinishViewModel with ChangeNotifier {
         } else if (entry.value is CustomTexturesEntry) {
           for (var pair in (entry.value as CustomTexturesEntry).pairs) {
             soh.Texture texture = soh.Texture.empty();
+            Uint8List blob = pair.item1.readAsBytesSync();
             texture.textureType = pair.item2.textureType;
-            
+
             bool isNotOriginalSize = pair.item2.textureWidth != texture.width || pair.item2.textureHeight != texture.height;
             if (isNotOriginalSize) {
               texture.setTextureFlags(LOAD_AS_RAW);
-              if (!texture.isPalette) {
-                texture.textureType = TextureType.RGBA32bpp;
-              }
+              Image image = decodePng(blob)!;
+              texture.textureType = image.hasPalette && texture.isPalette ? pair.item2.textureType : TextureType.RGBA32bpp;
             }
 
             texture.fromPNGImage(pair.item1.readAsBytesSync());
-
-            if (pair.item2.textureType == TextureType.Palette8bpp || pair.item2.textureType == TextureType.Palette4bpp) {
-              if (texture.isPalette) {
-                texture.textureType = pair.item2.textureType;
-              }
-            } else {
-              texture.textureType = pair.item2.textureType;
-            }
 
             Uint8List data = texture.build();
             String fileName = "${entry.key}/${pair.item1.path.split("/").last.split(".").first}";

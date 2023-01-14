@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:retro/features/debug/debug_convert_textures/debug_convert_textures_screen.dart';
+import 'package:retro/features/debug/debug_selection/debug_selection_screen.dart';
 import 'package:window_size/window_size.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -84,6 +86,8 @@ class Retro extends StatelessWidget {
           '/view_otr': (context) => const InspectOTRScreen(),
           '/create_custom_sequences': (context) => const CreateCustomSequencesScreen(),
           '/create_replace_textures': (context) => const CreateReplaceTexturesScreen(),
+          '/debug_selection':(context) => const DebugSelectionScreen(),
+          '/debug_convert_textures':(context) => const DebugConvertTexturesScreen(),
         },
       ),
     );

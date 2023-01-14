@@ -20,7 +20,7 @@ extension N64Graphics on Texture {
 
   void convertPNGToN64(Uint8List image) {
     Image pngImage = decodeImage(image)!;
-    
+
     if (isPalette && !pngImage.hasPalette) {
       isPalette = false;
       textureType = TextureType.RGBA32bpp;
@@ -211,7 +211,7 @@ extension N64Graphics on Texture {
 
               int grayscale = ((data & 0x0E) >> 1) * 32;
 				      int alpha = (data & 0x01) * 255;
-              
+
               pngImage.setGrayscalePixel(x + 1, y, grayscale, alpha: alpha);
             }
           }

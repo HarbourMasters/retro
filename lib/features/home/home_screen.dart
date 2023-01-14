@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -47,6 +48,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: () {
                     Navigator.pushNamed(context, "/view_otr");
                   }),
+                if(!kReleaseMode)
+                  const SizedBox(width: 20),
+                if(!kReleaseMode)
+                OptionCard(
+                    text: "Debug",
+                    icon: Icons.warning_rounded,
+                    onTap: () {
+                      Navigator.of(context).pushNamed('/debug_selection');
+                    }),
             ],
           ),
           const SizedBox(height: 40),
