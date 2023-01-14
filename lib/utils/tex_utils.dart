@@ -181,8 +181,8 @@ extension N64Graphics on Texture {
           for (int x = 0; x < width; x += 2) {
             for (int i = 0; i < 2; i++) {
               int pos = ((y * width) + x) ~/ 2;
-              int grayscale = i == 0 ? (texData[pos] & 0xF0) : texData[pos] & 0x0F << 4;
-              image.setGrayscalePixel(x + 1, y, grayscale);
+              int grayscale = i == 0 ? (texData[pos] & 0xF0) : (texData[pos] & 0x0F) << 4;
+              image.setGrayscalePixel(x + i, y, grayscale);
             }
           }
         }
@@ -205,7 +205,7 @@ extension N64Graphics on Texture {
               int grayscale = ((data & 0x0E) >> 1) * 32;
 				      int alpha = (data & 0x01) * 255;
 
-              image.setGrayscalePixel(x + 1, y, grayscale, alpha: alpha);
+              image.setGrayscalePixel(x + i, y, grayscale, alpha: alpha);
             }
           }
         }
