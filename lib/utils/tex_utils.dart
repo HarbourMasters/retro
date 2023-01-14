@@ -3,6 +3,16 @@ import 'dart:typed_data';
 import 'package:image/image.dart';
 import 'package:retro/otr/types/texture.dart';
 
+extension N64Pixel on Image {
+  void setGrayscalePixel(int x, int y, int grayscale, { int alpha = 0 }) {
+    if (numChannels == 4) {
+      setPixelRgba(x, y, grayscale, grayscale, grayscale, alpha);
+    } else {
+      setPixelRgb(x, y, grayscale, grayscale, grayscale);
+    }
+  }
+}
+
 extension N64Graphics on Texture {
   Uint8List pixelsToPNG(Uint8List data) {
     return encodePng(Image.fromBytes(width: width, height: height, bytes: data.buffer, numChannels: 4)).buffer.asUint8List();
@@ -56,12 +66,12 @@ extension N64Graphics on Texture {
         break;
       case TextureType.Palette4bpp:
         for (int y = 0; y < height; y++) {
-          for (int x = 0; x < width; x++) {
+          for (int x = 0; x < width; x += 2) {
             int pos = ((y * width) + x) ~/ 2;
-            int r1 = pngImage.getPixel(x, y).index.toInt();
-            int r2 = pngImage.getPixel(x + 1, y).index.toInt();
+            int cr1 = pngImage.getPixel(x, y).index.toInt();
+            int cr2 = pngImage.getPixel(x + 1, y).index.toInt();
 
-            texData[pos] = (r1 << 4) | (r2);
+            texData[pos] = (cr1 << 4) | (cr2);
           }
         }
         break;
@@ -157,8 +167,8 @@ extension N64Graphics on Texture {
             for (int i = 0; i < 2; i++) {
               int pos = ((y * width) + x) ~/ 2;
               int paletteIndex = i == 0 ? (texData[pos] & 0xF0) >> 4 : texData[pos] & 0x0F;
+              pngImage.setPixelR(x + 1, y, paletteIndex);
               pngImage.palette!.setRgba(paletteIndex, paletteIndex * 16, paletteIndex * 16, paletteIndex * 16, 255);
-              pngImage.setPixel(x + i, y, ColorInt8.rgb(paletteIndex, 0, 0));
             }
           }
         }
@@ -166,20 +176,20 @@ extension N64Graphics on Texture {
       case TextureType.Palette8bpp:
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x++) {
-            int pos = ((y * width) + x) * 1;
+            int pos = (y * width) + x;
             int grayscale = texData[pos];
+            pngImage.setPixelR(x, y, grayscale);
             pngImage.palette!.setRgba(grayscale, grayscale, grayscale, grayscale, 255);
-            pngImage.setPixel(x, y, ColorInt8.rgb(grayscale, 0, 0));
           }
         }
         break;
       case TextureType.Grayscale4bpp:
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x += 2) {
-            int pos = ((y * width) + x) ~/ 2;
-            for(int i = 0; i < 2; i++){
-              int v = i == 0 ? (texData[pos] & 0xF0) : texData[pos] & 0x0F << 4;
-              pngImage.setPixel(x + i, y, ColorInt8.rgb(v, v, v));
+            for (int i = 0; i < 2; i++) {
+              int pos = ((y * width) + x) ~/ 2;
+              int grayscale = i == 0 ? (texData[pos] & 0xF0) : texData[pos] & 0x0F << 4;
+              pngImage.setGrayscalePixel(x + 1, y, grayscale);
             }
           }
         }
@@ -188,7 +198,7 @@ extension N64Graphics on Texture {
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x++) {
             int pos = (y * width) + x;
-            pngImage.setPixel(x, y, ColorInt8.rgb(texData[pos], texData[pos], texData[pos]));
+            pngImage.setGrayscalePixel(x, y, texData[pos]);
           }
         }
         break;
@@ -201,8 +211,8 @@ extension N64Graphics on Texture {
 
               int grayscale = ((data & 0x0E) >> 1) * 32;
 				      int alpha = (data & 0x01) * 255;
-
-              pngImage.setPixel(x + i, y, ColorInt8.rgba(grayscale, grayscale, grayscale, alpha));
+              
+              pngImage.setGrayscalePixel(x + 1, y, grayscale, alpha: alpha);
             }
           }
         }
@@ -213,7 +223,7 @@ extension N64Graphics on Texture {
             int pos = ((y * width) + x) * 1;
             int grayscale = texData[pos] & 0xF0;
 			      int alpha = (texData[pos] & 0x0F) << 4;
-            pngImage.setPixel(x, y, ColorInt8.rgba(grayscale, grayscale, grayscale, alpha));
+            pngImage.setGrayscalePixel(x, y, grayscale, alpha: alpha);
           }
         }
         break;
@@ -223,7 +233,7 @@ extension N64Graphics on Texture {
             int pos = ((y * width) + x) * 2;
             int grayscale = texData[pos];
             int alpha     = texData[pos + 1];
-            pngImage.setPixel(x, y, ColorInt8.rgba(grayscale, grayscale, grayscale, alpha));
+            pngImage.setGrayscalePixel(x, y, grayscale, alpha: alpha);
           }
         }
         break;
@@ -231,7 +241,7 @@ extension N64Graphics on Texture {
         return null;
     }
 
-    if(isPalette && tlut != null){
+    if(isPalette && tlut != null) {
       Image pal = decodePng(tlut!.toPNGBytes())!;
 
       for (int y = 0; y < pal.height; y++) {
