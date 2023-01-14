@@ -158,8 +158,10 @@ class CreateFinishViewModel with ChangeNotifier {
             
             bool isNotOriginalSize = pair.item2.textureWidth != texture.width || pair.item2.textureHeight != texture.height;
             if (isNotOriginalSize) {
-              texture.textureType = TextureType.RGBA32bpp;
               texture.setTextureFlags(LOAD_AS_RAW);
+              if (!texture.isPalette) {
+                texture.textureType = TextureType.RGBA32bpp;
+              }
             }
 
             texture.fromPNGImage(pair.item1.readAsBytesSync());

@@ -10,11 +10,16 @@ extension N64Graphics on Texture {
 
   void convertPNGToN64(Uint8List image) {
     Image pngImage = decodeImage(image)!;
+    
+    if (isPalette && !pngImage.hasPalette) {
+      isPalette = false;
+      textureType = TextureType.RGBA32bpp;
+    }
+
     width = pngImage.width;
     height = pngImage.height;
     texDataSize = textureType.getBufferSize(width, height);
     texData = Uint8List(texDataSize);
-    isPalette = pngImage.hasPalette;
 
     switch(textureType) {
       case TextureType.RGBA16bpp:
@@ -50,7 +55,6 @@ extension N64Graphics on Texture {
         }
         break;
       case TextureType.Palette4bpp:
-
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x++) {
             int pos = ((y * width) + x) ~/ 2;
