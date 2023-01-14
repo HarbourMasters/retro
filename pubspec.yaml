@@ -56,8 +56,8 @@ dependencies:
 flutter_icons:
   windows:
     generate: true
-    image_path: "assets/icon.png"
-    icon_size: 256
+    image_path: "assets/icon.ico"
+    icon_size: 1024
   macos:
     generate: true
     image_path: "assets/icon-macos.png"
