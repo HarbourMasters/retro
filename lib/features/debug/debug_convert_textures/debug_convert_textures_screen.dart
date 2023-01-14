@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart' hide Texture;
+import 'package:flutter/material.dart' hide Texture, Image;
+import 'package:image/image.dart' hide Color;
 import 'package:retro/otr/types/texture.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
 import 'package:path/path.dart' as path;
@@ -95,7 +96,8 @@ class _DebugConvertTexturesScreenState extends State<DebugConvertTexturesScreen>
                         setState(() {
                           textureData = Texture.empty();
                           textureData?.textureType = selectedTextureType;
-                          textureData!.fromPNGImage(textureFile!.readAsBytesSync());
+                          Image image = decodePng(textureFile!.readAsBytesSync())!;
+                          textureData!.fromPNGImage(image);
                           if(selectedTextureType.name.contains("Palette")){
                             textureData!.isPalette = true;
                           }
@@ -116,7 +118,8 @@ class _DebugConvertTexturesScreenState extends State<DebugConvertTexturesScreen>
                         setState(() {
                           Texture tlut = Texture.empty();
                           tlut.textureType = TextureType.RGBA32bpp;
-                          tlut.fromPNGImage(File(result.files.single.path!).readAsBytesSync());
+                          Image image = decodePng(File(result.files.single.path!).readAsBytesSync())!;
+                          tlut.fromPNGImage(image);
                           textureData!.tlut = tlut;
                         });
                       }

@@ -1,6 +1,7 @@
 // ignore_for_file: constant_identifier_names
 import 'dart:typed_data';
 
+import 'package:image/image.dart';
 import 'package:retro/otr/resource.dart';
 import 'package:retro/otr/resource_type.dart';
 import 'package:retro/otr/version.dart';
@@ -84,7 +85,7 @@ class Texture extends Resource {
     this.tlut = tlut;
   }
 
-  void fromPNGImage(Uint8List png) {
+  void fromPNGImage(Image png) {
     convertPNGToN64(png);
   }
 

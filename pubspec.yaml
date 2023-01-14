@@ -52,6 +52,7 @@ dependencies:
   crypto: ^3.0.2
   image: ^4.0.7
   intl: ^0.17.0
+  path: ^1.8.2
 
 flutter_icons:
   windows:
