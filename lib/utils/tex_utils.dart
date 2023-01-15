@@ -160,7 +160,7 @@ extension N64Graphics on Texture {
             for (int i = 0; i < 2; i++) {
               int pos = ((y * width) + x) ~/ 2;
               int paletteIndex = i == 0 ? (texData[pos] & 0xF0) >> 4 : texData[pos] & 0x0F;
-              image.setPixelR(x + 1, y, paletteIndex);
+              image.setPixelR(x + i, y, paletteIndex);
               image.palette!.setRgba(paletteIndex, paletteIndex * 16, paletteIndex * 16, paletteIndex * 16, 255);
             }
           }
