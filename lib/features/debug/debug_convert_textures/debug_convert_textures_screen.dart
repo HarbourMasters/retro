@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Texture, Image;
 import 'package:image/image.dart' hide Color;
 import 'package:retro/otr/types/texture.dart';
@@ -18,6 +19,8 @@ class _DebugConvertTexturesScreenState extends State<DebugConvertTexturesScreen>
   TextureType selectedTextureType = TextureType.RGBA32bpp;
   Texture? textureData;
   File? textureFile;
+
+  Uint8List? textureBytes;
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +42,10 @@ class _DebugConvertTexturesScreenState extends State<DebugConvertTexturesScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  const Text("PNG to N64 Viewer",
+                    style: TextStyle(color: Colors.white, fontFamily: 'GoogleSans', fontWeight: FontWeight.bold)
+                  ),
+                  const SizedBox(height: 20.0),
                   Container(
                     decoration: BoxDecoration(
                       color: const Color(0xFF40aae8),
@@ -101,6 +108,7 @@ class _DebugConvertTexturesScreenState extends State<DebugConvertTexturesScreen>
                           if(selectedTextureType.name.contains("Palette")){
                             textureData!.isPalette = true;
                           }
+                          textureBytes = textureData!.toPNGBytes();
                         });
                       }
                     }
@@ -121,6 +129,46 @@ class _DebugConvertTexturesScreenState extends State<DebugConvertTexturesScreen>
                           Image image = decodePng(File(result.files.single.path!).readAsBytesSync())!;
                           tlut.fromPNGImage(image);
                           textureData!.tlut = tlut;
+                          textureBytes = textureData!.toPNGBytes();
+                        });
+                      }
+                    }
+                  ),
+                  const SizedBox(height: 20.0),
+                  const Text("OTR N64 Viewer",
+                    style: TextStyle(color: Colors.white, fontFamily: 'GoogleSans', fontWeight: FontWeight.bold)
+                  ),
+                  const SizedBox(height: 20.0),
+                  ElevatedButton(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 250),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(textureFile == null ? "Select Texture File" : textureFile!.path.split(path.separator).last,
+                          maxLines: 1
+                        )
+                      )
+                    ),
+                    onPressed: () async {
+                      FilePickerResult? result = await FilePicker.platform.pickFiles(
+                        allowMultiple: false, type: FileType.any
+                      );
+                      if (result != null) {
+                        setState(() {
+                          textureFile = File(result.files.single.path!);
+                        });
+                      }
+                    }
+                  ),
+                  const SizedBox(height: 20.0),
+                  ElevatedButton(
+                    child: const Text("Load Texture"),
+                    onPressed: (){
+                      if (textureFile != null) {
+                        setState(() {
+                          textureData = Texture.empty();
+                          textureData?.open(textureFile!.readAsBytesSync());
+                          textureBytes = textureData!.toPNGBytes();
                         });
                       }
                     }
@@ -133,10 +181,10 @@ class _DebugConvertTexturesScreenState extends State<DebugConvertTexturesScreen>
                 height: MediaQuery.of(context).size.height - 119,
                 padding: const EdgeInsets.only( right: 20.0),
                 decoration: BoxDecoration(
-                  color: Colors.black,
+                  color: Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
                   image: textureData != null ? DecorationImage(
-                    image: MemoryImage(textureData!.toPNGBytes()),
+                    image: MemoryImage(textureBytes!),
                     filterQuality: FilterQuality.none,
                     fit: BoxFit.contain,
                   ) : null,

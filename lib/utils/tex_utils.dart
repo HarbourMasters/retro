@@ -50,10 +50,27 @@ extension N64Graphics on Texture {
             int pos = ((y * width) + x) * 4;
             Pixel pixel = image.getPixel(x, y);
 
-            texData[pos + 0] = pixel.r.toInt();
-            texData[pos + 1] = pixel.g.toInt();
-            texData[pos + 2] = pixel.b.toInt();
-            texData[pos + 3] = pixel.a.toInt();
+            switch(image.numChannels){
+              case 2:
+                int g = pixel.r.toInt();
+                texData[pos + 0] = g;
+                texData[pos + 1] = g;
+                texData[pos + 2] = g;
+                texData[pos + 3] = pixel.g.toInt();
+                break;
+              case 4:
+                texData[pos + 0] = pixel.r.toInt();
+                texData[pos + 1] = pixel.g.toInt();
+                texData[pos + 2] = pixel.b.toInt();
+                texData[pos + 3] = pixel.a.toInt();
+                break;
+              case 3:
+                texData[pos + 0] = pixel.r.toInt();
+                texData[pos + 1] = pixel.g.toInt();
+                texData[pos + 2] = pixel.b.toInt();
+                texData[pos + 3] = 0xFF;
+                break;
+            }
           }
         }
         break;
