@@ -157,14 +157,25 @@ class CreateFinishViewModel with ChangeNotifier {
             soh.Texture texture = soh.Texture.empty();
             Image image = decodePng(pair.item1.readAsBytesSync())!;
             texture.textureType = pair.item2.textureType;
+            texture.isPalette = image.hasPalette && (texture.textureType == TextureType.Palette4bpp || texture.textureType == TextureType.Palette8bpp);
 
             bool isNotOriginalSize = pair.item2.textureWidth != texture.width || pair.item2.textureHeight != texture.height;
             if (isNotOriginalSize) {
               texture.setTextureFlags(LOAD_AS_RAW);
-              texture.textureType = image.hasPalette && texture.isPalette ? pair.item2.textureType : TextureType.RGBA32bpp;
+              if (!image.hasPalette || !texture.isPalette) {
+                texture.textureType = TextureType.RGBA32bpp;
+              }
             }
 
             texture.fromPNGImage(image);
+
+            if (pair.item2.textureType == TextureType.Palette8bpp || pair.item2.textureType == TextureType.Palette4bpp) {
+              if (texture.isPalette) {
+                texture.textureType = pair.item2.textureType;
+              }
+            } else {
+              texture.textureType = pair.item2.textureType;
+            }
 
             Uint8List data = texture.build();
             String fileName = "${entry.key}/${pair.item1.path.split("/").last.split(".").first}";
