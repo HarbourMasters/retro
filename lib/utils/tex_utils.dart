@@ -49,26 +49,33 @@ extension N64Graphics on Texture {
           for (int x = 0; x < width; x++) {
             int pos = ((y * width) + x) * 4;
             Pixel pixel = image.getPixel(x, y);
-
+            int mod = (image.bitsPerChannel == 16 ? 256 : 1);
             switch(image.numChannels){
-              case 2:
-                int g = pixel.r.toInt();
+              case 1:
+                int g = pixel.r.toInt() ~/ mod;
                 texData[pos + 0] = g;
                 texData[pos + 1] = g;
                 texData[pos + 2] = g;
-                texData[pos + 3] = pixel.g.toInt();
+                texData[pos + 3] = 0xFF;
                 break;
-              case 4:
-                texData[pos + 0] = pixel.r.toInt();
-                texData[pos + 1] = pixel.g.toInt();
-                texData[pos + 2] = pixel.b.toInt();
-                texData[pos + 3] = pixel.a.toInt();
+              case 2:
+                int g = pixel.r.toInt() ~/ mod;
+                texData[pos + 0] = g;
+                texData[pos + 1] = g;
+                texData[pos + 2] = g;
+                texData[pos + 3] = pixel.g.toInt() ~/ mod;
                 break;
               case 3:
-                texData[pos + 0] = pixel.r.toInt();
-                texData[pos + 1] = pixel.g.toInt();
-                texData[pos + 2] = pixel.b.toInt();
+                texData[pos + 0] = pixel.r.toInt() ~/ mod;
+                texData[pos + 1] = pixel.g.toInt() ~/ mod;
+                texData[pos + 2] = pixel.b.toInt() ~/ mod;
                 texData[pos + 3] = 0xFF;
+                break;
+              case 4:
+                texData[pos + 0] = pixel.r.toInt() ~/ mod;
+                texData[pos + 1] = pixel.g.toInt() ~/ mod;
+                texData[pos + 2] = pixel.b.toInt() ~/ mod;
+                texData[pos + 3] = pixel.a.toInt() ~/ mod;
                 break;
             }
           }
