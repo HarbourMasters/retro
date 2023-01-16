@@ -61,6 +61,10 @@ abstract class Resource {
     buffer.addAll(Uint8List(8)..buffer.asInt64List()[0] = value);
   }
 
+  void writeFloat32(double value) {
+    buffer.addAll(Uint8List(4)..buffer.asFloat32List()[0] = value);
+  }
+
   void writeString(String value) {
     buffer.addAll(value.codeUnits);
   }
