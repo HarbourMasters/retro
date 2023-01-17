@@ -24,6 +24,25 @@ class CreateFinishViewModel with ChangeNotifier {
   bool isEphemeralBarExpanded = false;
   bool isGenerating = false;
 
+  final List<String> blacklistPatterns = [
+    "skybox",
+    "gphantomganonlimbtex",
+    "gphantomganoneyetex",
+    "gphantomganonmouthtex",
+    "gphantomganonsmiletex",
+    "ggohma",
+    "object_kingdodongo_tex",
+    "gdodongoscavernbosslavafloortex",
+    "gganondorfwindowshattertemplatetex",
+    "slavafloorrocktex",
+    "slavafloorlavatex",
+    "gmanttex",
+    "scarpettex",
+    "nintendo_rogo_static_tex_000000",
+    "gworldmapimagetex",
+    "bgtex"
+  ];
+
   void bindGlobalContext(BuildContext ctx) {
     context = ctx;
   }
@@ -154,6 +173,7 @@ class CreateFinishViewModel with ChangeNotifier {
           }
         } else if (entry.value is CustomTexturesEntry) {
           for (var pair in (entry.value as CustomTexturesEntry).pairs) {
+            String textureName = pair.item1.path.split("/").last.split(".").first;
             soh.Texture texture = soh.Texture.empty();
             Image image = decodePng(pair.item1.readAsBytesSync())!;
             texture.textureType = pair.item2.textureType;
@@ -161,6 +181,12 @@ class CreateFinishViewModel with ChangeNotifier {
 
             bool isNotOriginalSize = pair.item2.textureWidth != texture.width || pair.item2.textureHeight != texture.height;
             if (isNotOriginalSize) {
+
+              if(blacklistPatterns.where((e) => textureName.toLowerCase().contains(e)).isNotEmpty){
+                print("Skipping $textureName because it is blacklisted");
+                continue;
+              }
+
               texture.setTextureFlags(LOAD_AS_RAW);
               if (!image.hasPalette || !texture.isPalette) {
                 texture.textureType = TextureType.RGBA32bpp;
@@ -172,13 +198,16 @@ class CreateFinishViewModel with ChangeNotifier {
             if (pair.item2.textureType == TextureType.Palette8bpp || pair.item2.textureType == TextureType.Palette4bpp) {
               if (texture.isPalette) {
                 texture.textureType = pair.item2.textureType;
+              } else if (!isNotOriginalSize){
+                print("Skipping $textureName because it is not a palette texture");
+                continue;
               }
             } else {
               texture.textureType = pair.item2.textureType;
             }
 
             Uint8List data = texture.build();
-            String fileName = "${entry.key}/${pair.item1.path.split("/").last.split(".").first}";
+            String fileName = "${entry.key}/$textureName";
             String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, data.length, MPQ_FILE_COMPRESS);
             await SFileWriteFile(fileHandle!, data, data.length, MPQ_COMPRESSION_ZLIB);
             await SFileFinishFile(fileHandle);
