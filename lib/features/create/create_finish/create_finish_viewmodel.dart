@@ -30,7 +30,6 @@ class CreateFinishViewModel with ChangeNotifier {
     "gphantomganoneyetex",
     "gphantomganonmouthtex",
     "gphantomganonsmiletex",
-    "ggohma",
     "object_kingdodongo_tex",
     "gdodongoscavernbosslavafloortex",
     "gganondorfwindowshattertemplatetex",
@@ -38,7 +37,6 @@ class CreateFinishViewModel with ChangeNotifier {
     "slavafloorlavatex",
     "gmanttex",
     "scarpettex",
-    "nintendo_rogo_static_tex_000000",
     "gworldmapimagetex",
     "bgtex"
   ];
