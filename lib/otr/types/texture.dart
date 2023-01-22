@@ -43,6 +43,8 @@ class Texture extends Resource {
   Uint8List texData;
   Texture? tlut;
   int textureFlags = 0;
+  double textureHByteScale = 1;
+  double textureVPixelScale = 1;
   bool isPalette = false;
 
   Texture(
@@ -59,6 +61,8 @@ class Texture extends Resource {
 
     if (gameVersion == Version.flynn) {
       writeInt32(textureFlags);
+      writeFloat32(textureHByteScale);
+      writeFloat32(textureVPixelScale);
     }
 
     writeInt32(texDataSize);
@@ -73,6 +77,8 @@ class Texture extends Resource {
 
     if (gameVersion == Version.flynn) {
       textureFlags = readInt32();
+      textureHByteScale = readFloat32();
+      textureVPixelScale = readFloat32();
     }
 
     texDataSize = readInt32();
@@ -104,5 +110,11 @@ class Texture extends Resource {
   void setTextureFlags(int flags) {
     gameVersion = Version.flynn;
     textureFlags |= flags;
+  }
+
+  void setTextureScale(double hByteScale, double vPixelScale) {
+    gameVersion = Version.flynn;
+    textureHByteScale = hByteScale;
+    textureVPixelScale = vPixelScale;
   }
 }

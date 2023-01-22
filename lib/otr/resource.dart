@@ -151,5 +151,13 @@ abstract class Resource {
     return value;
   }
 
+  double readFloat32() {
+    final double value = (endianness == Endianness.little
+        ? buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer[3] << 24
+        : buffer[3] | buffer[2] << 8 | buffer[1] << 16 | buffer[0] << 24) as double;
+    seek(4);
+    return value;
+  }
+
   void readResourceData(){}
 }

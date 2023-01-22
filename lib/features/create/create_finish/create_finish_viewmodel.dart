@@ -24,22 +24,7 @@ class CreateFinishViewModel with ChangeNotifier {
   bool isEphemeralBarExpanded = false;
   bool isGenerating = false;
 
-  final List<String> blacklistPatterns = [
-    "skybox",
-    "gphantomganonlimbtex",
-    "gphantomganoneyetex",
-    "gphantomganonmouthtex",
-    "gphantomganonsmiletex",
-    "object_kingdodongo_tex",
-    "gdodongoscavernbosslavafloortex",
-    "gganondorfwindowshattertemplatetex",
-    "slavafloorrocktex",
-    "slavafloorlavatex",
-    "gmanttex",
-    "scarpettex",
-    "gworldmapimagetex",
-    "bgtex"
-  ];
+  final List<String> blacklistPatterns = [];
 
   void bindGlobalContext(BuildContext ctx) {
     context = ctx;
@@ -177,9 +162,8 @@ class CreateFinishViewModel with ChangeNotifier {
             texture.textureType = pair.item2.textureType;
             texture.isPalette = image.hasPalette && (texture.textureType == TextureType.Palette4bpp || texture.textureType == TextureType.Palette8bpp);
 
-            bool isNotOriginalSize = pair.item2.textureWidth != texture.width || pair.item2.textureHeight != texture.height;
+            bool isNotOriginalSize = pair.item2.textureWidth != image.width || pair.item2.textureHeight != image.height;
             if (isNotOriginalSize) {
-
               if(blacklistPatterns.where((e) => textureName.toLowerCase().contains(e)).isNotEmpty){
                 print("Skipping $textureName because it is blacklisted");
                 continue;
@@ -189,6 +173,10 @@ class CreateFinishViewModel with ChangeNotifier {
               if (!image.hasPalette || !texture.isPalette) {
                 texture.textureType = TextureType.RGBA32bpp;
               }
+
+              double hByteScale = (image.width / pair.item2.textureWidth) * (texture.textureType.pixelMultiplier / pair.item2.textureType.pixelMultiplier);
+              double vPixelScale = (image.height / pair.item2.textureHeight);
+              texture.setTextureScale(hByteScale, vPixelScale);
             }
 
             texture.fromPNGImage(image);
