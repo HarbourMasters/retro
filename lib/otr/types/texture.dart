@@ -19,7 +19,8 @@ enum TextureType {
   Grayscale8bpp(6, 1),
   GrayscaleAlpha4bpp(7, 0.5),
   GrayscaleAlpha8bpp(8, 1),
-  GrayscaleAlpha16bpp(9, 2);
+  GrayscaleAlpha16bpp(9, 2),
+  JPEG32bpp(10, 0);
 
   final int value;
   final double pixelMultiplier;

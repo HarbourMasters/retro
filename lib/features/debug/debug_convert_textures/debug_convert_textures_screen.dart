@@ -3,6 +3,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Texture, Image;
 import 'package:image/image.dart' hide Color;
+import 'package:retro/otr/resource.dart';
+import 'package:retro/otr/resource_type.dart';
+import 'package:retro/otr/types/background.dart';
 import 'package:retro/otr/types/texture.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
 import 'package:path/path.dart' as path;
@@ -134,6 +137,23 @@ class _DebugConvertTexturesScreenState extends State<DebugConvertTexturesScreen>
                       }
                     }
                   ),
+                  if(textureData != null && textureData!.tlut != null)
+                  const SizedBox(height: 20.0),
+                  if(textureData != null && textureData!.tlut != null)
+                  ElevatedButton(
+                    child: const Text("Save As"),
+                    onPressed: () async {
+                      String? result = await FilePicker.platform.saveFile(
+                        type: FileType.image, allowedExtensions: ["png"], fileName: "converted.png"
+                      );
+                      if (result != null) {
+                        setState(() {
+                          File out = File(result);
+                          out.writeAsBytesSync(textureBytes!);
+                        });
+                      }
+                    }
+                  ),
                   const SizedBox(height: 20.0),
                   const Text("OTR N64 Viewer",
                     style: TextStyle(color: Colors.white, fontFamily: 'GoogleSans', fontWeight: FontWeight.bold)
@@ -165,10 +185,23 @@ class _DebugConvertTexturesScreenState extends State<DebugConvertTexturesScreen>
                     child: const Text("Load Texture"),
                     onPressed: (){
                       if (textureFile != null) {
+                        Uint8List bytes = textureFile!.readAsBytesSync();
+
                         setState(() {
-                          textureData = Texture.empty();
-                          textureData?.open(textureFile!.readAsBytesSync());
-                          textureBytes = textureData!.toPNGBytes();
+                          Resource resource = Resource.empty();
+                          resource.rawLoad = true;
+                          resource.open(bytes);
+
+                          if(resource.resourceType == ResourceType.texture){
+                            textureData = Texture.empty();
+                            textureData?.open(bytes);
+                            textureBytes = textureData!.toPNGBytes();
+                          } else {
+                            Background background = Background.empty();
+                            background.open(bytes);
+                            textureData = Texture.empty();
+                            textureBytes = background.texData;
+                          }
                         });
                       }
                     }

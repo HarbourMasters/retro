@@ -5,12 +5,15 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Texture hide Image;
 import 'package:flutter_storm/bridge/errors.dart';
 import 'package:flutter_storm/bridge/flags.dart';
 import 'package:flutter_storm/flutter_storm.dart';
+import 'package:image/image.dart';
 import 'package:retro/models/texture_manifest_entry.dart';
-import 'package:retro/otr/types/texture.dart' as soh;
+import 'package:retro/otr/resource.dart';
+import 'package:retro/otr/resource_type.dart';
+import 'package:retro/otr/types/background.dart';
 import 'package:retro/otr/types/texture.dart';
 import 'package:retro/utils/log.dart';
 import 'package:tuple/tuple.dart';
@@ -70,29 +73,28 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
 
     // find all pngs in folder
     List<FileSystemEntity> files = Directory(selectedFolderPath!).listSync(recursive: true);
-    List<FileSystemEntity> pngFiles = files.where((file) => file.path.endsWith('.png')).toList();
 
     // for each png, check if it's in the manifest
-    for (FileSystemEntity rawFile in pngFiles) {
-      File pngFile = File(rawFile.path);
-      String pngPathRelativeToFolder = pu.normalize(pngFile.path.split(selectedFolderPath! + Platform.pathSeparator).last.split(".").first);
-      if (manifest.containsKey(pngPathRelativeToFolder)) {
-        TextureManifestEntry manifestEntry = TextureManifestEntry.fromJson(manifest[pngPathRelativeToFolder]);
+    for (FileSystemEntity rawFile in files) {
+      File texFile = File(p.normalize(rawFile.path));
+      String texPathRelativeToFolder = p.normalize(texFile.path.split("${selectedFolderPath!}/").last.split('.').first);
+      if (manifest.containsKey(texPathRelativeToFolder)) {
+        TextureManifestEntry manifestEntry = TextureManifestEntry.fromJson(manifest[texPathRelativeToFolder]);
         // if it is, check if the file has changed
-        String pngFileHash = sha256.convert((pngFile).readAsBytesSync()).toString();
+        String pngFileHash = sha256.convert((texFile).readAsBytesSync()).toString();
         if (manifestEntry.hash != pngFileHash) {
           // if it has, add it to the processed files list
-          log("Found file with changed hash: $pngPathRelativeToFolder");
+          log("Found file with changed hash: $texPathRelativeToFolder");
 
-          String pathWithoutFilename = pu.normalize(pngPathRelativeToFolder.split("/").sublist(0, pngPathRelativeToFolder.split("/").length - 1).join("/"));
+          String pathWithoutFilename = pu.normalize(texPathRelativeToFolder.split("/").sublist(0, texPathRelativeToFolder.split("/").length - 1).join("/"));
           if(processedFiles.containsKey(pathWithoutFilename)){
-            processedFiles[pathWithoutFilename]!.add(Tuple2(pngFile, manifestEntry));
+            processedFiles[pathWithoutFilename]!.add(Tuple2(texFile, manifestEntry));
           } else {
-            processedFiles[pathWithoutFilename] = [Tuple2(pngFile, manifestEntry)];
+            processedFiles[pathWithoutFilename] = [Tuple2(texFile, manifestEntry)];
           }
         }
       } else {
-        log("Found file not present in manifest: $pngPathRelativeToFolder");
+        log("Found file not present in manifest: $texPathRelativeToFolder");
       }
     }
 
@@ -148,7 +150,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
 
       // process first file
       String? fileName = await SFileFindGetDataForDataPointer(findData);
-      String filePath = p.join(selectedDirectory, otrName, "$fileName.png");
+      String filePath = p.join(selectedDirectory, otrName, fileName);
       await processFile(fileName!, otrHandle, filePath, (TextureManifestEntry entry) {
         processedFiles[fileName] = entry;
       });
@@ -163,7 +165,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
             continue;
           }
 
-          String filePath = p.join(selectedDirectory, otrName, "$fileName.png");
+          String filePath = p.join(selectedDirectory, otrName, fileName);
           bool processed = await processFile(fileName, otrHandle, filePath, (TextureManifestEntry entry) {
             processedFiles[fileName] = entry;
           });
@@ -208,27 +210,49 @@ Future<bool> processFile(
   Uint8List? fileData = await SFileReadFile(fileHandle, fileSize!);
 
   try {
-    soh.Texture texture = soh.Texture.empty();
-    texture.open(fileData!);
+    Resource resource = Resource.empty();
+    resource.rawLoad = true;
+    resource.open(fileData!);
 
-    if(!texture.isValid){
+    if(![ResourceType.texture, ResourceType.sohBackground].contains(resource.resourceType)){
       return false;
     }
 
-    log("Found texture: $fileName! with type: ${texture.textureType} and size: ${texture.width}x${texture.height}");
-
     // Write to disk using the same path we found it in
-    File textureFile = File(outputPath);
-    textureFile.createSync(recursive: true);
-    Uint8List pngBytes = texture.toPNGBytes();
-    textureFile.writeAsBytesSync(pngBytes);
 
-    // Track file path and hash
-    String fileHash = sha256.convert(textureFile.readAsBytesSync()).toString();
-    onProcessed(TextureManifestEntry(fileHash, texture.textureType, texture.width, texture.height));
-    return true;
+    String? hash;
+
+    switch(resource.resourceType){
+      case ResourceType.texture:
+        Texture texture = Texture.empty();
+        texture.open(fileData);
+
+        log("Found texture: $fileName! with type: ${texture.textureType} and size: ${texture.width}x${texture.height}");
+        Uint8List pngBytes = texture.toPNGBytes();
+        File textureFile = File("$outputPath.png");
+        textureFile.createSync(recursive: true);
+        textureFile.writeAsBytesSync(pngBytes);
+        hash = sha256.convert(textureFile.readAsBytesSync()).toString();
+        onProcessed(TextureManifestEntry(hash, texture.textureType, texture.width, texture.height));
+        return true;
+      case ResourceType.sohBackground:
+        Background background = Background.empty();
+        background.open(fileData);
+
+        log("Found JPEG background: $fileName!");
+        File textureFile = File("$outputPath.jpg");
+        Image image = decodeJpg(background.texData)!;
+        textureFile.createSync(recursive: true);
+        textureFile.writeAsBytesSync(background.texData);
+        hash = sha256.convert(background.texData).toString();
+        onProcessed(TextureManifestEntry(hash, TextureType.JPEG32bpp, image.width, image.height));
+        return true;
+      default:
+        return false;
+    }
   } catch (e) {
     // Not a texture
+    print(e);
     return false;
   }
 }

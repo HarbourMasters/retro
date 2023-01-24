@@ -3,19 +3,20 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' hide Image;
+import 'package:flutter/material.dart' hide Image hide Texture;
 import 'package:flutter_storm/bridge/errors.dart';
 import 'package:flutter_storm/flutter_storm.dart';
 import 'package:flutter_storm/bridge/flags.dart';
 import 'package:image/image.dart';
 import 'package:retro/models/texture_manifest_entry.dart';
+import 'package:retro/otr/types/background.dart';
 import 'package:retro/otr/types/sequence.dart';
 import 'package:retro/models/app_state.dart';
 import 'package:retro/models/stage_entry.dart';
 import 'package:retro/otr/types/texture.dart';
 import 'package:retro/utils/log.dart';
 import 'package:tuple/tuple.dart';
-import 'package:retro/otr/types/texture.dart' as soh;
+import 'package:retro/otr/types/texture.dart';
 
 class CreateFinishViewModel with ChangeNotifier {
   AppState currentState = AppState.none;
@@ -115,6 +116,57 @@ class CreateFinishViewModel with ChangeNotifier {
     notifyListeners();
   }
 
+  Uint8List? processJPEG(pair, String textureName){
+    Image image = decodeJpg(pair.item1.readAsBytesSync())!;
+    Texture texture = Texture.empty();
+    texture.textureType = TextureType.RGBA32bpp;
+    texture.setTextureFlags(LOAD_AS_RAW);
+    double hByteScale = (image.width / pair.item2.textureWidth) * (texture.textureType.pixelMultiplier / TextureType.RGBA16bpp.pixelMultiplier);
+    double vPixelScale = (image.height / pair.item2.textureHeight);
+    texture.setTextureScale(hByteScale, vPixelScale);
+    texture.fromPNGImage(image);
+    return texture.build();
+  }
+
+  Uint8List? processPNG(pair, String textureName){
+    Texture texture = Texture.empty();
+    Image image = decodePng(pair.item1.readAsBytesSync())!;
+    texture.textureType = pair.item2.textureType;
+    texture.isPalette = image.hasPalette && (texture.textureType == TextureType.Palette4bpp || texture.textureType == TextureType.Palette8bpp);
+
+    bool isNotOriginalSize = pair.item2.textureWidth != image.width || pair.item2.textureHeight != image.height;
+    if (isNotOriginalSize) {
+      if(blacklistPatterns.where((e) => textureName.toLowerCase().contains(e)).isNotEmpty){
+        print("Skipping $textureName because it is blacklisted");
+        return null;
+      }
+
+      texture.setTextureFlags(LOAD_AS_RAW);
+      if (!image.hasPalette || !texture.isPalette) {
+        texture.textureType = TextureType.RGBA32bpp;
+      }
+
+      double hByteScale = (image.width / pair.item2.textureWidth) * (texture.textureType.pixelMultiplier / pair.item2.textureType.pixelMultiplier);
+      double vPixelScale = (image.height / pair.item2.textureHeight);
+      texture.setTextureScale(hByteScale, vPixelScale);
+    }
+
+    texture.fromPNGImage(image);
+
+    if (pair.item2.textureType == TextureType.Palette8bpp || pair.item2.textureType == TextureType.Palette4bpp) {
+      if (texture.isPalette) {
+        texture.textureType = pair.item2.textureType;
+      } else if (!isNotOriginalSize){
+        print("Skipping $textureName because it is not a palette texture");
+        return null;
+      }
+    } else {
+      texture.textureType = pair.item2.textureType;
+    }
+
+    return texture.build();
+  }
+
   void onGenerateOTR(Function onCompletion) async {
     String? outputFile = await FilePicker.platform.saveFile(
       dialogTitle: 'Please select an output file:',
@@ -157,42 +209,14 @@ class CreateFinishViewModel with ChangeNotifier {
         } else if (entry.value is CustomTexturesEntry) {
           for (var pair in (entry.value as CustomTexturesEntry).pairs) {
             String textureName = pair.item1.path.split("/").last.split(".").first;
-            soh.Texture texture = soh.Texture.empty();
-            Image image = decodePng(pair.item1.readAsBytesSync())!;
-            texture.textureType = pair.item2.textureType;
-            texture.isPalette = image.hasPalette && (texture.textureType == TextureType.Palette4bpp || texture.textureType == TextureType.Palette8bpp);
 
-            bool isNotOriginalSize = pair.item2.textureWidth != image.width || pair.item2.textureHeight != image.height;
-            if (isNotOriginalSize) {
-              if(blacklistPatterns.where((e) => textureName.toLowerCase().contains(e)).isNotEmpty){
-                print("Skipping $textureName because it is blacklisted");
-                continue;
-              }
+            Uint8List? data = (pair.item2.textureType == TextureType.JPEG32bpp ? processJPEG : processPNG)(pair, textureName);
 
-              texture.setTextureFlags(LOAD_AS_RAW);
-              if (!image.hasPalette || !texture.isPalette) {
-                texture.textureType = TextureType.RGBA32bpp;
-              }
-
-              double hByteScale = (image.width / pair.item2.textureWidth) * (texture.textureType.pixelMultiplier / pair.item2.textureType.pixelMultiplier);
-              double vPixelScale = (image.height / pair.item2.textureHeight);
-              texture.setTextureScale(hByteScale, vPixelScale);
+            if(data == null){
+              log("Failed to process $textureName");
+              continue;
             }
 
-            texture.fromPNGImage(image);
-
-            if (pair.item2.textureType == TextureType.Palette8bpp || pair.item2.textureType == TextureType.Palette4bpp) {
-              if (texture.isPalette) {
-                texture.textureType = pair.item2.textureType;
-              } else if (!isNotOriginalSize){
-                print("Skipping $textureName because it is not a palette texture");
-                continue;
-              }
-            } else {
-              texture.textureType = pair.item2.textureType;
-            }
-
-            Uint8List data = texture.build();
             String fileName = "${entry.key}/$textureName";
             String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, data.length, MPQ_FILE_COMPRESS);
             await SFileWriteFile(fileHandle!, data, data.length, MPQ_COMPRESSION_ZLIB);

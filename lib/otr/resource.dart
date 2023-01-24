@@ -4,7 +4,7 @@ import 'package:retro/otr/endianness.dart';
 import 'package:retro/otr/resource_type.dart';
 import 'package:retro/otr/version.dart';
 
-abstract class Resource {
+class Resource {
 
   List<int> buffer = [];
   ResourceType resourceType;
@@ -14,6 +14,7 @@ abstract class Resource {
   Endianness endianness = Endianness.native;
   int _baseLength = 0;
   bool isValid = false;
+  bool rawLoad = false;
 
   Resource(this.resourceType, this.resourceVersion, this.gameVersion);
 
@@ -91,9 +92,13 @@ abstract class Resource {
       readInt8();
     }
 
-    isValid = ResourceType.fromValue(readInt32()) == resourceType;
-    if(!isValid){
-      return;
+    if(!rawLoad) {
+      isValid = ResourceType.fromValue(readInt32()) == resourceType;
+      if(!isValid){
+        return;
+      }
+    } else {
+      resourceType = ResourceType.fromValue(readInt32());
     }
     gameVersion     = Version.fromValue(readInt32());
     magicID         = readInt64();
@@ -110,7 +115,7 @@ abstract class Resource {
     buffer = data.toList();
     _baseLength = buffer.length;
     _readHeader();
-    if(isValid) {
+    if(isValid && !rawLoad) {
       readResourceData();
     }
   }
@@ -152,9 +157,9 @@ abstract class Resource {
   }
 
   double readFloat32() {
-    final double value = (endianness == Endianness.little
-        ? buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer[3] << 24
-        : buffer[3] | buffer[2] << 8 | buffer[1] << 16 | buffer[0] << 24) as double;
+    final double value = endianness == Endianness.little
+        ? (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer[3] << 24).toDouble()
+        : (buffer[3] | buffer[2] << 8 | buffer[1] << 16 | buffer[0] << 24).toDouble();
     seek(4);
     return value;
   }
