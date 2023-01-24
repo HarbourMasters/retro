@@ -57,7 +57,8 @@ class Retro extends StatelessWidget {
           Locale('en', ''),
           Locale('de', ''),
           Locale('fr', ''),
-          Locale('es', '')
+          Locale('es', ''),
+          Locale('nl', '')
         ],
         darkTheme: darkTheme(),
         theme: lightTheme(),
