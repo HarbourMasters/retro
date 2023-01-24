@@ -39,7 +39,7 @@ class CreateCustomSequencesViewModel extends ChangeNotifier {
 
     List<Tuple2<File, File>> sequenceMetaPairs = [];
     for (FileSystemEntity sequenceFile in sequenceFiles) {
-      String sequenceFileName = sequenceFile.path.split(Platform.pathSeparator).last;
+      String sequenceFileName = sequenceFile.uri.pathSegments.last;
       String sequenceFileNameWithoutExtension = p.basenameWithoutExtension(sequenceFileName);
       File metaFile = File(p.join(sequenceFile.parent.path, '$sequenceFileNameWithoutExtension.meta'));
       if(!metaFile.existsSync()) {
