@@ -167,8 +167,8 @@ class CreateFinishViewModel with ChangeNotifier {
         if (entry.value is CustomStageEntry) {
           for (var file in (entry.value as CustomStageEntry).files) {
             String fileName = "${entry.key}/${file.path.split("/").last}";
-            String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, file.lengthSync(), MPQ_FILE_COMPRESS);
-            await SFileWriteFile(fileHandle!, file.readAsBytesSync(), file.lengthSync(), MPQ_COMPRESSION_ZLIB);
+            String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, file.lengthSync(), 0);
+            await SFileWriteFile(fileHandle!, file.readAsBytesSync(), file.lengthSync(), 0);
             await SFileFinishFile(fileHandle);
           }
         } else if (entry.value is CustomSequencesEntry) {
@@ -177,9 +177,9 @@ class CreateFinishViewModel with ChangeNotifier {
             String fileName = "${entry.key}/${sequence.path}";
             Uint8List data = sequence.build();
             String? fileHandle = await SFileCreateFile(
-                mpqHandle!, fileName, data.length, MPQ_FILE_COMPRESS);
+                mpqHandle!, fileName, data.length, 0);
             await SFileWriteFile(
-                fileHandle!, data, data.length, MPQ_COMPRESSION_ZLIB);
+                fileHandle!, data, data.length, 0);
             await SFileFinishFile(fileHandle);
           }
         } else if (entry.value is CustomTexturesEntry) {
@@ -194,9 +194,9 @@ class CreateFinishViewModel with ChangeNotifier {
             if (data != null) {
               String fileName = "${entry.key}/$textureName";
               String? fileHandle = await SFileCreateFile(
-                  mpqHandle!, fileName, data.length, MPQ_FILE_COMPRESS);
+                  mpqHandle!, fileName, data.length, 0);
               await SFileWriteFile(
-                  fileHandle!, data, data.length, MPQ_COMPRESSION_ZLIB);
+                  fileHandle!, data, data.length, 0);
               await SFileFinishFile(fileHandle);
             } else {
               presentErrorSnackbar("Failed to process $textureName");
