@@ -30,22 +30,18 @@ extension N64Graphics on Texture {
 
     switch (textureType) {
       case TextureType.RGBA16bpp:
-        for (int y = 0; y < height; y++) {
-          for (int x = 0; x < width; x++) {
-            int pos = ((y * width) + x) * 2;
-            Pixel pixel = image.getPixel(x, y);
+        for (var pixel in image) {
+          int pos = ((pixel.y * width) + pixel.x) * 2;
+          int r = pixel.r ~/ 8;
+          int g = pixel.g ~/ 8;
+          int b = pixel.b ~/ 8;
 
-            int r = pixel.r ~/ 8;
-            int g = pixel.g ~/ 8;
-            int b = pixel.b ~/ 8;
+          bool alphaBit = pixel.a != 0;
 
-            bool alphaBit = pixel.a != 0;
+          int data = (r << 11) + (g << 6) + (b << 1) + (alphaBit ? 1 : 0);
 
-            int data = (r << 11) + (g << 6) + (b << 1) + (alphaBit ? 1 : 0);
-
-            texData[pos + 0] = (data & 0xFF00) >> 8;
-            texData[pos + 1] = (data & 0x00FF);
-          }
+          texData[pos + 0] = (data & 0xFF00) >> 8;
+          texData[pos + 1] = (data & 0x00FF);
         }
         break;
       case TextureType.RGBA32bpp:
@@ -92,78 +88,63 @@ extension N64Graphics on Texture {
         }
         break;
       case TextureType.Palette4bpp:
-        for (int y = 0; y < height; y++) {
-          for (int x = 0; x < width; x += 2) {
-            int pos = ((y * width) + x) ~/ 2;
-            int cr1 = image.getPixel(x, y).index.toInt();
-            int cr2 = image.getPixel(x + 1, y).index.toInt();
+        for (var pixel in image) {
+          int pos = ((pixel.y * width) + pixel.x) ~/ 2;
+          int cr1 = pixel.index.toInt();
+          int cr2 = image.getPixelSafe(pixel.x + 1, pixel.y).index.toInt();
 
-            texData[pos] = (cr1 << 4) | (cr2);
-          }
+          texData[pos] = (cr1 << 4) | (cr2);
         }
         break;
       case TextureType.Palette8bpp:
-        for (int y = 0; y < height; y++) {
-          for (int x = 0; x < width; x++) {
-            int pos = ((y * width) + x);
-            texData[pos] = image.getPixel(x, y).index.toInt();
-          }
+        for (var pixel in image) {
+          int pos = ((pixel.y * width) + pixel.x);
+          texData[pos] = pixel.index.toInt();
         }
         break;
       case TextureType.Grayscale4bpp:
-        for (int y = 0; y < height; y++) {
-          for (int x = 0; x < width; x += 2) {
-            int pos = ((y * width) + x) ~/ 2;
-            int r1 = image.getPixel(x, y).r.toInt();
-            int r2 = image.getPixel(x + 1, y).r.toInt();
+        for (var pixel in image) {
+          int pos = ((pixel.y * width) + pixel.x) ~/ 2;
+          int r1 = pixel.r.toInt();
+          int r2 = image.getPixelSafe(pixel.x + 1, pixel.y).r.toInt();
 
-            texData[pos] = (((r1 ~/ 16) << 4) + (r2 / 16)).toInt();
-          }
+          texData[pos] = (((r1 ~/ 16) << 4) + (r2 / 16)).toInt();
         }
         break;
       case TextureType.Grayscale8bpp:
-        for (int y = 0; y < height; y++) {
-          for (int x = 0; x < width; x++) {
-            int pos = (y * width) + x;
-            texData[pos] = image.getPixel(x, y).r.toInt();
-          }
+        for (var pixel in image) {
+          int pos = ((pixel.y * width) + pixel.x);
+          texData[pos] = pixel.r.toInt();
         }
         break;
       case TextureType.GrayscaleAlpha4bpp:
-        for (int y = 0; y < height; y++) {
-          for (int x = 0; x < width; x += 2) {
-            int pos = ((y * width) + x) ~/ 2;
-            int data = 0;
+        for (var pixel in image) {
+          int pos = ((pixel.y * width) + pixel.x) ~/ 2;
+          Pixel nextPixel = image.getPixelSafe(pixel.x + 1, pixel.y);
+          
+          int cR1 = pixel.r.toInt();
+          int cR2 = nextPixel.r.toInt();
 
-            for (int i = 0; i < 2; i++) {
-              Pixel pixel = image.getPixel(x + i, y);
-              int cR = pixel.r.toInt();
-              int alphaBit = pixel.a != 0 ? 1 : 0;
-              data |= i == 0
-                  ? (((cR ~/ 32) << 1) + alphaBit) << 4
-                  : ((cR ~/ 32) << 1) + alphaBit;
-            }
-            texData[pos] = data;
-          }
+          int alphaBit1 = pixel.a != 0 ? 1 : 0;
+          int alphaBit2 = nextPixel.a != 0 ? 1 : 0;
+
+          int data = (((cR1 ~/ 32) << 1) + alphaBit1) << 4;
+          data |= ((cR2 ~/ 32) << 1) + alphaBit2;
+
+          texData[pos] = data;
         }
         break;
       case TextureType.GrayscaleAlpha8bpp:
-        for (int y = 0; y < height; y++) {
-          for (int x = 0; x < width; x++) {
-            int pos = ((y * width) + x) * 1;
-            Pixel pixel = image.getPixel(x, y);
-            texData[pos] = ((pixel.r ~/ 16) << 4) + (pixel.a ~/ 16);
-          }
+        for (var pixel in image) {
+          int pos = ((pixel.y * width) + pixel.x);
+          texData[pos] = ((pixel.r ~/ 16) << 4) + (pixel.a ~/ 16);
         }
         break;
       case TextureType.GrayscaleAlpha16bpp:
-        for (int y = 0; y < height; y++) {
-          for (int x = 0; x < width; x++) {
-            int pos = ((y * width) + x) * 2;
-            Pixel pixel = image.getPixel(x, y);
-            texData[pos] = pixel.r.toInt();
-            texData[pos + 1] = pixel.a.toInt();
-          }
+        for (var pixel in image) {
+          int pos = ((pixel.y * width) + pixel.x) * 2;
+          texData[pos] = pixel.r.toInt();
+          texData[pos + 1] = pixel.a.toInt();
         }
         break;
       case TextureType.Error:
