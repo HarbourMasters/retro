@@ -29,11 +29,7 @@ class _CreateFinishBottomBarModalState
     final TextTheme textTheme = theme.textTheme;
     final CreateFinishViewModel viewModel =
         Provider.of<CreateFinishViewModel>(context);
-    int itemCount = 0;
     final AppLocalizations i18n = AppLocalizations.of(context)!;
-    for (var element in viewModel.entries.values) {
-      itemCount += element.iterables.length;
-    }
 
     List<Widget> widgets = [];
     for (var key in viewModel.entries.keys) {
@@ -92,15 +88,22 @@ class _CreateFinishBottomBarModalState
                             MediaQuery.of(context).size.width * 0.5, 50)
                           ),
                           child: viewModel.isGenerating
-                            ? Container(
-                                width: 24,
-                                height: 24,
-                                padding: const EdgeInsets.all(2.0),
-                                child: const CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 3,
+                            ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 24,
+                                  height: 24,
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: const CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 3,
+                                  ),
                                 ),
-                              )
+                                const SizedBox(width: 10),
+                                Text("${viewModel.filesProcessed}/${viewModel.entries.length}")
+                              ],
+                            )
                             : Text(i18n.createFinishScreen_generateOtr)
                         ),
                       ),

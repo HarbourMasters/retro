@@ -1,10 +1,11 @@
 import 'dart:typed_data';
 
 import 'package:image/image.dart';
+import 'package:retro/models/texture_manifest_entry.dart';
 import 'package:retro/otr/types/texture.dart';
 
 extension N64Pixel on Image {
-  void setGrayscalePixel(int x, int y, int grayscale, { int alpha = 0 }) {
+  void setGrayscalePixel(int x, int y, int grayscale, {int alpha = 0}) {
     if (numChannels == 4) {
       setPixelRgba(x, y, grayscale, grayscale, grayscale, alpha);
     } else {
@@ -15,7 +16,10 @@ extension N64Pixel on Image {
 
 extension N64Graphics on Texture {
   Uint8List pixelsToPNG(Uint8List data) {
-    return encodePng(Image.fromBytes(width: width, height: height, bytes: data.buffer, numChannels: 4)).buffer.asUint8List();
+    return encodePng(Image.fromBytes(
+            width: width, height: height, bytes: data.buffer, numChannels: 4))
+        .buffer
+        .asUint8List();
   }
 
   void convertPNGToN64(Image image) {
@@ -24,7 +28,7 @@ extension N64Graphics on Texture {
     texDataSize = textureType.getBufferSize(width, height);
     texData = Uint8List(texDataSize);
 
-    switch(textureType) {
+    switch (textureType) {
       case TextureType.RGBA16bpp:
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x++) {
@@ -45,40 +49,46 @@ extension N64Graphics on Texture {
         }
         break;
       case TextureType.RGBA32bpp:
-        for (int y = 0; y < height; y++) {
-          for (int x = 0; x < width; x++) {
-            int pos = ((y * width) + x) * 4;
-            Pixel pixel = image.getPixel(x, y);
-            int mod = (image.bitsPerChannel == 16 ? 256 : 1);
-            switch(image.numChannels){
-              case 1:
-                int g = pixel.r.toInt() ~/ mod;
-                texData[pos + 0] = g;
-                texData[pos + 1] = g;
-                texData[pos + 2] = g;
-                texData[pos + 3] = 0xFF;
-                break;
-              case 2:
-                int g = pixel.r.toInt() ~/ mod;
-                texData[pos + 0] = g;
-                texData[pos + 1] = g;
-                texData[pos + 2] = g;
-                texData[pos + 3] = pixel.g.toInt() ~/ mod;
-                break;
-              case 3:
-                texData[pos + 0] = pixel.r.toInt() ~/ mod;
-                texData[pos + 1] = pixel.g.toInt() ~/ mod;
-                texData[pos + 2] = pixel.b.toInt() ~/ mod;
-                texData[pos + 3] = 0xFF;
-                break;
-              case 4:
-                texData[pos + 0] = pixel.r.toInt() ~/ mod;
-                texData[pos + 1] = pixel.g.toInt() ~/ mod;
-                texData[pos + 2] = pixel.b.toInt() ~/ mod;
-                texData[pos + 3] = pixel.a.toInt() ~/ mod;
-                break;
+        int mod = (image.bitsPerChannel == 16 ? 256 : 1);
+        switch (image.numChannels) {
+          case 1:
+            for (var pixel in image) {
+              int pos = ((pixel.y * width) + pixel.x) * 4;
+              int g = pixel.r ~/ mod;
+              texData[pos + 0] = g;
+              texData[pos + 1] = g;
+              texData[pos + 2] = g;
+              texData[pos + 3] = 0xFF;
             }
-          }
+            break;
+          case 2:
+            for (var pixel in image) {
+              int pos = ((pixel.y * width) + pixel.x) * 4;
+              int g = pixel.r ~/ mod;
+              texData[pos + 0] = g;
+              texData[pos + 1] = g;
+              texData[pos + 2] = g;
+              texData[pos + 3] = pixel.g ~/ mod;
+            }
+            break;
+          case 3:
+            for (var pixel in image) {
+              int pos = ((pixel.y * width) + pixel.x) * 4;
+              texData[pos + 0] = pixel.r ~/ mod;
+              texData[pos + 1] = pixel.g ~/ mod;
+              texData[pos + 2] = pixel.b ~/ mod;
+              texData[pos + 3] = 0xFF;
+            }
+            break;
+          case 4:
+            for (var pixel in image) {
+              int pos = ((pixel.y * width) + pixel.x) * 4;
+              texData[pos + 0] = pixel.r ~/ mod;
+              texData[pos + 1] = pixel.g ~/ mod;
+              texData[pos + 2] = pixel.b ~/ mod;
+              texData[pos + 3] = pixel.a ~/ mod;
+            }
+            break;
         }
         break;
       case TextureType.Palette4bpp:
@@ -129,7 +139,9 @@ extension N64Graphics on Texture {
               Pixel pixel = image.getPixel(x + i, y);
               int cR = pixel.r.toInt();
               int alphaBit = pixel.a != 0 ? 1 : 0;
-              data |= i == 0 ? (((cR ~/ 32) << 1) + alphaBit) << 4 : ((cR ~/ 32) << 1) + alphaBit;
+              data |= i == 0
+                  ? (((cR ~/ 32) << 1) + alphaBit) << 4
+                  : ((cR ~/ 32) << 1) + alphaBit;
             }
             texData[pos] = data;
           }
@@ -149,7 +161,7 @@ extension N64Graphics on Texture {
           for (int x = 0; x < width; x++) {
             int pos = ((y * width) + x) * 2;
             Pixel pixel = image.getPixel(x, y);
-            texData[pos]     = pixel.r.toInt();
+            texData[pos] = pixel.r.toInt();
             texData[pos + 1] = pixel.a.toInt();
           }
         }
@@ -160,11 +172,19 @@ extension N64Graphics on Texture {
   }
 
   Uint8List? convertN64ToPNG() {
-    Image image = Image(width: width, height: height, numChannels: hasAlpha ? 4 : 3, withPalette: isPalette);
-    switch(textureType){
+    Image image = Image(
+        width: width,
+        height: height,
+        numChannels: hasAlpha ? 4 : 3,
+        withPalette: isPalette);
+    switch (textureType) {
       case TextureType.RGBA32bpp:
-          image = Image.fromBytes(width: width, height: height, bytes: texData.buffer, numChannels: 4);
-          break;
+        image = Image.fromBytes(
+            width: width,
+            height: height,
+            bytes: texData.buffer,
+            numChannels: 4);
+        break;
       case TextureType.RGBA16bpp:
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x++) {
@@ -183,9 +203,11 @@ extension N64Graphics on Texture {
           for (int x = 0; x < width; x += 2) {
             for (int i = 0; i < 2; i++) {
               int pos = ((y * width) + x) ~/ 2;
-              int paletteIndex = i == 0 ? (texData[pos] & 0xF0) >> 4 : texData[pos] & 0x0F;
+              int paletteIndex =
+                  i == 0 ? (texData[pos] & 0xF0) >> 4 : texData[pos] & 0x0F;
               image.setPixelR(x + i, y, paletteIndex);
-              image.palette!.setRgba(paletteIndex, paletteIndex * 16, paletteIndex * 16, paletteIndex * 16, 255);
+              image.palette!.setRgba(paletteIndex, paletteIndex * 16,
+                  paletteIndex * 16, paletteIndex * 16, 255);
             }
           }
         }
@@ -196,7 +218,8 @@ extension N64Graphics on Texture {
             int pos = (y * width) + x;
             int grayscale = texData[pos];
             image.setPixelR(x, y, grayscale);
-            image.palette!.setRgba(grayscale, grayscale, grayscale, grayscale, 255);
+            image.palette!
+                .setRgba(grayscale, grayscale, grayscale, grayscale, 255);
           }
         }
         break;
@@ -205,7 +228,8 @@ extension N64Graphics on Texture {
           for (int x = 0; x < width; x += 2) {
             for (int i = 0; i < 2; i++) {
               int pos = ((y * width) + x) ~/ 2;
-              int grayscale = i == 0 ? (texData[pos] & 0xF0) : (texData[pos] & 0x0F) << 4;
+              int grayscale =
+                  i == 0 ? (texData[pos] & 0xF0) : (texData[pos] & 0x0F) << 4;
               image.setGrayscalePixel(x + i, y, grayscale);
             }
           }
@@ -224,10 +248,11 @@ extension N64Graphics on Texture {
           for (int x = 0; x < width; x += 2) {
             for (int i = 0; i < 2; i++) {
               int pos = ((y * width) + x) ~/ 2;
-              int data = i == 0 ? (texData[pos] & 0xF0) >> 4 : texData[pos] & 0x0F;
+              int data =
+                  i == 0 ? (texData[pos] & 0xF0) >> 4 : texData[pos] & 0x0F;
 
               int grayscale = ((data & 0x0E) >> 1) * 32;
-				      int alpha = (data & 0x01) * 255;
+              int alpha = (data & 0x01) * 255;
 
               image.setGrayscalePixel(x + i, y, grayscale, alpha: alpha);
             }
@@ -239,7 +264,7 @@ extension N64Graphics on Texture {
           for (int x = 0; x < width; x++) {
             int pos = ((y * width) + x) * 1;
             int grayscale = texData[pos] & 0xF0;
-			      int alpha = (texData[pos] & 0x0F) << 4;
+            int alpha = (texData[pos] & 0x0F) << 4;
             image.setGrayscalePixel(x, y, grayscale, alpha: alpha);
           }
         }
@@ -249,7 +274,7 @@ extension N64Graphics on Texture {
           for (int x = 0; x < width; x++) {
             int pos = ((y * width) + x) * 2;
             int grayscale = texData[pos];
-            int alpha     = texData[pos + 1];
+            int alpha = texData[pos + 1];
             image.setGrayscalePixel(x, y, grayscale, alpha: alpha);
           }
         }
@@ -258,7 +283,7 @@ extension N64Graphics on Texture {
         return null;
     }
 
-    if(isPalette && tlut != null) {
+    if (isPalette && tlut != null) {
       Image pal = decodePng(tlut!.toPNGBytes())!;
 
       for (int y = 0; y < pal.height; y++) {
@@ -278,5 +303,68 @@ extension N64Graphics on Texture {
   }
 
   bool get hasAlpha =>
-    isPalette || textureType == TextureType.RGBA32bpp || textureType == TextureType.RGBA16bpp || textureType == TextureType.GrayscaleAlpha16bpp || textureType == TextureType.GrayscaleAlpha8bpp || textureType == TextureType.GrayscaleAlpha4bpp;
+      isPalette ||
+      textureType == TextureType.RGBA32bpp ||
+      textureType == TextureType.RGBA16bpp ||
+      textureType == TextureType.GrayscaleAlpha16bpp ||
+      textureType == TextureType.GrayscaleAlpha8bpp ||
+      textureType == TextureType.GrayscaleAlpha4bpp;
+}
+
+extension N64Commands on Command {
+  void generateTexture(TextureManifestEntry entry) {
+    subCommand = GenerateTextureCmd(subCommand, entry);
+  }
+}
+
+class GenerateTextureCmd extends Command {
+  final TextureManifestEntry entry;
+  GenerateTextureCmd(Command? input, this.entry) : super(input);
+
+  @override
+  Future<void> executeCommand() async {
+    await input?.execute();
+    final image = input?.outputImage;
+
+    if (image == null) {
+      print("Tried to generate texture with no image set");
+      return;
+    }
+
+    Texture texture = Texture.empty();
+    texture.textureType = entry.textureType;
+    texture.isPalette = image.hasPalette &&
+        (texture.textureType == TextureType.Palette4bpp ||
+            texture.textureType == TextureType.Palette8bpp);
+
+    bool isNotOriginalSize = entry.textureWidth != image.width ||
+        entry.textureHeight != image.height;
+    if (isNotOriginalSize) {
+      texture.setTextureFlags(LOAD_AS_RAW);
+      if (!image.hasPalette || !texture.isPalette) {
+        texture.textureType = TextureType.RGBA32bpp;
+      }
+
+      double hByteScale = (image.width / entry.textureWidth) *
+          (texture.textureType.pixelMultiplier /
+              entry.textureType.pixelMultiplier);
+      double vPixelScale = (image.height / entry.textureHeight);
+      texture.setTextureScale(hByteScale, vPixelScale);
+    }
+
+    texture.fromPNGImage(image);
+    if (entry.textureType == TextureType.Palette8bpp ||
+        entry.textureType == TextureType.Palette4bpp) {
+      if (texture.isPalette) {
+        texture.textureType = entry.textureType;
+      } else if (!isNotOriginalSize) {
+        print("Skipping because it is not a palette texture");
+        return;
+      }
+    } else {
+      texture.textureType = entry.textureType;
+    }
+
+    outputBytes = texture.build();
+  }
 }

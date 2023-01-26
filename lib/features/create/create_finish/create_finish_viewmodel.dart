@@ -15,6 +15,7 @@ import 'package:retro/models/app_state.dart';
 import 'package:retro/models/stage_entry.dart';
 import 'package:retro/otr/types/texture.dart';
 import 'package:retro/utils/log.dart';
+import 'package:retro/utils/tex_utils.dart';
 import 'package:tuple/tuple.dart';
 import 'package:retro/otr/types/texture.dart';
 
@@ -24,6 +25,7 @@ class CreateFinishViewModel with ChangeNotifier {
   late BuildContext context;
   bool isEphemeralBarExpanded = false;
   bool isGenerating = false;
+  int filesProcessed = 0;
 
   final List<String> blacklistPatterns = [];
 
@@ -43,6 +45,7 @@ class CreateFinishViewModel with ChangeNotifier {
 
   void reset() {
     currentState = AppState.none;
+    filesProcessed = 0;
     entries.clear();
     notifyListeners();
   }
@@ -116,8 +119,9 @@ class CreateFinishViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  Uint8List? processJPEG(pair, String textureName){
-    Image image = decodeJpg(pair.item1.readAsBytesSync())!;
+  Future<Uint8List?> processJPEG(pair, String textureName) async {
+    Uint8List imageData = await pair.item1.readAsBytes();
+    Image image = decodeJpg(imageData)!;
     Texture texture = Texture.empty();
     texture.textureType = TextureType.RGBA32bpp;
     texture.setTextureFlags(LOAD_AS_RAW);
@@ -128,43 +132,12 @@ class CreateFinishViewModel with ChangeNotifier {
     return texture.build();
   }
 
-  Uint8List? processPNG(pair, String textureName){
-    Texture texture = Texture.empty();
-    Image image = decodePng(pair.item1.readAsBytesSync())!;
-    texture.textureType = pair.item2.textureType;
-    texture.isPalette = image.hasPalette && (texture.textureType == TextureType.Palette4bpp || texture.textureType == TextureType.Palette8bpp);
-
-    bool isNotOriginalSize = pair.item2.textureWidth != image.width || pair.item2.textureHeight != image.height;
-    if (isNotOriginalSize) {
-      if(blacklistPatterns.where((e) => textureName.toLowerCase().contains(e)).isNotEmpty){
-        print("Skipping $textureName because it is blacklisted");
-        return null;
-      }
-
-      texture.setTextureFlags(LOAD_AS_RAW);
-      if (!image.hasPalette || !texture.isPalette) {
-        texture.textureType = TextureType.RGBA32bpp;
-      }
-
-      double hByteScale = (image.width / pair.item2.textureWidth) * (texture.textureType.pixelMultiplier / pair.item2.textureType.pixelMultiplier);
-      double vPixelScale = (image.height / pair.item2.textureHeight);
-      texture.setTextureScale(hByteScale, vPixelScale);
-    }
-
-    texture.fromPNGImage(image);
-
-    if (pair.item2.textureType == TextureType.Palette8bpp || pair.item2.textureType == TextureType.Palette4bpp) {
-      if (texture.isPalette) {
-        texture.textureType = pair.item2.textureType;
-      } else if (!isNotOriginalSize){
-        print("Skipping $textureName because it is not a palette texture");
-        return null;
-      }
-    } else {
-      texture.textureType = pair.item2.textureType;
-    }
-
-    return texture.build();
+  Future<Uint8List?> processPNG(Tuple2<File, TextureManifestEntry> pair, String textureName) async {
+    print("Processing ${pair.item1.path}");
+    Command cmd = Command()
+      ..decodePngFile(pair.item1.path)
+      ..generateTexture(pair.item2);
+    return await cmd.getBytesThread();
   }
 
   void onGenerateOTR(Function onCompletion) async {
@@ -209,20 +182,35 @@ class CreateFinishViewModel with ChangeNotifier {
         } else if (entry.value is CustomTexturesEntry) {
           for (var pair in (entry.value as CustomTexturesEntry).pairs) {
             String textureName = pair.item1.path.split("/").last.split(".").first;
+            Uint8List? data = await (pair.item2.textureType == TextureType.JPEG32bpp ? processJPEG : processPNG)(pair, textureName);
 
-            Uint8List? data = (pair.item2.textureType == TextureType.JPEG32bpp ? processJPEG : processPNG)(pair, textureName);
-
-            if(data == null){
+            if (data != null) {
+              String fileName = "${entry.key}/$textureName";
+              String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, data.length, MPQ_FILE_COMPRESS);
+              await SFileWriteFile(fileHandle!, data, data.length, MPQ_COMPRESSION_ZLIB);
+              await SFileFinishFile(fileHandle);
+            } else {
               log("Failed to process $textureName");
-              continue;
             }
-
-            String fileName = "${entry.key}/$textureName";
-            String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, data.length, MPQ_FILE_COMPRESS);
-            await SFileWriteFile(fileHandle!, data, data.length, MPQ_COMPRESSION_ZLIB);
-            await SFileFinishFile(fileHandle);
           }
+
+          // await Future.wait((entry.value as CustomTexturesEntry).pairs.map((pair) async {
+          //   String textureName = pair.item1.path.split("/").last.split(".").first;
+          //   Uint8List? data = await (pair.item2.textureType == TextureType.JPEG32bpp ? processJPEG : processPNG)(pair, textureName);
+
+          //   if (data != null) {
+          //     String fileName = "${entry.key}/$textureName";
+          //     String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, data.length, MPQ_FILE_COMPRESS);
+          //     await SFileWriteFile(fileHandle!, data, data.length, MPQ_COMPRESSION_ZLIB);
+          //     await SFileFinishFile(fileHandle);
+          //   } else {
+          //     log("Failed to process $textureName");
+          //   }
+          // }));
         }
+
+        filesProcessed++;
+        notifyListeners();
       }
 
       await SFileCloseArchive(mpqHandle!);
