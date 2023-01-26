@@ -1,11 +1,11 @@
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide Texture hide Image;
+import 'package:flutter/services.dart';
 import 'package:flutter_storm/bridge/errors.dart';
 import 'package:flutter_storm/bridge/flags.dart';
 import 'package:flutter_storm/flutter_storm.dart';
@@ -18,6 +18,7 @@ import 'package:retro/otr/types/texture.dart';
 import 'package:retro/utils/log.dart';
 import 'package:tuple/tuple.dart';
 import 'package:retro/utils/path.dart' as p;
+import 'package:path/path.dart' as path;
 
 enum CreateReplacementTexturesStep { question, selectFolder, selectOTR }
 
@@ -28,6 +29,8 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
   String? selectedOTRPath;
   bool isProcessing = false;
   HashMap<String, dynamic> processedFiles = HashMap();
+  String fontData = "assets/FontData";
+  String fontTLUT = "assets/FontTLUT[%d].png";
 
   reset() {
     currentStep = CreateReplacementTexturesStep.question;
@@ -116,6 +119,24 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     }
   }
 
+  dumpFont(String outputPath, Function onProcessed) async {
+    Texture tex = Texture.empty();
+    tex.open((await rootBundle.load(fontData)).buffer.asUint8List());
+    for(int id = 0; id < 4; id++){
+      Texture tlut = Texture.empty();
+      tex.tlut = tlut;
+      tlut.textureType = TextureType.RGBA32bpp;
+      tlut.fromPNGImage(decodePng((await rootBundle.load(fontTLUT.replaceAll('%d', id.toString()))).buffer.asUint8List())!);
+
+      Uint8List pngBytes = tex.toPNGBytes();
+      File textureFile = File(path.join(outputPath, "textures/font/sGfxPrintFontData[$id].png"));
+      textureFile.createSync(recursive: true);
+      textureFile.writeAsBytesSync(pngBytes);
+      String hash = sha256.convert(textureFile.readAsBytesSync()).toString();
+      onProcessed(TextureManifestEntry(hash, tex.textureType, tex.width, tex.height));
+    }
+  }
+
   processOTR() async {
     if (selectedOTRPath == null) {
       // TODO: Handle this error
@@ -178,6 +199,10 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
           fileFound = false;
         }
       } while (fileFound);
+
+      await dumpFont(path.join(selectedDirectory, otrName), (TextureManifestEntry entry) {
+        processedFiles[fileName] = entry;
+      });
 
       // Write out the processed files to disk
       String? manifestOutputPath = "$selectedDirectory/$otrName/manifest.json";
