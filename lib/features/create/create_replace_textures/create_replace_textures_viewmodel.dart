@@ -17,8 +17,7 @@ import 'package:retro/otr/types/background.dart';
 import 'package:retro/otr/types/texture.dart';
 import 'package:retro/utils/log.dart';
 import 'package:tuple/tuple.dart';
-import 'package:retro/utils/path.dart' as pu;
-import 'package:path/path.dart' as p;
+import 'package:retro/utils/path.dart' as p;
 
 enum CreateReplacementTexturesStep { question, selectFolder, selectOTR }
 
@@ -61,7 +60,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     HashMap<String, List<Tuple2<File, TextureManifestEntry>>> processedFiles = HashMap();
 
     // search for and load manifest.json
-    String manifestPath = p.join(selectedFolderPath!, "manifest.json");
+    String manifestPath = p.normalize("$selectedFolderPath/manifest.json");
     File manifestFile = File(manifestPath);
     if (!manifestFile.existsSync()) {
       // TODO: Handle this error
@@ -81,12 +80,12 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
       if (manifest.containsKey(texPathRelativeToFolder)) {
         TextureManifestEntry manifestEntry = TextureManifestEntry.fromJson(manifest[texPathRelativeToFolder]);
         // if it is, check if the file has changed
-        String pngFileHash = sha256.convert((texFile).readAsBytesSync()).toString();
-        if (manifestEntry.hash != pngFileHash) {
+        String texFileHash = sha256.convert((texFile).readAsBytesSync()).toString();
+        if (manifestEntry.hash != texFileHash) {
           // if it has, add it to the processed files list
           log("Found file with changed hash: $texPathRelativeToFolder");
 
-          String pathWithoutFilename = pu.normalize(texPathRelativeToFolder.split("/").sublist(0, texPathRelativeToFolder.split("/").length - 1).join("/"));
+          String pathWithoutFilename = p.normalize(texPathRelativeToFolder.split("/").sublist(0, texPathRelativeToFolder.split("/").length - 1).join("/"));
           if(processedFiles.containsKey(pathWithoutFilename)){
             processedFiles[pathWithoutFilename]!.add(Tuple2(texFile, manifestEntry));
           } else {
@@ -143,15 +142,14 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
 
       // if folder we'll export to exists, delete it
       String otrName = selectedOTRPath!.split(Platform.pathSeparator).last.split(".").first;
-      Directory dir = Directory(p.join(selectedDirectory, otrName));
+      Directory dir = Directory("$selectedDirectory/$otrName");
       if (dir.existsSync()) {
         dir.deleteSync(recursive: true);
       }
 
       // process first file
       String? fileName = await SFileFindGetDataForDataPointer(findData);
-      String filePath = p.join(selectedDirectory, otrName, fileName);
-      await processFile(fileName!, otrHandle, filePath, (TextureManifestEntry entry) {
+      await processFile(fileName!, otrHandle, "$selectedDirectory/$otrName/$fileName", (TextureManifestEntry entry) {
         processedFiles[fileName] = entry;
       });
 
@@ -165,8 +163,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
             continue;
           }
 
-          String filePath = p.join(selectedDirectory, otrName, fileName);
-          bool processed = await processFile(fileName, otrHandle, filePath, (TextureManifestEntry entry) {
+          bool processed = await processFile(fileName, otrHandle, "$selectedDirectory/$otrName/$fileName", (TextureManifestEntry entry) {
             processedFiles[fileName] = entry;
           });
 
@@ -183,7 +180,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
       } while (fileFound);
 
       // Write out the processed files to disk
-      String? manifestOutputPath = p.join(selectedDirectory, otrName, "manifest.json");
+      String? manifestOutputPath = "$selectedDirectory/$otrName/manifest.json";
       File manifestFile = File(manifestOutputPath);
       manifestFile.createSync(recursive: true);
       String dataToWrite = jsonEncode(processedFiles);

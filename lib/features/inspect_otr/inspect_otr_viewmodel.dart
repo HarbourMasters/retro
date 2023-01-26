@@ -20,7 +20,7 @@ class InspectOTRViewModel extends ChangeNotifier {
 
   onSelectOTR() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-        allowMultiple: true, type: FileType.custom, allowedExtensions: ['otr']);
+        allowMultiple: false, type: FileType.custom, allowedExtensions: ['otr']);
     if (result != null && result.files.isNotEmpty) {
       selectedOTRPath = result.paths.first;
       if (selectedOTRPath == null) {
