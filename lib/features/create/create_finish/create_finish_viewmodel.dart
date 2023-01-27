@@ -136,7 +136,7 @@ class CreateFinishViewModel with ChangeNotifier {
       for (var entry in entries.entries) {
         if (entry.value is CustomStageEntry) {
           for (var file in (entry.value as CustomStageEntry).files) {
-            String fileName = "${entry.key}/${file.uri.pathSegments.last}";
+            String fileName = "${entry.key}/${file.path.split("/").last}";
             String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, file.lengthSync(), MPQ_FILE_COMPRESS);
             await SFileWriteFile(fileHandle!, file.readAsBytesSync(), file.lengthSync(), MPQ_COMPRESSION_ZLIB);
             await SFileFinishFile(fileHandle);

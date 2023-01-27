@@ -14,7 +14,6 @@ class InspectOTRViewModel extends ChangeNotifier {
   reset() {
     selectedOTRPath = null;
     filesInOTR = [];
-    filteredFilesInOTR = [];
     isProcessing = false;
   }
 
