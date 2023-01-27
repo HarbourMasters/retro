@@ -57,7 +57,7 @@ Widget OTRContent(CreateReplaceTexturesViewModel viewModel, BuildContext context
         padding: const EdgeInsets.only(top: 20.0),
         child: ElevatedButton(
           onPressed: viewModel.selectedOTRPath?.isEmpty == false && !viewModel.isProcessing && viewModel.processedFiles.isEmpty
-            ? viewModel.processOTR : null,
+            ? viewModel.onProcessOTR() : null,
           style: ElevatedButton.styleFrom(minimumSize: Size(
             MediaQuery.of(context).size.width * 0.5, 50)
           ),
