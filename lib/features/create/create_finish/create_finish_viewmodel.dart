@@ -4,9 +4,8 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_storm/bridge/errors.dart';
 import 'package:flutter_storm/flutter_storm.dart';
-import 'package:flutter_storm/bridge/flags.dart';
+import 'package:flutter_storm/flutter_storm_bindings_generated.dart';
 import 'package:retro/otr/types/sequence.dart';
 import 'package:retro/models/app_state.dart';
 import 'package:retro/models/stage_entry.dart';
@@ -123,61 +122,78 @@ class CreateFinishViewModel with ChangeNotifier {
 
     File mpqOut = File(outputFile);
     if (mpqOut.existsSync()) {
-      mpqOut.deleteSync();
+      await mpqOut.delete();
     }
 
-    try {
-      String? mpqHandle = await SFileCreateArchive(
-          outputFile, MPQ_CREATE_SIGNATURE | MPQ_CREATE_ARCHIVE_V2, 1024);
+    isGenerating = true;
+    notifyListeners();
+    await compute(generateOTR, Tuple2(entries, outputFile));
+    isGenerating = false;
+    notifyListeners();
 
-      isGenerating = true;
-      notifyListeners();
+    reset();
+    onCompletion();
+  }
+}
 
-      for (var entry in entries.entries) {
-        if (entry.value is CustomStageEntry) {
-          for (var file in (entry.value as CustomStageEntry).files) {
-            String fileName = "${entry.key}/${file.path.split("/").last}";
-            String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, file.lengthSync(), MPQ_FILE_COMPRESS);
-            await SFileWriteFile(fileHandle!, file.readAsBytesSync(), file.lengthSync(), MPQ_COMPRESSION_ZLIB);
-            await SFileFinishFile(fileHandle);
+void generateOTR(Tuple2<HashMap<String, StageEntry>, String> params) async {
+  try {
+    MPQArchive? mpqArchive = MPQArchive.create(params.item2, MPQ_CREATE_SIGNATURE | MPQ_CREATE_ARCHIVE_V2, 1024);
+    for (var entry in params.item1.entries) {
+      if (entry.value is CustomStageEntry) {
+        for (var file in (entry.value as CustomStageEntry).files) {
+          int fileLength = await file.length();
+          Uint8List fileData = await file.readAsBytes();
+          String fileName = "${entry.key}/${file.path.split("/").last}";
+
+          MPQCreateFileHandle mpqFile = mpqArchive.createFile(fileName, DateTime.now().millisecondsSinceEpoch ~/ 1000, fileLength, 0, MPQ_FILE_COMPRESS);
+          mpqFile.write(fileData, fileLength, MPQ_COMPRESSION_ZLIB);
+          mpqFile.finish();
+        }
+      } else if (entry.value is CustomSequencesEntry) {
+        for (var pair in (entry.value as CustomSequencesEntry).pairs) {
+          Sequence sequence = await compute(Sequence.fromSeqFile, pair);
+          String fileName = "${entry.key}/${sequence.path}";
+          Uint8List data = sequence.build();
+          MPQCreateFileHandle mpqFile = mpqArchive.createFile(fileName, DateTime.now().millisecondsSinceEpoch ~/ 1000, data.length, 0, MPQ_FILE_COMPRESS);
+          mpqFile.write(data, data.length, MPQ_COMPRESSION_ZLIB);
+          mpqFile.finish();
+        }
+      } else if (entry.value is CustomTexturesEntry) {
+        List<Tuple2<String, Uint8List?>> textures = await Future.wait((entry.value as CustomTexturesEntry).pairs.map(
+          (pair) => compute(processTextureEntry, Tuple2(entry.key, pair))
+        ));
+
+        for (var texture in textures) {
+          if (texture.item2 == null) {
+            continue;
           }
-        } else if (entry.value is CustomSequencesEntry) {
-          for (var pair in (entry.value as CustomSequencesEntry).pairs) {
-            Sequence sequence = Sequence.fromSeqFile(pair);
-            String fileName = "${entry.key}/${sequence.path}";
-            Uint8List data = sequence.build();
-            String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, data.length, MPQ_FILE_COMPRESS);
-            await SFileWriteFile(fileHandle!, data, data.length, MPQ_COMPRESSION_ZLIB);
-            await SFileFinishFile(fileHandle);
-          }
-        } else if (entry.value is CustomTexturesEntry) {
-          for (var pair in (entry.value as CustomTexturesEntry).pairs) {
-            soh.Texture texture = soh.Texture.empty();
-            texture.textureType = pair.item2;
-            texture.fromPNGImage(pair.item1.readAsBytesSync());
-            Uint8List data = texture.build();
 
-            if (texture.width > 256 || texture.height > 256) {
-              log("Texture ${pair.item1.path} is too large. Maximum dimensions are 256x256. Skipping.");
-              continue;
-            }
-
-            String fileName = "${entry.key}/${pair.item1.path.split("/").last.split(".").first}";
-            String? fileHandle = await SFileCreateFile(mpqHandle!, fileName, data.length, MPQ_FILE_COMPRESS);
-            await SFileWriteFile(fileHandle!, data, data.length, MPQ_COMPRESSION_ZLIB);
-            await SFileFinishFile(fileHandle);
-          }
+          MPQCreateFileHandle mpqFile = mpqArchive.createFile(texture.item1, DateTime.now().millisecondsSinceEpoch ~/ 1000, texture.item2!.length, 0, MPQ_FILE_COMPRESS);
+          mpqFile.write(texture.item2!, texture.item2!.length, MPQ_COMPRESSION_ZLIB);
+          mpqFile.finish();
         }
       }
-
-      await SFileCloseArchive(mpqHandle!);
-      isGenerating = false;
-      notifyListeners();
-
-      reset();
-      onCompletion();
-    } on StormException catch (e) {
-      log(e.message);
     }
+
+    mpqArchive.close();
+  } on StormLibException catch (e) {
+    log(e.message);
   }
+}
+
+Future<Tuple2<String, Uint8List?>> processTextureEntry(Tuple2<String, Tuple2<File, TextureType>> params) async {
+  final pair = params.item2;
+  soh.Texture texture = soh.Texture.empty();
+  texture.textureType = pair.item2;
+  Uint8List pngData = await pair.item1.readAsBytes();
+  await compute(texture.fromPNGImage, pngData);
+
+  String fileName = "${params.item1}/${pair.item1.path.split("/").last.split(".").first}";
+  if (texture.width > 256 || texture.height > 256) {
+    log("Texture ${pair.item1.path} is too large. Maximum dimensions are 256x256. Skipping.");
+    return Tuple2(fileName, null);
+  }
+
+  return Tuple2(fileName, texture.build());
 }

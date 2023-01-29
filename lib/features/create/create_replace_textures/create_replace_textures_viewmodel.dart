@@ -5,9 +5,8 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_storm/bridge/errors.dart';
-import 'package:flutter_storm/bridge/flags.dart';
 import 'package:flutter_storm/flutter_storm.dart';
+import 'package:flutter_storm/flutter_storm_bindings_generated.dart';
 import 'package:retro/models/texture_manifest_entry.dart';
 import 'package:retro/otr/types/texture.dart' as soh;
 import 'package:retro/otr/types/texture.dart';
@@ -86,7 +85,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
 
     isProcessing = true;
     notifyListeners();
-    HashMap<String, TextureManifestEntry>? processedFiles = await compute(processOTR, Tuple2(selectedOTRPath!, selectedDirectory!));
+    HashMap<String, TextureManifestEntry>? processedFiles = await compute(processOTR, Tuple2(selectedOTRPath!, selectedDirectory));
     if (processedFiles == null) {
       // TODO: Handle this error.
     } else {
@@ -147,41 +146,45 @@ Future<HashMap<String, TextureManifestEntry>?> processOTR(Tuple2<String, String>
     bool fileFound = false;
     HashMap<String, TextureManifestEntry> processedFiles = HashMap();
 
-    String? otrHandle = await SFileOpenArchive(params.item1, MPQ_OPEN_READ_ONLY);
-    String? findData = await SFileFindCreateDataPointer();
-    String? hFind = await SFileFindFirstFile(otrHandle!, "*", findData!);
+    log("Processing OTR: ${params.item1}");
+    MPQArchive? mpqArchive = MPQArchive.open(params.item1, 0, MPQ_OPEN_READ_ONLY);
+    
+    MPQFindFileHandle hFind = MPQFindFileHandle();
+    mpqArchive.findFirstFile("*", hFind, null);
 
     // if folder we'll export to exists, delete it
     String otrName = params.item1.split(Platform.pathSeparator).last.split(".").first;
     Directory dir = Directory("${params.item2}/$otrName");
     if (dir.existsSync()) {
+      log("Deleting existing folder: ${params.item2}/$otrName");
       await dir.delete(recursive: true);
     }
 
     // process first file
-    String? fileName = await SFileFindGetDataForDataPointer(findData);
-    await processFile(fileName!, otrHandle, "${params.item2}/$otrName/$fileName.png", (TextureManifestEntry entry) {
+    String? fileName = hFind.fileName();
+    await processFile(fileName!, mpqArchive, "${params.item2}/$otrName/$fileName.png", (TextureManifestEntry entry) {
       processedFiles[fileName] = entry;
     });
 
     do {
       try {
-        await SFileFindNextFile(hFind!, findData);
+        mpqArchive.findNextFile(hFind);
         fileFound = true;
 
-        String? fileName = await SFileFindGetDataForDataPointer(findData);
+        String? fileName = hFind.fileName();
         if (fileName == null || fileName == "(signature)" || fileName == "(listfile)" || fileName == "(attributes)") {
           continue;
         }
 
-        bool processed = await processFile(fileName, otrHandle, "${params.item2}/$otrName/$fileName.png", (TextureManifestEntry entry) {
+        log("Processing file: $fileName");
+        bool processed = await processFile(fileName, mpqArchive, "${params.item2}/$otrName/$fileName.png", (TextureManifestEntry entry) {
           processedFiles[fileName] = entry;
         });
 
         if (!processed) {
           continue;
         }
-      } on StormException catch (e) {
+      } on StormLibException catch (e) {
         log("Got a StormLib error: ${e.message}");
         fileFound = false;
       } on Exception catch (e) {
@@ -197,22 +200,22 @@ Future<HashMap<String, TextureManifestEntry>?> processOTR(Tuple2<String, String>
     String dataToWrite = jsonEncode(processedFiles);
     await manifestFile.writeAsString(dataToWrite);
 
-    SFileFindClose(hFind!);
+    hFind.close();
     return processedFiles;
-  } on StormException catch (e) {
+  } on StormLibException catch (e) {
     log("Failed to find next file: ${e.message}");
     return null;
   }
 }
 
-Future<bool> processFile(String fileName, String otrHandle, String outputPath, Function onProcessed) async {
-  String? fileHandle = await SFileOpenFileEx(otrHandle, fileName, 0);
-  int? fileSize = await SFileGetFileSize(fileHandle!);
-  Uint8List? fileData = await SFileReadFile(fileHandle, fileSize!);
-
+Future<bool> processFile(String fileName, MPQArchive mpqArchive, String outputPath, Function onProcessed) async {
   try {
+    MPQFile file = mpqArchive.openFileEx(fileName, 0);
+    int fileSize = file.size();
+    Uint8List fileData = file.read(fileSize);
+
     soh.Texture texture = soh.Texture.empty();
-    texture.open(fileData!);
+    texture.open(fileData);
 
     if(!texture.isValid){
       return false;
@@ -231,6 +234,9 @@ Future<bool> processFile(String fileName, String otrHandle, String outputPath, F
     String fileHash = sha256.convert(textureBytes).toString();
     onProcessed(TextureManifestEntry(fileHash, texture.textureType));
     return true;
+  } on StormLibException catch (e) {
+    log("Failed to find next file: ${e.message}");
+    return false;
   } catch (e) {
     // Not a texture
     return false;

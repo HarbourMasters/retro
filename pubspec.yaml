@@ -47,7 +47,7 @@ dependencies:
   flutter_storm:
     git:
       url: https://github.com/HarbourMasters/flutter_storm.git
-      ref: e5005e99eb045126214cc7e83c78bc723ada56ef
+      ref: fa6d4d5e40efdb1c83a41a2b9cf5546afff0ad32
   tuple: ^2.0.1
   crypto: ^3.0.2
   image: ^4.0.7
