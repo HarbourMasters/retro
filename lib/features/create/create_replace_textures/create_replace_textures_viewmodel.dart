@@ -116,7 +116,7 @@ Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(String folderPath
   // for each png, check if it's in the manifest
   for (FileSystemEntity rawFile in pngFiles) {
     File pngFile = File(p.normalize(rawFile.path));
-    String pngPathRelativeToFolder = p.normalize(pngFile.path.split("${folderPath!}/").last.split('.').first);
+    String pngPathRelativeToFolder = p.normalize(pngFile.path.split("$folderPath/").last.split('.').first);
     if (manifest.containsKey(pngPathRelativeToFolder)) {
       TextureManifestEntry manifestEntry = TextureManifestEntry.fromJson(manifest[pngPathRelativeToFolder]);
       // if it is, check if the file has changed

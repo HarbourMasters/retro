@@ -13,6 +13,7 @@ import 'package:retro/otr/types/texture.dart';
 import 'package:retro/utils/log.dart';
 import 'package:tuple/tuple.dart';
 import 'package:retro/otr/types/texture.dart' as soh;
+import 'package:retro/utils/path.dart' as p;
 
 class CreateFinishViewModel with ChangeNotifier {
   AppState currentState = AppState.none;
@@ -144,7 +145,7 @@ void generateOTR(Tuple2<HashMap<String, StageEntry>, String> params) async {
         for (var file in (entry.value as CustomStageEntry).files) {
           int fileLength = await file.length();
           Uint8List fileData = await file.readAsBytes();
-          String fileName = "${entry.key}/${file.path.split("/").last}";
+          String fileName = "${entry.key}/${p.normalize(file.path).split("/").last}";
 
           CreateFileResource mpqFile = mpqArchive.createFile(fileName, DateTime.now().millisecondsSinceEpoch ~/ 1000, fileLength, 0, MPQ_FILE_COMPRESS);
           mpqFile.write(fileData, fileLength, MPQ_COMPRESSION_ZLIB);
