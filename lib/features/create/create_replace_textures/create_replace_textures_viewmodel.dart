@@ -149,7 +149,7 @@ Future<HashMap<String, TextureManifestEntry>?> processOTR(Tuple2<String, String>
     log("Processing OTR: ${params.item1}");
     MPQArchive? mpqArchive = MPQArchive.open(params.item1, 0, MPQ_OPEN_READ_ONLY);
     
-    MPQFindFileHandle hFind = MPQFindFileHandle();
+    FileFindResource hFind = FileFindResource();
     mpqArchive.findFirstFile("*", hFind, null);
 
     // if folder we'll export to exists, delete it
@@ -210,7 +210,7 @@ Future<HashMap<String, TextureManifestEntry>?> processOTR(Tuple2<String, String>
 
 Future<bool> processFile(String fileName, MPQArchive mpqArchive, String outputPath, Function onProcessed) async {
   try {
-    MPQFile file = mpqArchive.openFileEx(fileName, 0);
+    FileResource file = mpqArchive.openFileEx(fileName, 0);
     int fileSize = file.size();
     Uint8List fileData = file.read(fileSize);
 

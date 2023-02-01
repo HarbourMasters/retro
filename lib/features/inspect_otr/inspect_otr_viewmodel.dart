@@ -13,6 +13,7 @@ class InspectOTRViewModel extends ChangeNotifier {
   reset() {
     selectedOTRPath = null;
     filesInOTR = [];
+    filteredFilesInOTR = [];
     isProcessing = false;
   }
 
@@ -52,7 +53,7 @@ Future<List<String>?> listOTRItems(String path) async {
     List<String> files = [];
 
     MPQArchive mpqArchive = MPQArchive.open(path, 0, MPQ_OPEN_READ_ONLY);
-    MPQFindFileHandle hFind = MPQFindFileHandle();
+    FileFindResource hFind = FileFindResource();
     mpqArchive.findFirstFile("*", hFind, null);
 
     String? fileName = hFind.fileName();
