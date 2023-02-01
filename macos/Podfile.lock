@@ -24,11 +24,11 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/window_size/macos
 
 SPEC CHECKSUMS:
-  flutter_storm: 267be02090211a40c55f422192454dbe5a81be97
-  FlutterMacOS: ae6af50a8ea7d6103d888583d46bd8328a7e9811
-  url_launcher_macos: 597e05b8e514239626bcf4a850fcf9ef5c856ec3
+  flutter_storm: 9d6bb8ed36b51e877d7a3aef59328b696766d5d9
+  FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
+  url_launcher_macos: c04e4fa86382d4f94f6b38f14625708be3ae52e2
   window_size: 339dafa0b27a95a62a843042038fa6c3c48de195
 
-PODFILE CHECKSUM: 6eac6b3292e5142cfc23bdeb71848a40ec51c14c
+PODFILE CHECKSUM: 353c8bcc5d5b0994e508d035b5431cfe18c1dea7
 
 COCOAPODS: 1.11.3
