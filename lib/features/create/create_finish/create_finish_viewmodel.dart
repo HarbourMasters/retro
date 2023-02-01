@@ -134,11 +134,42 @@ class CreateFinishViewModel with ChangeNotifier {
 
   Future<Uint8List?> processPNG(
       Tuple2<File, TextureManifestEntry> pair, String textureName) async {
-    print("Processing ${pair.item1.path}");
-    Command cmd = Command()
-      ..decodePngFile(pair.item1.path)
-      ..generateTexture(pair.item2);
-    return await cmd.getBytesThread();
+    Texture texture = Texture.empty();
+    Image image = decodePng(pair.item1.readAsBytesSync())!;
+    texture.textureType = pair.item2.textureType;
+    texture.isPalette = image.hasPalette && (texture.textureType == TextureType.Palette4bpp || texture.textureType == TextureType.Palette8bpp);
+
+    bool isNotOriginalSize = pair.item2.textureWidth != image.width || pair.item2.textureHeight != image.height;
+    if (isNotOriginalSize) {
+      if(blacklistPatterns.where((e) => textureName.toLowerCase().contains(e)).isNotEmpty){
+        print("Skipping $textureName because it is blacklisted");
+        return null;
+      }
+
+      texture.setTextureFlags(LOAD_AS_RAW);
+      if (!image.hasPalette || !texture.isPalette) {
+        texture.textureType = TextureType.RGBA32bpp;
+      }
+
+      double hByteScale = (image.width / pair.item2.textureWidth) * (texture.textureType.pixelMultiplier / pair.item2.textureType.pixelMultiplier);
+      double vPixelScale = (image.height / pair.item2.textureHeight);
+      texture.setTextureScale(hByteScale, vPixelScale);
+    }
+
+    texture.fromPNGImage(image);
+
+    if (pair.item2.textureType == TextureType.Palette8bpp || pair.item2.textureType == TextureType.Palette4bpp) {
+      if (texture.isPalette) {
+        texture.textureType = pair.item2.textureType;
+      } else if (!isNotOriginalSize){
+        print("Skipping $textureName because it is not a palette texture");
+        return null;
+      }
+    } else {
+      texture.textureType = pair.item2.textureType;
+    }
+
+    return texture.build();
   }
 
   void onGenerateOTR(Function onCompletion) async {
