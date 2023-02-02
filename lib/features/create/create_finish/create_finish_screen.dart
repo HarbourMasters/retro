@@ -110,7 +110,7 @@ class _CreateFinishBottomBarModalState
                                   ),
                                   const SizedBox(width: 10),
                                   Text(
-                                      "${viewModel.filesProcessed}/${viewModel.entries.length}")
+                                      "${viewModel.filesProcessed}/${viewModel.totalFiles}")
                                 ],
                               )
                             : Text(i18n.createFinishScreen_generateOtr)),
