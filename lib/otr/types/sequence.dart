@@ -19,9 +19,9 @@ class Sequence extends Resource {
 
   Sequence(this.size, this.rawBinary, this.cachePolicy, this.medium, this.sequenceNum, this.numFonts, this.fontIndices, this.path) : super(ResourceType.sohAudioSequence, 0, Version.rachael);
 
-  static Sequence fromSeqFile(Tuple2<File, File> sequence ){
-    List<String> metadata = sequence.item2.readAsStringSync().split('\n');
-    Uint8List rawData = sequence.item1.readAsBytesSync();
+  static Future<Sequence> fromSeqFile(Tuple2<File, File> sequence ) async {
+    List<String> metadata = (await sequence.item2.readAsString()).split('\n');
+    Uint8List rawData = await sequence.item1.readAsBytes();
     int fontIdx = int.parse(metadata[1].toLowerCase().replaceAll("0x", ""), radix: 16);
     String type = metadata.length > 2 && metadata[2].isNotEmpty ? metadata[2].toLowerCase().trim() : "bgm";
     String metaname = metadata[0].trim().replaceAll('/', '|');
