@@ -30,6 +30,8 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
   String? selectedOTRPath;
   bool isProcessing = false;
   HashMap<String, dynamic> processedFiles = HashMap();
+  String fontData = "assets/FontData";
+  String fontTLUT = "assets/FontTLUT[%d].png";
 
   reset() {
     currentStep = CreateReplacementTexturesStep.question;
@@ -91,14 +93,39 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
 
     isProcessing = true;
     notifyListeners();
+
     HashMap<String, TextureManifestEntry>? processedFiles = await compute(processOTR, Tuple2(selectedOTRPath!, selectedDirectory));
     if (processedFiles == null) {
       // TODO: Handle this error.
     } else {
       this.processedFiles = processedFiles;
     }
+
+    String otrName = selectedOTRPath!.split(Platform.pathSeparator).last.split(".").first;
+    await dumpFont(path.join(selectedDirectory, otrName), (TextureManifestEntry entry) {
+      this.processedFiles["textures/fonts"] = entry;
+    });
+
     isProcessing = false;
     notifyListeners();    
+  }
+
+  dumpFont(String outputPath, Function onProcessed) async {
+    Texture tex = Texture.empty();
+    tex.open((await rootBundle.load(fontData)).buffer.asUint8List());
+    for(int id = 0; id < 4; id++){
+      Texture tlut = Texture.empty();
+      tex.tlut = tlut;
+      tlut.textureType = TextureType.RGBA32bpp;
+      tlut.fromPNGImage(decodePng((await rootBundle.load(fontTLUT.replaceAll('%d', id.toString()))).buffer.asUint8List())!);
+
+      Uint8List pngBytes = tex.toPNGBytes();
+      File textureFile = File(path.join(outputPath, "textures/font/sGfxPrintFontData[$id].png"));
+      textureFile.createSync(recursive: true);
+      textureFile.writeAsBytesSync(pngBytes);
+      String hash = sha256.convert(textureFile.readAsBytesSync()).toString();
+      onProcessed(TextureManifestEntry(hash, tex.textureType, tex.width, tex.height));
+    }
   }
 }
 
@@ -144,27 +171,6 @@ Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(String folderPath
   }
 
   return processedFiles;
-}
-
-dumpFont(String outputPath, Function onProcessed) async {
-  const String fontData = "assets/FontData";
-  const String fontTLUT = "assets/FontTLUT[%d].png";
-
-  Texture tex = Texture.empty();
-  tex.open((await rootBundle.load(fontData)).buffer.asUint8List());
-  for(int id = 0; id < 4; id++){
-    Texture tlut = Texture.empty();
-    tex.tlut = tlut;
-    tlut.textureType = TextureType.RGBA32bpp;
-    tlut.fromPNGImage(decodePng((await rootBundle.load(fontTLUT.replaceAll('%d', id.toString()))).buffer.asUint8List())!);
-
-    Uint8List pngBytes = tex.toPNGBytes();
-    File textureFile = File(path.join(outputPath, "textures/font/sGfxPrintFontData[$id].png"));
-    textureFile.createSync(recursive: true);
-    textureFile.writeAsBytesSync(pngBytes);
-    String hash = sha256.convert(textureFile.readAsBytesSync()).toString();
-    onProcessed(TextureManifestEntry(hash, tex.textureType, tex.width, tex.height));
-  }
 }
 
 Future<HashMap<String, TextureManifestEntry>?> processOTR(Tuple2<String, String> params) async {
@@ -218,10 +224,6 @@ Future<HashMap<String, TextureManifestEntry>?> processOTR(Tuple2<String, String>
         fileFound = false;
       }
     } while (fileFound);
-
-    await dumpFont(path.join(params.item2, otrName), (TextureManifestEntry entry) {
-      processedFiles[fileName] = entry;
-    });
 
     // Write out the processed files to disk
     String? manifestOutputPath = "${params.item2}/$otrName/manifest.json";
