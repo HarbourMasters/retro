@@ -29,8 +29,10 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
   String? selectedOTRPath;
   bool isProcessing = false;
   HashMap<String, dynamic> processedFiles = HashMap();
+
   String fontData = "assets/FontData";
   String fontTLUT = "assets/FontTLUT[%d].png";
+  String fontTextureName = "textures/font/sGfxPrintFontData";
 
   reset() {
     currentStep = CreateReplacementTexturesStep.question;
@@ -57,9 +59,11 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
       HashMap<String, ProcessedFilesInFolder>? processedFiles = await compute(processFolder, selectedFolderPath!);
       if (processedFiles == null) {
       // TODO: Handle this error.
-    } else {
-      this.processedFiles = processedFiles;
-    }
+      log("Error processing folder: $selectedFolderPath");
+      } else {
+        this.processedFiles = processedFiles;
+      }
+
       isProcessing = false;
       notifyListeners();
     }
@@ -93,17 +97,26 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     isProcessing = true;
     notifyListeners();
 
-    HashMap<String, TextureManifestEntry>? processedFiles = await compute(processOTR, Tuple2(selectedOTRPath!, selectedDirectory));
-    if (processedFiles == null) {
+    // Process OTR
+    HashMap<String, TextureManifestEntry>? otrFiles = await compute(processOTR, Tuple2(selectedOTRPath!, selectedDirectory));
+    if (otrFiles == null) {
       // TODO: Handle this error.
     } else {
-      this.processedFiles = processedFiles;
+      processedFiles = otrFiles;
     }
 
+    // Dump font
     String otrName = selectedOTRPath!.split(Platform.pathSeparator).last.split(".").first;
     await dumpFont(path.join(selectedDirectory, otrName), (TextureManifestEntry entry) {
-      this.processedFiles["textures/font"] = entry;
+      processedFiles[fontTextureName] = entry;
     });
+
+     // Write out the processed files to disk
+    String? manifestOutputPath = "$selectedDirectory/$otrName/manifest.json";
+    File manifestFile = File(manifestOutputPath);
+    await manifestFile.create(recursive: true);
+    String dataToWrite = jsonEncode(processedFiles);
+    await manifestFile.writeAsString(dataToWrite);
 
     isProcessing = false;
     notifyListeners();
@@ -113,20 +126,22 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     Image fontImage = Image(width: 16 * 4, height: 256, numChannels: 4, withPalette: false);
 
     Texture tex = Texture.empty();
-    tex.open((await rootBundle.load(fontData)).buffer.asUint8List());
+    final ByteData data = await rootBundle.load(fontData);
+    tex.open(data.buffer.asUint8List());
     for(int id = 0; id < 4; id++){
       Texture tlut = Texture.empty();
       tex.tlut = tlut;
       tlut.textureType = TextureType.RGBA32bpp;
-      tlut.fromPNGImage(decodePng((await rootBundle.load(fontTLUT.replaceAll('%d', id.toString()))).buffer.asUint8List())!);
+      final ByteData data = await rootBundle.load(fontTLUT.replaceAll('%d', id.toString()));
+      final Image pngImage = decodePng(data.buffer.asUint8List())!;
+      tlut.fromPNGImage(pngImage);
       compositeImage(fontImage, decodePng(tex.toPNGBytes())!, dstX: id * 16, dstY: 0);
     }
 
-    String fileName = "textures/font/sGfxPrintFontData";
-    File textureFile = File(path.join(outputPath, "$fileName.png"));
+    File textureFile = File(path.join(outputPath, "$fontTextureName.png"));
     Uint8List pngBytes = encodePng(fontImage);
-    textureFile.createSync(recursive: true);
-    textureFile.writeAsBytesSync(pngBytes);
+    await textureFile.create(recursive: true);
+    await textureFile.writeAsBytes(pngBytes);
     String hash = sha256.convert(pngBytes).toString();
     onProcessed(TextureManifestEntry(hash, tex.textureType, fontImage.width, fontImage.height));
   }
@@ -145,11 +160,13 @@ Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(String folderPath
   String manifestContents = await manifestFile.readAsString();
   Map<String, dynamic> manifest = jsonDecode(manifestContents);
 
-  // find all pngs in folder
+  // find all images in folder
+  List<String> supportedExtensions = ['.png', '.jpeg', '.jpg'];
   List<FileSystemEntity> files = Directory(folderPath).listSync(recursive: true);
+  List<FileSystemEntity> texFiles = files.where((file) => supportedExtensions.contains(path.extension(file.path))).toList();
 
-  // for each png, check if it's in the manifest
-  for (FileSystemEntity rawFile in files) {
+  // for each tex image, check if it's in the manifest
+  for (FileSystemEntity rawFile in texFiles) {
     File texFile = File(p.normalize(rawFile.path));
     String texPathRelativeToFolder = p.normalize(texFile.path.split("$folderPath/").last.split('.').first);
     if (manifest.containsKey(texPathRelativeToFolder)) {
@@ -197,7 +214,7 @@ Future<HashMap<String, TextureManifestEntry>?> processOTR(Tuple2<String, String>
 
     // process first file
     String? fileName = hFind.fileName();
-    await processFile(fileName!, mpqArchive, "${params.item2}/$otrName/$fileName.png", (TextureManifestEntry entry) {
+    await processFile(fileName!, mpqArchive, "${params.item2}/$otrName/$fileName", (TextureManifestEntry entry) {
       processedFiles[fileName] = entry;
     });
 
@@ -212,7 +229,7 @@ Future<HashMap<String, TextureManifestEntry>?> processOTR(Tuple2<String, String>
         }
 
         log("Processing file: $fileName");
-        bool processed = await processFile(fileName, mpqArchive, "${params.item2}/$otrName/$fileName.png", (TextureManifestEntry entry) {
+        bool processed = await processFile(fileName, mpqArchive, "${params.item2}/$otrName/$fileName", (TextureManifestEntry entry) {
           processedFiles[fileName] = entry;
         });
 
@@ -227,13 +244,6 @@ Future<HashMap<String, TextureManifestEntry>?> processOTR(Tuple2<String, String>
         fileFound = false;
       }
     } while (fileFound);
-
-    // Write out the processed files to disk
-    String? manifestOutputPath = "${params.item2}/$otrName/manifest.json";
-    File manifestFile = File(manifestOutputPath);
-    await manifestFile.create(recursive: true);
-    String dataToWrite = jsonEncode(processedFiles);
-    await manifestFile.writeAsString(dataToWrite);
 
     hFind.close();
     return processedFiles;
@@ -265,7 +275,7 @@ Future<bool> processFile(String fileName, MPQArchive mpqArchive, String outputPa
         texture.open(fileData);
 
         Uint8List pngBytes = texture.toPNGBytes();
-        File textureFile = File(outputPath);
+        File textureFile = File("$outputPath.png");
         await textureFile.create(recursive: true);
         await textureFile.writeAsBytes(pngBytes);
         Uint8List textureBytes = await textureFile.readAsBytes();
