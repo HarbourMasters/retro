@@ -7,7 +7,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_storm/flutter_storm.dart';
-import 'package:flutter_storm/flutter_storm_bindings.dart';
 import 'package:flutter_storm/flutter_storm_defines.dart';
 import 'package:image/image.dart';
 import 'package:retro/models/texture_manifest_entry.dart';
@@ -103,7 +102,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
 
     String otrName = selectedOTRPath!.split(Platform.pathSeparator).last.split(".").first;
     await dumpFont(path.join(selectedDirectory, otrName), (TextureManifestEntry entry) {
-      this.processedFiles["textures/fonts"] = entry;
+      this.processedFiles["textures/font"] = entry;
     });
 
     isProcessing = false;
@@ -129,7 +128,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     textureFile.createSync(recursive: true);
     textureFile.writeAsBytesSync(pngBytes);
     String hash = sha256.convert(pngBytes).toString();
-    onProcessed(fileName, TextureManifestEntry(hash, tex.textureType, fontImage.width, fontImage.height));
+    onProcessed(TextureManifestEntry(hash, tex.textureType, fontImage.width, fontImage.height));
   }
 }
 
