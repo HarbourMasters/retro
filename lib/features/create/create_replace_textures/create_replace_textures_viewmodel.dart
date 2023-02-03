@@ -107,10 +107,12 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     });
 
     isProcessing = false;
-    notifyListeners();    
+    notifyListeners();
   }
 
   dumpFont(String outputPath, Function onProcessed) async {
+    Image fontImage = Image(width: 16 * 4, height: 256, numChannels: 4, withPalette: false);
+
     Texture tex = Texture.empty();
     tex.open((await rootBundle.load(fontData)).buffer.asUint8List());
     for(int id = 0; id < 4; id++){
@@ -118,14 +120,16 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
       tex.tlut = tlut;
       tlut.textureType = TextureType.RGBA32bpp;
       tlut.fromPNGImage(decodePng((await rootBundle.load(fontTLUT.replaceAll('%d', id.toString()))).buffer.asUint8List())!);
-
-      Uint8List pngBytes = tex.toPNGBytes();
-      File textureFile = File(path.join(outputPath, "textures/font/sGfxPrintFontData[$id].png"));
-      textureFile.createSync(recursive: true);
-      textureFile.writeAsBytesSync(pngBytes);
-      String hash = sha256.convert(textureFile.readAsBytesSync()).toString();
-      onProcessed(TextureManifestEntry(hash, tex.textureType, tex.width, tex.height));
+      compositeImage(fontImage, decodePng(tex.toPNGBytes())!, dstX: id * 16, dstY: 0);
     }
+
+    String fileName = "textures/font/sGfxPrintFontData";
+    File textureFile = File(path.join(outputPath, "$fileName.png"));
+    Uint8List pngBytes = encodePng(fontImage);
+    textureFile.createSync(recursive: true);
+    textureFile.writeAsBytesSync(pngBytes);
+    String hash = sha256.convert(pngBytes).toString();
+    onProcessed(fileName, TextureManifestEntry(hash, tex.textureType, fontImage.width, fontImage.height));
   }
 }
 
@@ -180,7 +184,7 @@ Future<HashMap<String, TextureManifestEntry>?> processOTR(Tuple2<String, String>
 
     log("Processing OTR: ${params.item1}");
     MPQArchive? mpqArchive = MPQArchive.open(params.item1, 0, MPQ_OPEN_READ_ONLY);
-    
+
     FileFindResource hFind = FileFindResource();
     mpqArchive.findFirstFile("*", hFind, null);
 
