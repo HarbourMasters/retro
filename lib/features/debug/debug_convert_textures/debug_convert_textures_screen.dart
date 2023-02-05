@@ -10,14 +10,14 @@ import 'package:retro/otr/types/texture.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
 import 'package:path/path.dart' as path;
 
-class DebugConvertTexturesScreen extends StatefulWidget {
-  const DebugConvertTexturesScreen({super.key});
+class DebugGeneratorFontsScreen extends StatefulWidget {
+  const DebugGeneratorFontsScreen({super.key});
 
   @override
-  State<DebugConvertTexturesScreen> createState() => _DebugConvertTexturesScreenState();
+  State<DebugGeneratorFontsScreen> createState() => _DebugGeneratorFontsScreenState();
 }
 
-class _DebugConvertTexturesScreenState extends State<DebugConvertTexturesScreen> {
+class _DebugGeneratorFontsScreenState extends State<DebugGeneratorFontsScreen> {
 
   TextureType selectedTextureType = TextureType.RGBA32bpp;
   Texture? textureData;

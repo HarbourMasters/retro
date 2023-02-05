@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:retro/features/debug/debug_convert_textures/debug_convert_textures_screen.dart';
+import 'package:retro/features/debug/debug_font_generator/debug_font_generator_screen.dart';
 import 'package:retro/features/debug/debug_selection/debug_selection_screen.dart';
 import 'package:window_size/window_size.dart';
 import 'package:provider/provider.dart';
@@ -69,7 +70,7 @@ class Retro extends StatelessWidget {
         builder: (context, child) {
           return Overlay(initialEntries: [
             OverlayEntry(
-                builder: (context) => ScaffoldMessenger( 
+                builder: (context) => ScaffoldMessenger(
                   child: Stack(
                       children: [
                         SizedBox(
@@ -89,7 +90,8 @@ class Retro extends StatelessWidget {
           '/create_custom_sequences': (context) => const CreateCustomSequencesScreen(),
           '/create_replace_textures': (context) => const CreateReplaceTexturesScreen(),
           '/debug_selection':(context) => const DebugSelectionScreen(),
-          '/debug_convert_textures':(context) => const DebugConvertTexturesScreen(),
+          '/debug_convert_textures':(context) => const DebugGeneratorFontsScreen(),
+          '/debug_generate_font':(context) => const DebugGeneratorFontScreen(),
         },
       ),
     );

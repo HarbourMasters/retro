@@ -34,6 +34,13 @@ class _DebugSelectionScreenState extends State<DebugSelectionScreen> {
                       onTap: () {
                         Navigator.of(context).pushNamed('/debug_convert_textures');
                       }),
+                  const SizedBox(width: 20),
+                  OptionCard(
+                      text: "Font Generator",
+                      icon: Icons.font_download,
+                      onTap: () {
+                        Navigator.of(context).pushNamed('/debug_generate_font');
+                      }),
                 ],
               )
             ])));
