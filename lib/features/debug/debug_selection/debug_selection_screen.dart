@@ -16,7 +16,7 @@ class _DebugSelectionScreenState extends State<DebugSelectionScreen> {
     final AppLocalizations i18n = AppLocalizations.of(context)!;
     return CustomScaffold(
         title: "Debug Selection",
-        subtitle: "Looks like you're a developer. Select an option to debug.",
+        subtitle: "This options are on an experimental state and may not work as expected",
         onBackButtonPressed: () {
           Navigator.of(context).pop();
         },

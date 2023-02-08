@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide Texture, Image;
 import 'package:flutter/services.dart';
-import 'package:retro/features/debug/debug_font_generator/widgets/numpad.dart';
+import 'package:retro/ui/components/numpad.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
 import 'package:path/path.dart' as path;
 import 'dart:ui' as ui;
@@ -98,7 +98,7 @@ class _DebugGeneratorFontScreenState extends State<DebugGeneratorFontScreen> {
                     child: const Text("Load Font"),
                     onPressed: () async {
                       FilePickerResult? result = await FilePicker.platform.pickFiles(
-                        type: FileType.custom, allowedExtensions: ['ttf']
+                        type: FileType.custom, allowedExtensions: ['ttf', 'otf']
                       );
                       if (result != null) {
                         loadFont(File(result.files.single.path!));
