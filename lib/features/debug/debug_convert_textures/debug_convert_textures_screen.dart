@@ -107,7 +107,7 @@ class _DebugGeneratorFontsScreenState extends State<DebugGeneratorFontsScreen> {
                           textureData = Texture.empty();
                           textureData?.textureType = selectedTextureType;
                           Image image = decodePng(textureFile!.readAsBytesSync())!;
-                          textureData!.fromPNGImage(image);
+                          textureData!.fromRawImage(image);
                           if(selectedTextureType.name.contains("Palette")){
                             textureData!.isPalette = true;
                           }
@@ -130,7 +130,7 @@ class _DebugGeneratorFontsScreenState extends State<DebugGeneratorFontsScreen> {
                           Texture tlut = Texture.empty();
                           tlut.textureType = TextureType.RGBA32bpp;
                           Image image = decodePng(File(result.files.single.path!).readAsBytesSync())!;
-                          tlut.fromPNGImage(image);
+                          tlut.fromRawImage(image);
                           textureData!.tlut = tlut;
                           textureBytes = textureData!.toPNGBytes();
                         });

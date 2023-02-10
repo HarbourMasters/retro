@@ -134,7 +134,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
       tlut.textureType = TextureType.RGBA32bpp;
       final ByteData data = await rootBundle.load(fontTLUT.replaceAll('%d', id.toString()));
       final Image pngImage = decodePng(data.buffer.asUint8List())!;
-      tlut.fromPNGImage(pngImage);
+      tlut.fromRawImage(pngImage);
       compositeImage(fontImage, decodePng(tex.toPNGBytes())!, dstX: id * 16, dstY: 0);
     }
 

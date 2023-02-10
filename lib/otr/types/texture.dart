@@ -92,8 +92,8 @@ class Texture extends Resource {
     this.tlut = tlut;
   }
 
-  void fromPNGImage(Image png) {
-    convertPNGToN64(png);
+  void fromRawImage(Image png) {
+    convertRawToN64(png);
   }
 
   Uint8List toPNGBytes() {
