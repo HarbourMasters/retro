@@ -17,7 +17,10 @@ Widget OTRContent(CreateReplaceTexturesViewModel viewModel, BuildContext context
           enabled: false,
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
-            labelText: viewModel.selectedOTRPath ?? i18n.otrContentView_otrPath,
+            labelText: viewModel.selectedOTRPaths.isEmpty ? i18n.otrContentView_otrPath :
+              viewModel.selectedOTRPaths.length > 1 ?
+                viewModel.selectedOTRPaths.map((e) => e.split('/').last).join(', ')
+                : viewModel.selectedOTRPaths.first.split('/').last,
           ),
         )),
         const SizedBox(width: 12),
@@ -56,7 +59,7 @@ Widget OTRContent(CreateReplaceTexturesViewModel viewModel, BuildContext context
       Padding(
         padding: const EdgeInsets.only(top: 20.0),
         child: ElevatedButton(
-          onPressed: viewModel.selectedOTRPath?.isEmpty == false && !viewModel.isProcessing && viewModel.processedFiles.isEmpty
+          onPressed: viewModel.selectedOTRPaths.isEmpty == false && !viewModel.isProcessing && viewModel.processedFiles.isEmpty
             ? viewModel.onProcessOTR : null,
           style: ElevatedButton.styleFrom(minimumSize: Size(
             MediaQuery.of(context).size.width * 0.5, 50)

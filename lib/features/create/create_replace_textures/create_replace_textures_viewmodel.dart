@@ -26,7 +26,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
   CreateReplacementTexturesStep currentStep =
       CreateReplacementTexturesStep.question;
   String? selectedFolderPath;
-  String? selectedOTRPath;
+  List<String> selectedOTRPaths = [];
   bool isProcessing = false;
   HashMap<String, dynamic> processedFiles = HashMap();
 
@@ -37,7 +37,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
   reset() {
     currentStep = CreateReplacementTexturesStep.question;
     selectedFolderPath = null;
-    selectedOTRPath = null;
+    selectedOTRPaths = [];
     isProcessing = false;
     processedFiles = HashMap();
     notifyListeners();
@@ -70,10 +70,11 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
   }
 
   onSelectOTR() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: false, type: FileType.custom, allowedExtensions: ['otr']);
+    FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true, type: FileType.custom, allowedExtensions: ['otr']);
     if (result != null && result.files.isNotEmpty) {
-      selectedOTRPath = result.paths.first;
-      if (selectedOTRPath == null) {
+      // save paths filtering out nulls
+      selectedOTRPaths = result.paths.whereType<String>().toList();
+      if (selectedOTRPaths.isEmpty) {
         // TODO: Handle this error
         return;
       }
@@ -83,7 +84,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
   }
 
   onProcessOTR() async {
-    if (selectedOTRPath == null) {
+    if (selectedOTRPaths.isEmpty) {
       // TODO: Handle this error
       return;
     }
@@ -98,7 +99,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     notifyListeners();
 
     // Process OTR
-    HashMap<String, TextureManifestEntry>? otrFiles = await compute(processOTR, Tuple2(selectedOTRPath!, selectedDirectory));
+    HashMap<String, TextureManifestEntry>? otrFiles = await compute(processOTR, Tuple2(selectedOTRPaths, selectedDirectory));
     if (otrFiles == null) {
       // TODO: Handle this error.
     } else {
@@ -106,13 +107,12 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     }
 
     // Dump font
-    String otrName = selectedOTRPath!.split(Platform.pathSeparator).last.split(".").first;
-    await dumpFont(path.join(selectedDirectory, otrName), (TextureManifestEntry entry) {
+    await dumpFont(selectedDirectory, (TextureManifestEntry entry) {
       processedFiles[fontTextureName] = entry;
     });
 
      // Write out the processed files to disk
-    String? manifestOutputPath = "$selectedDirectory/$otrName/manifest.json";
+    String? manifestOutputPath = "$selectedDirectory/manifest.json";
     File manifestFile = File(manifestOutputPath);
     await manifestFile.create(recursive: true);
     String dataToWrite = jsonEncode(processedFiles);
@@ -193,59 +193,62 @@ Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(String folderPath
   return processedFiles;
 }
 
-Future<HashMap<String, TextureManifestEntry>?> processOTR(Tuple2<String, String> params) async {
+Future<HashMap<String, TextureManifestEntry>?> processOTR(Tuple2<List<String>, String> params) async {
   try {
     bool fileFound = false;
     HashMap<String, TextureManifestEntry> processedFiles = HashMap();
 
-    log("Processing OTR: ${params.item1}");
-    MPQArchive? mpqArchive = MPQArchive.open(params.item1, 0, MPQ_OPEN_READ_ONLY);
-
-    FileFindResource hFind = FileFindResource();
-    mpqArchive.findFirstFile("*", hFind, null);
-
     // if folder we'll export to exists, delete it
-    String otrName = params.item1.split(Platform.pathSeparator).last.split(".").first;
-    Directory dir = Directory("${params.item2}/$otrName");
+    Directory dir = Directory(params.item2);
     if (dir.existsSync()) {
-      log("Deleting existing folder: ${params.item2}/$otrName");
+      log("Deleting existing folder: ${params.item2}");
       await dir.delete(recursive: true);
     }
+    
+    for (String otrPath in params.item1) {
+      log("Processing OTR: $otrPath");
+      MPQArchive? mpqArchive = MPQArchive.open(otrPath, 0, MPQ_OPEN_READ_ONLY);
 
-    // process first file
-    String? fileName = hFind.fileName();
-    await processFile(fileName!, mpqArchive, "${params.item2}/$otrName/$fileName", (TextureManifestEntry entry) {
-      processedFiles[fileName] = entry;
-    });
+      FileFindResource hFind = FileFindResource();
+      mpqArchive.findFirstFile("*", hFind, null);
 
-    do {
-      try {
-        mpqArchive.findNextFile(hFind);
-        fileFound = true;
+      // process first file
+      String? fileName = hFind.fileName();
+      await processFile(fileName!, mpqArchive, "${params.item2}/$fileName", (TextureManifestEntry entry) {
+        processedFiles[fileName] = entry;
+      });
 
-        String? fileName = hFind.fileName();
-        if (fileName == null || fileName == "(signature)" || fileName == "(listfile)" || fileName == "(attributes)") {
-          continue;
+      do {
+        try {
+          mpqArchive.findNextFile(hFind);
+          fileFound = true;
+
+          String? fileName = hFind.fileName();
+          if (fileName == null || fileName == SIGNATURE_NAME || fileName == LISTFILE_NAME || fileName == ATTRIBUTES_NAME) {
+            continue;
+          }
+
+          log("Processing file: $fileName");
+          bool processed = await processFile(fileName, mpqArchive, "${params.item2}/$fileName", (TextureManifestEntry entry) {
+            processedFiles[fileName] = entry;
+          });
+
+          if (!processed) {
+            continue;
+          }
+        } on StormLibException catch (e) {
+          log("Got a StormLib error: ${e.message}");
+          fileFound = false;
+        } on Exception catch (e) {
+          log("Got an error: $e");
+          fileFound = false;
         }
+      } while (fileFound);
 
-        log("Processing file: $fileName");
-        bool processed = await processFile(fileName, mpqArchive, "${params.item2}/$otrName/$fileName", (TextureManifestEntry entry) {
-          processedFiles[fileName] = entry;
-        });
-
-        if (!processed) {
-          continue;
-        }
-      } on StormLibException catch (e) {
-        log("Got a StormLib error: ${e.message}");
-        fileFound = false;
-      } on Exception catch (e) {
-        log("Got an error: $e");
-        fileFound = false;
-      }
-    } while (fileFound);
-
-    hFind.close();
+      hFind.close();
+      mpqArchive.close();
+    }
+    
     return processedFiles;
   } on StormLibException catch (e) {
     log("Failed to find next file: ${e.message}");
