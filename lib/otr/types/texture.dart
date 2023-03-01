@@ -60,7 +60,7 @@ class Texture extends Resource {
     writeInt32(width);
     writeInt32(height);
 
-    if (gameVersion == Version.flynn) {
+    if (gameVersion == Version.roy) {
       writeInt32(textureFlags);
       writeFloat32(textureHByteScale);
       writeFloat32(textureVPixelScale);
@@ -76,7 +76,7 @@ class Texture extends Resource {
     width = readInt32();
     height = readInt32();
 
-    if (gameVersion == Version.flynn) {
+    if (gameVersion == Version.roy) {
       textureFlags = readInt32();
       textureHByteScale = readFloat32();
       textureVPixelScale = readFloat32();
@@ -109,12 +109,12 @@ class Texture extends Resource {
   }
 
   void setTextureFlags(int flags) {
-    gameVersion = Version.flynn;
+    gameVersion = Version.roy;
     textureFlags |= flags;
   }
 
   void setTextureScale(double hByteScale, double vPixelScale) {
-    gameVersion = Version.flynn;
+    gameVersion = Version.roy;
     textureHByteScale = hByteScale;
     textureVPixelScale = vPixelScale;
   }
