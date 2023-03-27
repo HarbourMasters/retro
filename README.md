@@ -1,5 +1,4 @@
-# retro
-
+![Retro Logo](https://cdn.discordapp.com/attachments/877153311151775805/1089945686436491324/retro-02.png)
 An OTR generation tool.
 
 ## Getting Started
