@@ -1,0 +1,3 @@
+[submodule "farbe"]
+	path = farbe
+	url = https://github.com/retrofoundry/farbe.git
