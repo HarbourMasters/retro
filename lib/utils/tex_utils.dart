@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:image/image.dart';
-import 'package:retro/models/texture_manifest_entry.dart';
 import 'package:retro/otr/types/texture.dart';
 
 extension N64Pixel on Image {
@@ -22,7 +21,7 @@ extension N64Graphics on Texture {
         .asUint8List();
   }
 
-  void convertPNGToN64(Image image) {
+  void convertRawToN64(Image image) {
     width = image.width;
     height = image.height;
     texDataSize = textureType.getBufferSize(width, height);

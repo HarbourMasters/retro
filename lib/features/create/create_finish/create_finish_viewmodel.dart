@@ -8,7 +8,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Image hide Texture;
 import 'package:flutter_storm/flutter_storm.dart';
 import 'package:flutter_storm/flutter_storm_defines.dart';
-import 'package:flutter_storm/flutter_storm_bindings.dart';
 import 'package:image/image.dart';
 import 'package:retro/models/texture_manifest_entry.dart';
 import 'package:retro/otr/types/sequence.dart';
@@ -262,7 +261,7 @@ Future<Uint8List?> processJPEG(pair, String textureName) async {
   double hByteScale = (image.width / pair.item2.textureWidth) * (texture.textureType.pixelMultiplier / TextureType.RGBA16bpp.pixelMultiplier);
   double vPixelScale = (image.height / pair.item2.textureHeight);
   texture.setTextureScale(hByteScale, vPixelScale);
-  texture.fromPNGImage(image);
+  texture.fromRawImage(image);
   return texture.build();
 }
 
@@ -292,7 +291,7 @@ Future<Uint8List?> processPNG(
     texture.setTextureScale(hByteScale, vPixelScale);
   }
 
-  texture.fromPNGImage(image);
+  texture.fromRawImage(image);
 
   if (pair.item2.textureType == TextureType.Palette8bpp || pair.item2.textureType == TextureType.Palette4bpp) {
     if (texture.isPalette) {

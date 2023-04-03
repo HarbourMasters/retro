@@ -10,14 +10,14 @@ import 'package:retro/otr/types/texture.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
 import 'package:path/path.dart' as path;
 
-class DebugConvertTexturesScreen extends StatefulWidget {
-  const DebugConvertTexturesScreen({super.key});
+class DebugGeneratorFontsScreen extends StatefulWidget {
+  const DebugGeneratorFontsScreen({super.key});
 
   @override
-  State<DebugConvertTexturesScreen> createState() => _DebugConvertTexturesScreenState();
+  State<DebugGeneratorFontsScreen> createState() => _DebugGeneratorFontsScreenState();
 }
 
-class _DebugConvertTexturesScreenState extends State<DebugConvertTexturesScreen> {
+class _DebugGeneratorFontsScreenState extends State<DebugGeneratorFontsScreen> {
 
   TextureType selectedTextureType = TextureType.RGBA32bpp;
   Texture? textureData;
@@ -107,7 +107,7 @@ class _DebugConvertTexturesScreenState extends State<DebugConvertTexturesScreen>
                           textureData = Texture.empty();
                           textureData?.textureType = selectedTextureType;
                           Image image = decodePng(textureFile!.readAsBytesSync())!;
-                          textureData!.fromPNGImage(image);
+                          textureData!.fromRawImage(image);
                           if(selectedTextureType.name.contains("Palette")){
                             textureData!.isPalette = true;
                           }
@@ -130,7 +130,7 @@ class _DebugConvertTexturesScreenState extends State<DebugConvertTexturesScreen>
                           Texture tlut = Texture.empty();
                           tlut.textureType = TextureType.RGBA32bpp;
                           Image image = decodePng(File(result.files.single.path!).readAsBytesSync())!;
-                          tlut.fromPNGImage(image);
+                          tlut.fromRawImage(image);
                           textureData!.tlut = tlut;
                           textureBytes = textureData!.toPNGBytes();
                         });

@@ -92,9 +92,9 @@ class Resource {
       readInt8();
     }
 
-    if(!rawLoad) {
+    if (!rawLoad) {
       isValid = ResourceType.fromValue(readInt32()) == resourceType;
-      if(!isValid){
+      if (!isValid) {
         return;
       }
     } else {
