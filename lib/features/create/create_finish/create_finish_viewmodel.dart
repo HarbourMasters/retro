@@ -242,17 +242,17 @@ Future<Tuple2<String, Uint8List?>> processTextureEntry(Tuple2<String, Tuple2<Fil
   String textureName = pair.item1.path.split("/").last.split(".").first;
   String fileName = "${params.item1}/$textureName";
 
-  Uint8List? data = await (pair.item2.textureType == TextureType.JPEG32bpp ? processJPEG : processPNG)(pair, textureName);
-  return Tuple2(fileName, data);
+  Tuple2<Uint8List?, bool> data = await (pair.item2.textureType == TextureType.JPEG32bpp ? processJPEG : processPNG)(pair, textureName);
+  return Tuple2((data.item2 ? "hd/" : "") + fileName, data.item1);
 }
 
-Future<Uint8List?> processJPEG(pair, String textureName) async {
+Future<Tuple2<Uint8List?, bool>> processJPEG(pair, String textureName) async {
   Uint8List imageData = await pair.item1.readAsBytes();
   Image? image = decodeJpg(imageData);
 
   if (image == null) {
     log("Failed to decode image data for JPEG: $textureName");
-    return null;
+    return const Tuple2<Uint8List?, bool>(null, false);
   }
 
   Texture texture = Texture.empty();
@@ -262,10 +262,11 @@ Future<Uint8List?> processJPEG(pair, String textureName) async {
   double vPixelScale = (image.height / pair.item2.textureHeight);
   texture.setTextureScale(hByteScale, vPixelScale);
   texture.fromRawImage(image);
-  return texture.build();
+  bool isNotOriginalSize = hByteScale != 1 || vPixelScale != 1;
+  return Tuple2<Uint8List?, bool>(texture.build(), isNotOriginalSize);
 }
 
-Future<Uint8List?> processPNG(
+Future<Tuple2<Uint8List?, bool>> processPNG(
     Tuple2<File, TextureManifestEntry> pair, String textureName) async {
   Texture texture = Texture.empty();
   Uint8List imageData = await pair.item1.readAsBytes();
@@ -273,7 +274,7 @@ Future<Uint8List?> processPNG(
 
   if (image == null) {
     log("Failed to decode image data for PNG: $textureName");
-    return null;
+    return const Tuple2<Uint8List?, bool>(null, false);
   }
 
   texture.textureType = pair.item2.textureType;
@@ -298,11 +299,11 @@ Future<Uint8List?> processPNG(
       texture.textureType = pair.item2.textureType;
     } else if (!isNotOriginalSize){
       print("Skipping $textureName because it is not a palette texture");
-      return null;
+      return const Tuple2<Uint8List?, bool>(null, false);
     }
   } else {
     texture.textureType = pair.item2.textureType;
   }
 
-  return texture.build();
+  return Tuple2<Uint8List?, bool>(texture.build(), isNotOriginalSize);
 }
