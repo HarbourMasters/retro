@@ -243,7 +243,7 @@ Future<Tuple2<String, Uint8List?>> processTextureEntry(Tuple2<String, Tuple2<Fil
   String fileName = "${params.item1}/$textureName";
 
   Tuple2<Uint8List?, bool> data = await (pair.item2.textureType == TextureType.JPEG32bpp ? processJPEG : processPNG)(pair, textureName);
-  return Tuple2((data.item2 ? "hd/" : "") + fileName, data.item1);
+  return Tuple2((true ? "hd/" : "") + fileName, data.item1);
 }
 
 Future<Tuple2<Uint8List?, bool>> processJPEG(pair, String textureName) async {
