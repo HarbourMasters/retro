@@ -15,6 +15,7 @@ class Resource {
   int _baseLength = 0;
   bool isValid = false;
   bool rawLoad = false;
+  bool isCustom = true;
 
   Resource(this.resourceType, this.resourceVersion, this.gameVersion);
 
@@ -28,7 +29,11 @@ class Resource {
     writeInt32(gameVersion.value);   // 0x08
     writeInt64(magicID);             // 0x0C
     writeInt32(resourceVersion);     // 0x10
-    writeInt64(0);                   // 0x14
+    writeInt8(isCustom ? 1 : 0);     // 0x14
+    writeInt8(0);                    // 0x15
+    writeInt8(0);                    // 0x16
+    writeInt8(0);                    // 0x17 
+    writeInt32(0);                   // 0x18
     writeInt32(0);                   // 0x1C
 
     while (buffer.length < 0x40) {
