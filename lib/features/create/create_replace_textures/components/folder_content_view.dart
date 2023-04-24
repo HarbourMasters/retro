@@ -37,7 +37,7 @@ Widget FolderContent(
             viewModel.onTogglePrependHD(value);
           }
         ),
-        Text('prepend hd'),
+        Text(i18n.folderContentView_prependHDToggle),
       ]),
       if (viewModel.processedFiles.isEmpty && viewModel.isProcessing == false)
         const Spacer(),

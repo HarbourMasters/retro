@@ -25,6 +25,7 @@
     "otrContentView_step5": "5. Nous générons un OTR avec les textures modifiées! 🚀",
     "otrContentView_processing": "Traitement en cours...",
     "folderContentView_customTexturePath": "Dossier de remplacements de textures personnalisées",
+    "folderContentView_prependHDToggle": "Prepend `hd/`",
     "folderContentView_selectButton": "Sélectionner",
     "folderContentView_stageTextures": "Indexer les textures",
     "createCustomSequences_addCustomSequences": "Ajouter des séquences personnalisées",

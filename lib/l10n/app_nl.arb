@@ -25,6 +25,7 @@
     "otrContentView_step5": "5. We genereren een OTR met de gewijzigde textures! 🚀",
     "otrContentView_processing": "Verwerken...",
     "folderContentView_customTexturePath": "Vervangende Texture Map",
+    "folderContentView_prependHDToggle": "Prepend `hd/`",
     "folderContentView_selectButton": "Selecteer",
     "folderContentView_stageTextures": "Stage-Textures",
     "createCustomSequences_addCustomSequences": "Voeg aangepaste composities toe",
