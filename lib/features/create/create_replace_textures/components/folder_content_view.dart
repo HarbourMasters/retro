@@ -32,9 +32,9 @@ Widget FolderContent(
       Row(children: [
         Switch(
           activeColor: Colors.blue,
-          value: viewModel.prependHD,
+          value: finishViewModel.prependHD,
           onChanged: (value) {
-            viewModel.onTogglePrependHD(value);
+            finishViewModel.onTogglePrependHD(value);
           }
         ),
         Text(i18n.folderContentView_prependHDToggle),
@@ -51,7 +51,7 @@ Widget FolderContent(
                 prototypeItem: const SizedBox(width: 0, height: 20),
                 itemBuilder: (context, index) {
                   String key = viewModel.processedFiles.keys.elementAt(index);
-                  return Text("${viewModel.prependHD ? 'hd/' : ''}$key (${viewModel.processedFiles[key]?.length ?? 0} tex)");
+                  return Text("${finishViewModel.prependHD ? 'hd/' : ''}$key (${viewModel.processedFiles[key]?.length ?? 0} tex)");
                 }))),
       Padding(
         padding: const EdgeInsets.only(top: 20.0),

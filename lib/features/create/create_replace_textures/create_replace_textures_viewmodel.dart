@@ -26,7 +26,6 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
   CreateReplacementTexturesStep currentStep =
       CreateReplacementTexturesStep.question;
   String? selectedFolderPath;
-  bool prependHD = false;
   List<String> selectedOTRPaths = [];
   bool isProcessing = false;
   HashMap<String, dynamic> processedFiles = HashMap();
@@ -68,11 +67,6 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
       isProcessing = false;
       notifyListeners();
     }
-  }
-
-  onTogglePrependHD(newPrependHdValue) async {
-    prependHD = newPrependHdValue;
-    notifyListeners();
   }
 
   onSelectOTR() async {

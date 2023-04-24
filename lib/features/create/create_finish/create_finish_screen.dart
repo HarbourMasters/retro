@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:retro/features/create/create_finish/create_finish_viewmodel.dart';
-import 'package:retro/features/create/create_replace_textures/create_replace_textures_viewmodel.dart';
 import 'package:retro/models/stage_entry.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -31,13 +30,12 @@ class _CreateFinishBottomBarModalState
     final TextTheme textTheme = theme.textTheme;
     final CreateFinishViewModel viewModel =
         Provider.of<CreateFinishViewModel>(context);
-    final CreateReplaceTexturesViewModel replaceTexturesViewModel = Provider.of<CreateReplaceTexturesViewModel>(context);
     final AppLocalizations i18n = AppLocalizations.of(context)!;
     viewModel.context = context;
 
     List<Widget> widgets = [];
     for (var key in viewModel.entries.keys) {
-      bool shouldPrependHd = viewModel.entries[key].runtimeType == CustomTexturesEntry && replaceTexturesViewModel.prependHD;
+      bool shouldPrependHd = viewModel.entries[key].runtimeType == CustomTexturesEntry && viewModel.prependHD;
       widgets.add(Text("${shouldPrependHd ? "hd/" : ""}$key", style: textTheme.subtitle2));
       widgets.addAll(viewModel.entries[key]!.iterables.map((file) => Row(
             crossAxisAlignment: CrossAxisAlignment.start,

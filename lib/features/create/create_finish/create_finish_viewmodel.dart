@@ -25,6 +25,7 @@ class CreateFinishViewModel with ChangeNotifier {
   HashMap<String, StageEntry> entries = HashMap();
   bool isEphemeralBarExpanded = false;
   bool isGenerating = false;
+  bool prependHD = false;
   int totalFiles = 0;
   int filesProcessed = 0;
 
@@ -35,6 +36,11 @@ class CreateFinishViewModel with ChangeNotifier {
 
   void toggleEphemeralBar() {
     isEphemeralBarExpanded = !isEphemeralBarExpanded;
+    notifyListeners();
+  }
+
+  onTogglePrependHD(newPrependHdValue) async {
+    prependHD = newPrependHdValue;
     notifyListeners();
   }
 
@@ -138,7 +144,7 @@ class CreateFinishViewModel with ChangeNotifier {
 
     isGenerating = true;
     notifyListeners();
-    await createGenerationIsolate(entries, outputFile);
+    await createGenerationIsolate(entries, outputFile, prependHD);
     // await compute(generateOTR, Tuple2(entries, outputFile));
     isGenerating = false;
     notifyListeners();
@@ -147,11 +153,11 @@ class CreateFinishViewModel with ChangeNotifier {
     onCompletion();
   }
 
-  Future createGenerationIsolate(HashMap<String, StageEntry> entries, String outputFile) async {
+  Future createGenerationIsolate(HashMap<String, StageEntry> entries, String outputFile, bool shouldPrependHd) async {
     ReceivePort receivePort = ReceivePort();
     await Isolate.spawn(
       generateOTR,
-      Tuple3(entries, outputFile, receivePort.sendPort),
+      Tuple4(entries, outputFile, receivePort.sendPort, shouldPrependHd),
       onExit: receivePort.sendPort,
       onError: receivePort.sendPort,
     );
@@ -183,7 +189,7 @@ class CreateFinishViewModel with ChangeNotifier {
   }
 }
 
-void generateOTR(Tuple3<HashMap<String, StageEntry>, String, SendPort> params) async {
+void generateOTR(Tuple4<HashMap<String, StageEntry>, String, SendPort, bool> params) async {
   try {
     MPQArchive? mpqArchive = MPQArchive.create(params.item2, MPQ_CREATE_SIGNATURE | MPQ_CREATE_ARCHIVE_V2, 12288);
     for (var entry in params.item1.entries) {
@@ -210,7 +216,7 @@ void generateOTR(Tuple3<HashMap<String, StageEntry>, String, SendPort> params) a
         }
       } else if (entry.value is CustomTexturesEntry) {
         final processes = (entry.value as CustomTexturesEntry).pairs.map(
-          (pair) => compute(processTextureEntry, Tuple2(entry.key, pair))
+          (pair) => compute(processTextureEntry, Tuple3(entry.key, pair, params.item4))
         );
 
         List<Tuple2<String, Uint8List?>> textures = await FutureExtensions.progressWait(processes, () =>  params.item3.send(1));
@@ -237,13 +243,13 @@ void generateOTR(Tuple3<HashMap<String, StageEntry>, String, SendPort> params) a
   Isolate.exit();
 }
 
-Future<Tuple2<String, Uint8List?>> processTextureEntry(Tuple2<String, Tuple2<File, TextureManifestEntry>> params) async {
+Future<Tuple2<String, Uint8List?>> processTextureEntry(Tuple3<String, Tuple2<File, TextureManifestEntry>, bool> params) async {
   final pair = params.item2;
   String textureName = pair.item1.path.split("/").last.split(".").first;
   String fileName = "${params.item1}/$textureName";
 
   Uint8List? data = await (pair.item2.textureType == TextureType.JPEG32bpp ? processJPEG : processPNG)(pair, textureName);
-  return Tuple2((true ? "hd/" : "") + fileName, data);
+  return Tuple2((params.item3 ? "hd/" : "") + fileName, data);
 }
 
 Future<Uint8List?> processJPEG(pair, String textureName) async {
