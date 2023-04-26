@@ -25,7 +25,7 @@
     "otrContentView_step5": "5. ¡Generamos un OTR con las texturas modificadas! 🚀",
     "otrContentView_processing": "Procesando...",
     "folderContentView_customTexturePath": "Carpeta de reemplazos de texturas personalizadas",
-    "folderContentView_prependHDToggle": "Prepend `hd/`",
+    "folderContentView_prependAltToggle": "Prepend `alt/`. This will allow players to toggle these assets on-the-fly in game.",
     "folderContentView_selectButton": "Seleccionar",
     "folderContentView_stageTextures": "Agregar texturas",
     "createCustomSequences_addCustomSequences": "Agregar secuencias personalizadas",

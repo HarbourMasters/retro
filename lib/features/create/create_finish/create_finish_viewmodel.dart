@@ -25,7 +25,7 @@ class CreateFinishViewModel with ChangeNotifier {
   HashMap<String, StageEntry> entries = HashMap();
   bool isEphemeralBarExpanded = false;
   bool isGenerating = false;
-  bool prependHD = false;
+  bool prependAlt = false;
   int totalFiles = 0;
   int filesProcessed = 0;
 
@@ -39,8 +39,8 @@ class CreateFinishViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  onTogglePrependHD(newPrependHdValue) async {
-    prependHD = newPrependHdValue;
+  onTogglePrependAlt(newPrependAltValue) async {
+    prependAlt = newPrependAltValue;
     notifyListeners();
   }
 
@@ -144,7 +144,7 @@ class CreateFinishViewModel with ChangeNotifier {
 
     isGenerating = true;
     notifyListeners();
-    await createGenerationIsolate(entries, outputFile, prependHD);
+    await createGenerationIsolate(entries, outputFile, prependAlt);
     // await compute(generateOTR, Tuple2(entries, outputFile));
     isGenerating = false;
     notifyListeners();
@@ -153,11 +153,11 @@ class CreateFinishViewModel with ChangeNotifier {
     onCompletion();
   }
 
-  Future createGenerationIsolate(HashMap<String, StageEntry> entries, String outputFile, bool shouldPrependHd) async {
+  Future createGenerationIsolate(HashMap<String, StageEntry> entries, String outputFile, bool shouldPrependAlt) async {
     ReceivePort receivePort = ReceivePort();
     await Isolate.spawn(
       generateOTR,
-      Tuple4(entries, outputFile, receivePort.sendPort, shouldPrependHd),
+      Tuple4(entries, outputFile, receivePort.sendPort, shouldPrependAlt),
       onExit: receivePort.sendPort,
       onError: receivePort.sendPort,
     );
@@ -249,7 +249,7 @@ Future<Tuple2<String, Uint8List?>> processTextureEntry(Tuple3<String, Tuple2<Fil
   String fileName = "${params.item1}/$textureName";
 
   Uint8List? data = await (pair.item2.textureType == TextureType.JPEG32bpp ? processJPEG : processPNG)(pair, textureName);
-  return Tuple2((params.item3 ? "hd/" : "") + fileName, data);
+  return Tuple2((params.item3 ? "alt/" : "") + fileName, data);
 }
 
 Future<Uint8List?> processJPEG(pair, String textureName) async {

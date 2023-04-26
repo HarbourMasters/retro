@@ -32,12 +32,12 @@ Widget FolderContent(
       Row(children: [
         Switch(
           activeColor: Colors.blue,
-          value: finishViewModel.prependHD,
+          value: finishViewModel.prependAlt,
           onChanged: (value) {
-            finishViewModel.onTogglePrependHD(value);
+            finishViewModel.onTogglePrependAlt(value);
           }
         ),
-        Text(i18n.folderContentView_prependHDToggle),
+        Text(i18n.folderContentView_prependAltToggle),
       ]),
       if (viewModel.processedFiles.isEmpty && viewModel.isProcessing == false)
         const Spacer(),
@@ -51,7 +51,7 @@ Widget FolderContent(
                 prototypeItem: const SizedBox(width: 0, height: 20),
                 itemBuilder: (context, index) {
                   String key = viewModel.processedFiles.keys.elementAt(index);
-                  return Text("${finishViewModel.prependHD ? 'hd/' : ''}$key (${viewModel.processedFiles[key]?.length ?? 0} tex)");
+                  return Text("${finishViewModel.prependAlt ? 'alt/' : ''}$key (${viewModel.processedFiles[key]?.length ?? 0} tex)");
                 }))),
       Padding(
         padding: const EdgeInsets.only(top: 20.0),

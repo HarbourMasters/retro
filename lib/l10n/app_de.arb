@@ -25,7 +25,7 @@
     "otrContentView_step5": "5. Wir generieren eine OTR mit anderen Texturen! 🚀",
     "otrContentView_processing": "Verarbeite...",
     "folderContentView_customTexturePath": "Benutzeridentifizierter Austausch-Texturen Ordner",
-    "folderContentView_prependHDToggle": "Prepend `hd/`",
+    "folderContentView_prependAltToggle": "Prepend `alt/`. This will allow players to toggle these assets on-the-fly in game.",
     "folderContentView_selectButton": "Wähle",
     "folderContentView_stageTextures": "Texturen indexieren",
     "createCustomSequences_addCustomSequences": "Füge benutzeridentifizierte Sequenzen hinzu",

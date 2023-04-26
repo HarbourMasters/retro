@@ -35,8 +35,8 @@ class _CreateFinishBottomBarModalState
 
     List<Widget> widgets = [];
     for (var key in viewModel.entries.keys) {
-      bool shouldPrependHd = viewModel.entries[key].runtimeType == CustomTexturesEntry && viewModel.prependHD;
-      widgets.add(Text("${shouldPrependHd ? "hd/" : ""}$key", style: textTheme.subtitle2));
+      bool shouldPrependAlt = viewModel.entries[key].runtimeType == CustomTexturesEntry && viewModel.prependAlt;
+      widgets.add(Text("${shouldPrependAlt ? "alt/" : ""}$key", style: textTheme.subtitle2));
       widgets.addAll(viewModel.entries[key]!.iterables.map((file) => Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
