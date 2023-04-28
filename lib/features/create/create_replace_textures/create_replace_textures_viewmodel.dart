@@ -116,7 +116,8 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     String? manifestOutputPath = "$selectedDirectory/$otrNameForOutputDirectory/manifest.json";
     File manifestFile = File(manifestOutputPath);
     await manifestFile.create(recursive: true);
-    String dataToWrite = jsonEncode(processedFiles);
+    var encoder = const JsonEncoder.withIndent("  ");
+    String dataToWrite = encoder.convert(processedFiles);
     await manifestFile.writeAsString(dataToWrite);
 
     isProcessing = false;
