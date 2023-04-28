@@ -88,6 +88,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
       // TODO: Handle this error
       return;
     }
+    String otrNameForOutputDirectory = selectedOTRPaths[0].split(Platform.pathSeparator).last.split(".").first;
 
     // Ask for output folder
     String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
@@ -107,12 +108,12 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     }
 
     // Dump font
-    await dumpFont(selectedDirectory, (TextureManifestEntry entry) {
+    await dumpFont("$selectedDirectory/$otrNameForOutputDirectory", (TextureManifestEntry entry) {
       processedFiles[fontTextureName] = entry;
     });
 
      // Write out the processed files to disk
-    String? manifestOutputPath = "$selectedDirectory/manifest.json";
+    String? manifestOutputPath = "$selectedDirectory/$otrNameForOutputDirectory/manifest.json";
     File manifestFile = File(manifestOutputPath);
     await manifestFile.create(recursive: true);
     String dataToWrite = jsonEncode(processedFiles);
@@ -198,10 +199,13 @@ Future<HashMap<String, TextureManifestEntry>?> processOTR(Tuple2<List<String>, S
     bool fileFound = false;
     HashMap<String, TextureManifestEntry> processedFiles = HashMap();
 
+    // just use the first otr in the list for the  directory name
+    String otrNameForOutputDirectory = params.item1[0].split(Platform.pathSeparator).last.split(".").first;
+
     // if folder we'll export to exists, delete it
-    Directory dir = Directory(params.item2);
+    Directory dir = Directory("${params.item2}/$otrNameForOutputDirectory");
     if (dir.existsSync()) {
-      log("Deleting existing folder: ${params.item2}");
+      log("Deleting existing folder: ${params.item2}/$otrNameForOutputDirectory");
       await dir.delete(recursive: true);
     }
     
@@ -214,7 +218,7 @@ Future<HashMap<String, TextureManifestEntry>?> processOTR(Tuple2<List<String>, S
 
       // process first file
       String? fileName = hFind.fileName();
-      await processFile(fileName!, mpqArchive, "${params.item2}/$fileName", (TextureManifestEntry entry) {
+      await processFile(fileName!, mpqArchive, "${params.item2}/$otrNameForOutputDirectory/$fileName", (TextureManifestEntry entry) {
         processedFiles[fileName] = entry;
       });
 
@@ -229,7 +233,7 @@ Future<HashMap<String, TextureManifestEntry>?> processOTR(Tuple2<List<String>, S
           }
 
           log("Processing file: $fileName");
-          bool processed = await processFile(fileName, mpqArchive, "${params.item2}/$fileName", (TextureManifestEntry entry) {
+          bool processed = await processFile(fileName, mpqArchive, "${params.item2}/$otrNameForOutputDirectory/$fileName", (TextureManifestEntry entry) {
             processedFiles[fileName] = entry;
           });
 
