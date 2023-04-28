@@ -9,11 +9,9 @@ Retro is a modding tool for games using the OTR file format. Currently only [Shi
 
 All game assets are contained within an OTR file, the system can also recognize patch OTRs, placed in a `mods/` folder, which will replace any assets with the ones found in the patch OTR
 
-## Getting Started
+You can download the latest build from [here](https://github.com/HarbourMasters64/retro/releases/latest).
 
-- Download the latest build from [here](https://github.com/HarbourMasters64/retro/releases/latest).
-
-**Custom Textures**
+## Custom Textures
 
 - Select `Create OTR`
 - Select `Replace Textures`
@@ -29,7 +27,7 @@ Please give it a while to parse all of your textures, especially with larger pac
 
 It will prompt you to name your OTR file, and you can now place it inside the mods folder for your game.
 
-**Custom Sequences**
+## Custom Sequences
 
 We support importing custom [Seq64](https://github.com/sauraen/seq64) files to replace the in game music and fanfares (Sound effect and instrument replacement is currently not supported).
 
