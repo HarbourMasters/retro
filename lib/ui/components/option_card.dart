@@ -62,9 +62,10 @@ class _OptionCardState extends State<OptionCard> {
           ),
         ),
       ),
+      const SizedBox(height: 10),
       SizedBox(
           width: 180,
-          height: 50,
+          height: 25,
           child: Text(
           widget.text,
             style: textTheme.bodyText1
@@ -73,5 +74,5 @@ class _OptionCardState extends State<OptionCard> {
         )),
     ]);
   }
-  
+
 }

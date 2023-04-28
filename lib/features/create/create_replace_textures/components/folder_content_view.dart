@@ -29,6 +29,16 @@ Widget FolderContent(
             style: ElevatedButton.styleFrom(minimumSize: const Size(100, 50)),
             child: Text(i18n.folderContentView_selectButton))
       ]),
+      Row(children: [
+        Switch(
+          activeColor: Colors.blue,
+          value: finishViewModel.prependAlt,
+          onChanged: (value) {
+            finishViewModel.onTogglePrependAlt(value);
+          }
+        ),
+        Text(i18n.folderContentView_prependAltToggle),
+      ]),
       if (viewModel.processedFiles.isEmpty && viewModel.isProcessing == false)
         const Spacer(),
       if (viewModel.processedFiles.isNotEmpty || viewModel.isProcessing)
@@ -41,7 +51,7 @@ Widget FolderContent(
                 prototypeItem: const SizedBox(width: 0, height: 20),
                 itemBuilder: (context, index) {
                   String key = viewModel.processedFiles.keys.elementAt(index);
-                  return Text("$key (${viewModel.processedFiles[key]?.length ?? 0} tex)");
+                  return Text("${finishViewModel.prependAlt ? 'alt/' : ''}$key (${viewModel.processedFiles[key]?.length ?? 0} tex)");
                 }))),
       Padding(
         padding: const EdgeInsets.only(top: 20.0),

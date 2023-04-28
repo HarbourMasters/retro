@@ -1,23 +1,22 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
 import 'package:retro/ui/components/option_card.dart';
 
-class CreateSelectionScreen extends StatefulWidget {
-  const CreateSelectionScreen({super.key});
+class DebugSelectionScreen extends StatefulWidget {
+  const DebugSelectionScreen({super.key});
 
   @override
-  _CreateSelectionScreenState createState() => _CreateSelectionScreenState();
+  _DebugSelectionScreenState createState() => _DebugSelectionScreenState();
 }
 
-class _CreateSelectionScreenState extends State<CreateSelectionScreen> {
+class _DebugSelectionScreenState extends State<DebugSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations i18n = AppLocalizations.of(context)!;
     return CustomScaffold(
-        title: i18n.createSelectionScreen_title,
-        subtitle: i18n.createSelectionScreen_subtitle,
+        title: "Debug Selection",
+        subtitle: "This options are on an experimental state and may not work as expected",
         onBackButtonPressed: () {
           Navigator.of(context).pop();
         },
@@ -30,24 +29,17 @@ class _CreateSelectionScreenState extends State<CreateSelectionScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   OptionCard(
-                      text: i18n.createSelectionScreen_nonHdTex,
+                      text: "Textures",
                       icon: Icons.texture,
                       onTap: () {
-                        Navigator.of(context).pushNamed('/create_replace_textures');
+                        Navigator.of(context).pushNamed('/debug_convert_textures');
                       }),
                   const SizedBox(width: 20),
                   OptionCard(
-                      text: i18n.createSelectionScreen_customSequences,
-                      icon: Icons.library_music,
+                      text: "Font Generator",
+                      icon: Icons.font_download,
                       onTap: () {
-                        Navigator.of(context).pushNamed('/create_custom_sequences');
-                      }),
-                  const SizedBox(width: 20),
-                  OptionCard(
-                      text: i18n.createSelectionScreen_custom,
-                      icon: Icons.settings_suggest,
-                      onTap: () {
-                        Navigator.of(context).pushNamed('/create_custom');
+                        Navigator.of(context).pushNamed('/debug_generate_font');
                       }),
                 ],
               )

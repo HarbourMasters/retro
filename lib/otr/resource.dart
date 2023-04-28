@@ -4,7 +4,7 @@ import 'package:retro/otr/endianness.dart';
 import 'package:retro/otr/resource_type.dart';
 import 'package:retro/otr/version.dart';
 
-abstract class Resource {
+class Resource {
 
   List<int> buffer = [];
   ResourceType resourceType;
@@ -14,6 +14,8 @@ abstract class Resource {
   Endianness endianness = Endianness.native;
   int _baseLength = 0;
   bool isValid = false;
+  bool rawLoad = false;
+  bool isCustom = true;
 
   Resource(this.resourceType, this.resourceVersion, this.gameVersion);
 
@@ -27,7 +29,11 @@ abstract class Resource {
     writeInt32(gameVersion.value);   // 0x08
     writeInt64(magicID);             // 0x0C
     writeInt32(resourceVersion);     // 0x10
-    writeInt64(0);                   // 0x14
+    writeInt8(isCustom ? 1 : 0);     // 0x14
+    writeInt8(0);                    // 0x15
+    writeInt8(0);                    // 0x16
+    writeInt8(0);                    // 0x17 
+    writeInt32(0);                   // 0x18
     writeInt32(0);                   // 0x1C
 
     while (buffer.length < 0x40) {
@@ -61,6 +67,10 @@ abstract class Resource {
     buffer.addAll(Uint8List(8)..buffer.asInt64List()[0] = value);
   }
 
+  void writeFloat32(double value) {
+    buffer.addAll(Uint8List(4)..buffer.asFloat32List()[0] = value);
+  }
+
   void writeString(String value) {
     buffer.addAll(value.codeUnits);
   }
@@ -87,9 +97,13 @@ abstract class Resource {
       readInt8();
     }
 
-    isValid = ResourceType.fromValue(readInt32()) == resourceType;
-    if(!isValid){
-      return;
+    if (!rawLoad) {
+      isValid = ResourceType.fromValue(readInt32()) == resourceType;
+      if (!isValid) {
+        return;
+      }
+    } else {
+      resourceType = ResourceType.fromValue(readInt32());
     }
     gameVersion     = Version.fromValue(readInt32());
     magicID         = readInt64();
@@ -106,7 +120,7 @@ abstract class Resource {
     buffer = data.toList();
     _baseLength = buffer.length;
     _readHeader();
-    if(isValid) {
+    if(isValid && !rawLoad) {
       readResourceData();
     }
   }
@@ -144,6 +158,14 @@ abstract class Resource {
         ? buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer[3] << 24 | buffer[4] << 32 | buffer[5] << 40 | buffer[6] << 48 | buffer[7] << 56
         : buffer[7] | buffer[6] << 8 | buffer[5] << 16 | buffer[4] << 24 | buffer[3] << 32 | buffer[2] << 40 | buffer[1] << 48 | buffer[0] << 56;
     seek(8);
+    return value;
+  }
+
+  double readFloat32() {
+    final double value = endianness == Endianness.little
+        ? (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer[3] << 24).toDouble()
+        : (buffer[3] | buffer[2] << 8 | buffer[1] << 16 | buffer[0] << 24).toDouble();
+    seek(4);
     return value;
   }
 

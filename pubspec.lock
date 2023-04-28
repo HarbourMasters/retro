@@ -207,7 +207,7 @@ packages:
     source: hosted
     version: "1.0.0"
   path:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path
       sha256: db9d4f58c908a4ba5953fcee2ae317c94889433e5024c27ce74a37f94267945b
@@ -400,7 +400,7 @@ packages:
     description:
       path: "plugins/window_size"
       ref: HEAD
-      resolved-ref: "17d4710c17f4913137e7ec931f6e71eaef443363"
+      resolved-ref: "6c66ad23ee79749f30a8eece542cf54eaf157ed8"
       url: "https://github.com/google/flutter-desktop-embedding.git"
     source: git
     version: "0.1.0"
