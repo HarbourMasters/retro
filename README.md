@@ -16,6 +16,7 @@ All game assets are contained within an OTR file, the system can also recognize 
 **Custom Textures**
 
 - Select `Create OTR`
+- Select `Replace Textures`
 - Follow the in-app instructions for getting set up.
 
 Once you have your textures extracted, enter that folder, find the textures you want to replace, and replace them. Do not worry about the textures you don't want to change, Retro only puts the modified assets into the patch OTR.
@@ -27,6 +28,24 @@ Make sure to enable the `Prepend 'alt/'` option, this will allow quick switching
 Please give it a while to parse all of your textures, especially with larger packs with a ton of high resolution textures this may take a while. Once it has completed, click `Stage Textures`, then `Finalize OTR`, then `Generate OTR`.
 
 It will prompt you to name your OTR file, and you can now place it inside the mods folder for your game.
+
+**Custom Sequences**
+
+We support importing custom [Seq64](https://github.com/sauraen/seq64) files to replace the in game music and fanfares (Sound effect and instrument replacement is currently not supported).
+
+First you will need to prepare a folder with the desired sequences. Every sequence requires two files with the same name and different extensions - a `.seq` Seq64 file and a `.meta` plaintext file. These files can be categorically nested in folders if desired, - Retro will recursively search each subfolder it finds.
+
+The `.meta` file requires two lines - the first line is the name that will be displayed in the SFX editor, and the second line is the instrument set number in `base16` format. For example, if there is a sequence file `Foo.seq` then you need a meta file `Foo.meta` that could contain:
+```
+Awesome Name
+C
+```
+
+- Select Create OTR
+- Select `Custom Sequences`
+- `Stage Files`
+- `Finalize OTR`
+- Place the OTR file this generates inside of your `mods/` folder.
 
 ### i18n localization rules
 
