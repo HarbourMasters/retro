@@ -7,7 +7,7 @@ An OTR generation tool.
 
 Retro is a modding tool for games using the OTR file format. Currently only [Ship of Harkinian](https://github.com/HarbourMasters/Shipwright) uses OTRs.
 
-All game assets are contained within an OTR file, the system can also recognize patch OTRs, placed in a `mods/` folder, which will replace any assets with the ones found in the patch OTR
+All game assets are contained within an OTR file, the system can also recognize patch OTRs, placed in a `mods/` folder, which will replace any assets with the ones found in the patch OTR.
 
 You can download the latest build from [here](https://github.com/HarbourMasters64/retro/releases/latest).
 
