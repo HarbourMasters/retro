@@ -23,7 +23,7 @@ Once you've modified your desired textures, go back into Retro and now that you 
 
 Make sure to enable the `Prepend 'alt/'` option, this will allow quick switching between modified assets and vanilla assets with the ingame checkbox.
 
-PLease give it a few minutes to parse all of your textures, especially with larger packs with a lot of high resolution textures this may take a while. Once it has completed, click `Stage Textures`, then `Finalize OTR`, then `Generate OTR`. Again, with very large packs this can take a long time, even on powerful systems.
+Please give it a few minutes to parse all of your textures, with larger packs with a lot of high resolution textures this may take a while. Once it has completed, click `Stage Textures`, then `Finalize OTR`, then `Generate OTR`. Again, with very large packs this can take a long time, even on powerful systems.
 
 It will prompt you to name your OTR file, and you can now place it inside the mods folder for your game.
 
