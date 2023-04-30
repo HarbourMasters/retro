@@ -57,7 +57,8 @@ class CreateFinishViewModel with ChangeNotifier {
   void onAddCustomStageEntries(List<File> files, String basePath) {
     final Map<String, List<File>> customEntries = HashMap();
     for (var file in files) {
-      var entryPath = dartp.relative(file.parent.path, from: basePath);
+      var context = dartp.Context(style: dartp.Style.posix);
+      var entryPath = context.normalize(dartp.relative(file.parent.path, from: basePath));
       if (customEntries[entryPath] == null) {
         customEntries[entryPath] = [];
       }
