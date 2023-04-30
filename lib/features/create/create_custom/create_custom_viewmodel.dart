@@ -26,9 +26,6 @@ class CreateCustomViewModel extends ChangeNotifier {
 
   onSelectFiles() async {
     String? selectedBaseDirectoryPath = await FilePicker.platform.getDirectoryPath();
-    // FilePickerResult? result = await FilePicker.platform.pickFiles(
-    //   allowMultiple: true, type: FileType.any
-    // );
     onSelectedDirectory(selectedBaseDirectoryPath ?? "");
     if (selectedBaseDirectoryPath != null) {
       var directory = Directory(selectedBaseDirectoryPath);
