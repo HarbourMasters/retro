@@ -45,6 +45,65 @@ C
 - `Finalize OTR`
 - Place the OTR file this generates inside of your `mods/` folder.
 
+## Custom Models
+
+To edit/add custom models you will need a few additional programs/files
+
+- [The Zelda OoT Decomp setup post asset extraction](https://github.com/zeldaret/oot)
+- Blender v3.2 or above
+- [The HarbourMasters fork of fast64 blender plugin](https://github.com/HarbourMasters/fast64)
+
+Once all of these are setup, open Blender and enable the fast64 plugin, then next to the viewport axis control visual you should see a small arrow pointing left, click and drag that to the left to display the fast64 settings.
+
+Under the fast64 tab set the F3D microcode to `F3DEX2/LX2`, then under the Fast3D Global Settings set the Game to `OOT`, now a additional tab labeled OOT should display.
+
+Under the OOT tab make sure to set the `Decomp Path` to point to the folder containing your Decomp files(the folder containing assets, baserom, build and other files/folders)
+
+Now that the setup is done, here are a few general things to keep in mind when working on any kind of model.
+
+All materials made must be `Fast3D Materials`, you can either convert the existing Principled BSDF materials to Fast3D under the Fast64 tab, or make new materials by pressing `Create Fast3D Material` in the Materials tab, set the appropriate preset to whatever type of material you need to make(Solid, Texture, Transparent and so on) if the material uses a texture bigger then 32x32 make sure to enable `Large Texture Mode` for that material. Additionally make sure each material has `Segment C (OPA)` enabled under the `OOT Dynamic Material Properties (OPA)` section.
+
+If you are working with a model that uses a existing mesh from the decomp(such as ones that use Links body or hands) the built-in materials may require some adjustments, particularly with textures that use the Format `Color Index 8-bit` should be switched to `RGBA 16-bit` if you don't do this the texture may display incorrectly in-game.
+
+Generally you can do two types of model replacements ones that use a skeleton, and one that is just a mesh.
+
+For the purposes of a example we will make a simple edit to Child Link(this one is a example of a skeleton model replacement) on the import section of OOT Skeleton Exporter select the mode to be Child Link then click Import Skeleton, after awhile it should then display two Child Link models, one is for standard view the other is for LOD, we suggest deleting the LOD model as it can cause issues preventing exporting to work. If you do this, we suggest you enable "Disable LOD" in-game.
+
+At this point you have a few options, you could edit Child Links model as it is, or replace it with a new model, either way it is very import that you make sure to weight paint it properly to the corresponding Vertex Groups or else the model may not display correctly in-game. If you for example replace Child Links head, you could make a new mesh and join it with the existing Child Link mesh and weight paint it to the appropriate groups.
+
+When you are finished and are ready to export, under Object mode select the skeleton(In this case gLinkChildSkel) and on the Export section of OOT Skeleton Exporter do the following.
+
+- Enable the Custom Path option
+- Set the Skeleton selection as `gLinkChildSkel`
+- Set the Internal Game Path selection as `objects/object_link_child`
+- Set the Export Path selection to a empty folder
+
+For mesh replacements however, you first need to know where the mesh is located, for example the Master Sword model is stored with the Adult Link object, the path for said object is `objects/object_link_boy` but to pull the Master Sword model out you will need the DL for it, which you can easily find in the header file for the object, if you open it you may spot a listing titled `gLinkAdultLeftHandHoldingMasterSwordNearDL` which is the DL for the Master Sword mesh.
+
+Back in Blender, open a new file, make sure to point the Decomp folder path as that is not saved between projects, then go into the OOT tab, and under the Import DL section of the OOT DL Exporter, make sure `Use Custom Path` is disabled and do the following.
+
+- Set the "DL" listing to the desired DL, in this case it is `gLinkAdultLeftHandHoldingMasterSwordNearDL`
+- Set the "Object" to the path to the parent object, in this particular case it searching in the objects folder of the decomp so you only need the object name, in this case it is `object_link_boy`
+
+Now the Master Swords model, along with Adult Links hand should show up, modifying or replacing these meshes is much easier then replacing the player models, all you need to do is either make a new mesh or put a pre-existing mesh in the tree, edit the Sword out from the old mesh, convert the hands Color Index 8-bit textures to RGBA 16-bit, merge your new mesh with the hand mesh and weight paint it to be the same as the old mesh scale it to the match up with the old mesh if desired, convert/make new fast3D textures for the new mesh, line it up with the hand.
+
+When you are ready to export do the following.
+
+- Go to the Fast64 tab and under the F3D Exporter set the `Name` to the DL name for the mesh, in this case it would be `gLinkAdultLeftHandHoldingMasterSwordNearDL`.
+- Set the `Internal Game Path` to the objects path, including the objects folder, so in this case `objects/object_link_boy`
+- Set the export path to a empty folder
+- Set scale to be 1000.00, at default value it comes out tiny.
+- Set `Material Write Method` to `Write All`
+- Select the mesh in Object Mode, and click `Export Display List`
+
+After you have your model exported, open Retro to generate the .otr file using these steps.
+- Select Create OTR
+- Select `Custom`
+- Select folder containing the `objects` folder
+- `Stage Files`
+- `Finalize OTR`
+- Place the OTR file this generates inside of your `mods/` folder.
+
 ### i18n localization rules
 
 When adding any text to retro, be sure to make it localizable by doing the following
