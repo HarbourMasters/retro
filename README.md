@@ -51,7 +51,7 @@ To edit/add custom models you will need a few additional programs/files
 
 - [The Zelda OoT Decomp setup post asset extraction](https://github.com/zeldaret/oot)
 - Blender v3.2 or above, version 3.3.5 is suggested.
-- [The HarbourMasters fork of fast64 blender plugin](https://github.com/HarbourMasters/fast64) When using this fork DO NOT autoupdate from inside of Blender, it will revert Fast64 to the main branch if you do and you will be unable to properly export models.
+- [The HarbourMasters fork of fast64 blender plugin](https://github.com/HarbourMasters/fast64) When using this fork DO NOT update from inside of Blender, it will revert Fast64 to the main branch if you do and you will be unable to properly export models.
 
 Once all of these are setup, open Blender and enable the fast64 plugin, then next to the viewport axis control visual you should see a small arrow pointing left, click and drag that to the left to display the fast64 settings.
 
