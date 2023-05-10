@@ -63,6 +63,21 @@ Now that the setup is done, there are a few general things to keep in mind when 
 
 All materials made must be `Fast3D Materials`, you can either convert the existing Principled BSDF materials to Fast3D under the Fast64 tab, or make new materials by pressing `Create Fast3D Material` in the Materials tab, set the appropriate preset to whatever type of material you need to make (Solid, Texture, Transparent and so on) if the material uses a texture bigger then 32x32 make sure to enable `Large Texture Mode` for that material. Additionally make sure each material has `Segment C (OPA)` enabled under the `OOT Dynamic Material Properties (OPA)` section.
 
+For custom eye and mouth texture animations, we will use Adult Link as an example in this tutorial. We will be using this list (these are found inside "object_link_boy.c"):
+    eyes:
+        `gLinkAdultEyesOpenTex, gLinkAdultEyesHalfTex, gLinkAdultEyesClosedfTex, gLinkAdultEyesRollLeftTex,`
+        `gLinkAdultEyesRollRightTex, gLinkAdultEyesShockTex, gLinkAdultEyesUnk1Tex, gLinkAdultEyesUnk2Tex`
+    mouth:
+        `gLinkAdultMouth1Tex, gLinkAdultMouth2Tex, gLinkAdultMouth3Tex, gLinkAdultMouth4Tex`
+1) Rename the default eye texture png (eye open, no expression) the same as the first name in the "eyes" list above (gLinkAdultEyesOpenTex.)
+2) Create a new f3d material and rename that material to "gLinkAdultEyesOpenTex" as well.
+3) Choose "Oot Shaded Solid" for the preset and select the PNG texture you renamed in step 1.
+4) change color index to RGBA-16.
+5) For the other eye textures and mouth textures repeat the same process from step 1.
+
+After you are done with that, go to the default eye material (the material that was already there before you started creating the new f3d materials for the eyes) and enable "Use Texture Reference" then set the texture size to `0x08000000`. scroll down until you see "OOT FlipBook Properties" and under "Array Name" click on the minus sign for all textures. Afterward, uncheck "Export Flipbook Textures 0" and repeat the process with the default mouth material (the one created before you created the new f3d materials for the mouth.) The only difference is for the mouth, set the texture size to `0x09000000`.
+
+    
 If you are working with a model that uses a existing mesh from the decomp (such as ones that use Links body or hands) the built-in materials may require some adjustments, particularly with textures that use the Format `Color Index 8-bit` should be switched to `RGBA 16-bit` if you don't do this the texture may display incorrectly in-game.
 
 Generally you can do two types of model replacements; ones that use a skeleton, and one that is just a mesh.
