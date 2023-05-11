@@ -275,7 +275,7 @@ extension N64Graphics on Texture {
     }
 
     if (isPalette && tlut != null) {
-      final pal = decodePng(tlut!.toPNGBytes())!;
+      final pal = decodePng(tlut!.toPNGBytesSync())!;
 
       for (var y = 0; y < pal.height; y++) {
         for (var x = 0; x < pal.width; x++) {

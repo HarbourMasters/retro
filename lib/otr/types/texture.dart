@@ -2,6 +2,7 @@
 import 'dart:typed_data';
 
 import 'package:image/image.dart';
+import 'package:retro/ffi.dart';
 import 'package:retro/otr/resource.dart';
 import 'package:retro/otr/resource_type.dart';
 import 'package:retro/otr/version.dart';
@@ -38,10 +39,13 @@ enum TextureType {
 }
 
 class Texture extends Resource {
-
   Texture(
-      this.textureType, this.width, this.height, this.texDataSize, this.texData,)
-      : super(ResourceType.texture, 0, Version.deckard);
+    this.textureType,
+    this.width,
+    this.height,
+    this.texDataSize,
+    this.texData,
+  ) : super(ResourceType.texture, 0, Version.deckard);
 
   Texture.empty() : this(TextureType.Error, 0, 0, 0, Uint8List(0));
   TextureType textureType;
@@ -96,7 +100,15 @@ class Texture extends Resource {
     convertRawToN64(png);
   }
 
-  Uint8List toPNGBytes() {
+  Future<Uint8List> toPNGBytes() async {
+    return api.convertNativeToPng(
+        bytes: texData,
+        format: textureType.value,
+        width: width,
+        height: height,);
+  }
+
+  Uint8List toPNGBytesSync() {
     return convertN64ToPNG() ?? Uint8List(0);
   }
 

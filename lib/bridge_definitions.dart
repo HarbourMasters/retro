@@ -14,7 +14,7 @@ abstract class Native {
       required int format,
       required int width,
       required int height,
-      dynamic hint});
+      dynamic hint,});
 
   FlutterRustBridgeTaskConstMeta get kConvertNativeToPngConstMeta;
 }
