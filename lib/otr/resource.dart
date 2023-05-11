@@ -6,6 +6,10 @@ import 'package:retro/otr/version.dart';
 
 class Resource {
 
+  Resource(this.resourceType, this.resourceVersion, this.gameVersion);
+
+  Resource.empty() : this(ResourceType.unknown, 0, Version.unknown);
+
   List<int> buffer = [];
   ResourceType resourceType;
   int resourceVersion;
@@ -16,10 +20,6 @@ class Resource {
   bool isValid = false;
   bool rawLoad = false;
   bool isCustom = true;
-
-  Resource(this.resourceType, this.resourceVersion, this.gameVersion);
-
-  Resource.empty() : this(ResourceType.unknown, 0, Version.unknown);
 
   // Writer methods
 
@@ -93,7 +93,7 @@ class Resource {
       return;
     }
 
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       readInt8();
     }
 
@@ -130,7 +130,7 @@ class Resource {
   }
 
   Uint8List readBytes(int length) {
-    Uint8List data = Uint8List.fromList(buffer.sublist(0, length));
+    final data = Uint8List.fromList(buffer.sublist(0, length));
     buffer = buffer.sublist(length);
     return data;
   }
@@ -140,13 +140,13 @@ class Resource {
   }
 
   int readInt8() {
-    final int value = buffer[0];
+    final value = buffer[0];
     seek(1);
     return value;
   }
 
   int readInt32() {
-    final int value = endianness == Endianness.little
+    final value = endianness == Endianness.little
         ? buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer[3] << 24
         : buffer[3] | buffer[2] << 8 | buffer[1] << 16 | buffer[0] << 24;
     seek(4);
@@ -154,7 +154,7 @@ class Resource {
   }
 
   int readInt64() {
-    final int value = endianness == Endianness.little
+    final value = endianness == Endianness.little
         ? buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer[3] << 24 | buffer[4] << 32 | buffer[5] << 40 | buffer[6] << 48 | buffer[7] << 56
         : buffer[7] | buffer[6] << 8 | buffer[5] << 16 | buffer[4] << 24 | buffer[3] << 32 | buffer[2] << 40 | buffer[1] << 48 | buffer[0] << 56;
     seek(8);
@@ -162,7 +162,7 @@ class Resource {
   }
 
   double readFloat32() {
-    final double value = endianness == Endianness.little
+    final value = endianness == Endianness.little
         ? (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer[3] << 24).toDouble()
         : (buffer[3] | buffer[2] << 8 | buffer[1] << 16 | buffer[0] << 24).toDouble();
     seek(4);

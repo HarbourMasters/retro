@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 
 class OptionCard extends StatefulWidget {
-  final String text;
-  final IconData icon;
-  final Function? onMouseEnter;
-  final Function? onMouseLeave;
-  final void Function() onTap;
 
   const OptionCard({
-    Key? key,
+    super.key,
     required this.text,
     required this.icon,
     this.onMouseEnter,
     this.onMouseLeave,
     required this.onTap,
-  }) : super(key: key);
+  });
+  final String text;
+  final IconData icon;
+  final Function? onMouseEnter;
+  final Function? onMouseLeave;
+  final void Function() onTap;
 
   @override
   State<OptionCard> createState() => _OptionCardState();
@@ -25,11 +25,11 @@ class _OptionCardState extends State<OptionCard> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final ColorScheme colorScheme = theme.colorScheme;
-    final TextTheme textTheme = theme.textTheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+    return Column(children: [
       MouseRegion(
         onEnter: (event) {
           setState(() { isHovered = true; });
@@ -58,7 +58,7 @@ class _OptionCardState extends State<OptionCard> {
                 child: Icon(
                   widget.icon,
                   size: 50,
-                )),
+                ),),
           ),
         ),
       ),
@@ -68,11 +68,11 @@ class _OptionCardState extends State<OptionCard> {
           height: 25,
           child: Text(
           widget.text,
-            style: textTheme.bodyText1
+            style: textTheme.bodyLarge
               ?.copyWith(color: colorScheme.onSurface.withOpacity(0.5)),
             textAlign: TextAlign.center,
-        )),
-    ]);
+        ),),
+    ],);
   }
 
 }

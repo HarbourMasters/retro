@@ -13,5 +13,5 @@ class HomeViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  static String infoMadeWithLove = "Made with ❤️";
+  static String infoMadeWithLove = 'Made with ❤️';
 }

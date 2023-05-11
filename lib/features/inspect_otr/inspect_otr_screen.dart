@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:retro/features/inspect_otr/inspect_otr_viewmodel.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class InspectOTRScreen extends StatefulWidget {
   const InspectOTRScreen({super.key});
@@ -15,7 +15,7 @@ class _InspectOTRScreenState extends State<InspectOTRScreen> {
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<InspectOTRViewModel>(context);
-    final AppLocalizations i18n = AppLocalizations.of(context)!;
+    final i18n = AppLocalizations.of(context)!;
 
     return CustomScaffold(
       title: i18n.inspectOtrScreen_inspectOtr,
@@ -48,14 +48,14 @@ class _InspectOTRScreenState extends State<InspectOTRScreen> {
                     border: const OutlineInputBorder(),
                     labelText: viewModel.selectedOTRPath ?? i18n.inspectOtrScreen_noOtrSelected,
                   ),
-                )),
+                ),),
                 const SizedBox(width: 12),
                 ElevatedButton(
                     onPressed: viewModel.onSelectOTR,
                     style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(100, 50)),
-                    child: Text(i18n.inspectOtrScreen_selectButton))
-              ]),
+                        minimumSize: const Size(100, 50),),
+                    child: Text(i18n.inspectOtrScreen_selectButton),)
+              ],),
               if (viewModel.isProcessing || viewModel.filteredFilesInOTR.isNotEmpty)
                 Expanded(
                     child: viewModel.isProcessing
@@ -67,7 +67,7 @@ class _InspectOTRScreenState extends State<InspectOTRScreen> {
                                 prototypeItem: const SizedBox(width: 0, height: 20),
                                 itemBuilder: (context, index) {
                                   return Text(viewModel.filteredFilesInOTR[index]);
-                                })))
+                                },),),)
             ],
           ),
         ),

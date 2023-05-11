@@ -8,13 +8,13 @@ import 'package:retro/otr/version.dart';
 
 class Background extends Resource {
 
-  int texDataSize;
-  Uint8List texData;
-
   Background(this.texDataSize, this.texData)
       : super(ResourceType.sohBackground, 0, Version.deckard);
 
   Background.empty() : this(0, Uint8List(0));
+
+  int texDataSize;
+  Uint8List texData;
 
   @override
   void writeResourceData() {
@@ -34,11 +34,11 @@ class Background extends Resource {
   }
 
   Uint8List toPNGBytes(Image image) {
-    Uint8List pngBytes = Uint8List(image.width * image.height * 4);
-    for (int y = 0; y < image.height; y++) {
-      for (int x = 0; x < image.width; x++) {
-        int pos = ((y * image.width) + x) * 4;
-        Pixel pixel = image.getPixel(x, y);
+    final pngBytes = Uint8List(image.width * image.height * 4);
+    for (var y = 0; y < image.height; y++) {
+      for (var x = 0; x < image.width; x++) {
+        final pos = ((y * image.width) + x) * 4;
+        final pixel = image.getPixel(x, y);
         pngBytes[pos + 0] = pixel.r.toInt();
         pngBytes[pos + 1] = pixel.g.toInt();
         pngBytes[pos + 2] = pixel.b.toInt();

@@ -1,9 +1,6 @@
 import 'package:retro/otr/types/texture.dart';
 
 class TextureManifestEntry {
-  String hash;
-  TextureType textureType;
-  int textureWidth, textureHeight;
 
   TextureManifestEntry(this.hash, this.textureType, this.textureWidth, this.textureHeight);
 
@@ -12,6 +9,9 @@ class TextureManifestEntry {
     textureType = TextureType.fromValue(json['textureType']),
     textureWidth = json['textureWidth'],
     textureHeight = json['textureHeight'];
+  String hash;
+  TextureType textureType;
+  int textureWidth, textureHeight;
 
   Map<String, dynamic> toJson() => {
     'hash': hash,

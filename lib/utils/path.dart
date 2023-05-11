@@ -1,3 +1,3 @@
 String normalize(String path){
-  return path.replaceAll('\\', '/');
+  return path.replaceAll(r'\', '/');
 }

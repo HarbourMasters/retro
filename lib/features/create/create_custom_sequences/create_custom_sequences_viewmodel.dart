@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:path/path.dart' as p;
 import 'package:retro/utils/log.dart';
 import 'package:tuple/tuple.dart';
-import 'package:path/path.dart' as p;
 
 typedef SequenceMetaPair = Tuple2<File, File>; 
 
@@ -20,7 +20,7 @@ class CreateCustomSequencesViewModel extends ChangeNotifier {
   }
 
   onSelectFolder() async {
-    String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+    final selectedDirectory = await FilePicker.platform.getDirectoryPath();
 
     if (selectedDirectory != null) {
       selectedFolderPath = selectedDirectory;
@@ -35,14 +35,14 @@ class CreateCustomSequencesViewModel extends ChangeNotifier {
 }
 
 List<SequenceMetaPair> listSequenceMetaPairs(String folderPath) {
-  List<FileSystemEntity> files = Directory(folderPath).listSync(recursive: true);
-  List<FileSystemEntity> sequenceFiles = files.where((file) => file.path.endsWith('.seq')).toList();
+  final files = Directory(folderPath).listSync(recursive: true);
+  final sequenceFiles = files.where((file) => file.path.endsWith('.seq')).toList();
 
-  List<Tuple2<File, File>> sequenceMetaPairs = [];
-  for (FileSystemEntity sequenceFile in sequenceFiles) {
-    String sequenceFileName = sequenceFile.path.split(Platform.pathSeparator).last;
-    String sequenceFileNameWithoutExtension = p.basenameWithoutExtension(sequenceFileName);
-    File metaFile = File(p.join(sequenceFile.parent.path, '$sequenceFileNameWithoutExtension.meta'));
+  final sequenceMetaPairs = <Tuple2<File, File>>[];
+  for (final sequenceFile in sequenceFiles) {
+    final sequenceFileName = sequenceFile.path.split(Platform.pathSeparator).last;
+    final sequenceFileNameWithoutExtension = p.basenameWithoutExtension(sequenceFileName);
+    final metaFile = File(p.join(sequenceFile.parent.path, '$sequenceFileNameWithoutExtension.meta'));
     if(!metaFile.existsSync()) {
       log('Meta file not found for sequence file: $sequenceFileName! Skipping.', level: LogLevel.error);
       continue;

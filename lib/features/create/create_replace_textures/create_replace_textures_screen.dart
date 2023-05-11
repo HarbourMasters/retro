@@ -1,8 +1,6 @@
-import 'dart:collection';
-
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 import 'package:retro/features/create/create_finish/create_finish_viewmodel.dart';
 import 'package:retro/features/create/create_replace_textures/components/folder_content_view.dart';
 import 'package:retro/features/create/create_replace_textures/components/otr_content_view.dart';
@@ -21,9 +19,9 @@ class CreateReplaceTexturesScreen extends StatefulWidget {
 class _CreateReplaceTexturesScreenState extends State<CreateReplaceTexturesScreen> {
   @override
   Widget build(BuildContext context) {
-    final CreateReplaceTexturesViewModel viewModel = Provider.of<CreateReplaceTexturesViewModel>(context);
-    final CreateFinishViewModel finishViewModel = Provider.of<CreateFinishViewModel>(context);
-    final AppLocalizations i18n = AppLocalizations.of(context)!;
+    final viewModel = Provider.of<CreateReplaceTexturesViewModel>(context);
+    final finishViewModel = Provider.of<CreateFinishViewModel>(context);
+    final i18n = AppLocalizations.of(context)!;
 
     return CustomScaffold(
       title: i18n.createReplaceTexturesScreen_Option,
@@ -35,8 +33,8 @@ class _CreateReplaceTexturesScreenState extends State<CreateReplaceTexturesScree
       content: Expanded(
         child: Padding(
             padding: const EdgeInsets.all(20),
-            child: stepContent(viewModel, finishViewModel, context))
-      )
+            child: stepContent(viewModel, finishViewModel, context),),
+      ),
     );
   }
 }

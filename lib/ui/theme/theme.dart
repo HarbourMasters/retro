@@ -7,10 +7,10 @@ ThemeData lightTheme() {
 }
 
 ThemeData darkTheme() {
-  final ThemeData base = ThemeData.dark().copyWith(
+  final base = ThemeData.dark().copyWith(
     scaffoldBackgroundColor: RetroColors.bigStone,
   );
-  ColorScheme dark = base.colorScheme.copyWith(
+  final dark = base.colorScheme.copyWith(
     primary: RetroColors.telegramBlue,
     onPrimary: Colors.white,
     secondary: RetroColors.elephant,

@@ -17,8 +17,8 @@ class InspectOTRViewModel extends ChangeNotifier {
     isProcessing = false;
   }
 
-  onSelectOTR() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: false, type: FileType.custom, allowedExtensions: ['otr']);
+  Future<void> onSelectOTR() async {
+    final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['otr']);
     if (result != null && result.files.isNotEmpty) {
       selectedOTRPath = result.paths.first;
       if (selectedOTRPath == null) {
@@ -28,7 +28,7 @@ class InspectOTRViewModel extends ChangeNotifier {
 
       isProcessing = true;
       notifyListeners();
-      List<String>? list = await compute(listOTRItems, selectedOTRPath!);
+      final list = await compute(listOTRItems, selectedOTRPath!);
       if (list != null) {
         filesInOTR = list;
         filteredFilesInOTR = list;
@@ -49,15 +49,15 @@ class InspectOTRViewModel extends ChangeNotifier {
 
 Future<List<String>?> listOTRItems(String path) async {
   try {
-    bool fileFound = false;
-    List<String> files = [];
+    var fileFound = false;
+    final files = <String>[];
 
-    MPQArchive mpqArchive = MPQArchive.open(path, 0, MPQ_OPEN_READ_ONLY);
-    FileFindResource hFind = FileFindResource();
-    mpqArchive.findFirstFile("*", hFind, null);
+    final mpqArchive = MPQArchive.open(path, 0, MPQ_OPEN_READ_ONLY);
+    final hFind = FileFindResource();
+    mpqArchive.findFirstFile('*', hFind, null);
 
-    String? fileName = hFind.fileName();
-    if (fileName != null && fileName != "(signature)" && fileName != "(listfile)" && fileName != "(attributes)") {
+    final fileName = hFind.fileName();
+    if (fileName != null && fileName != '(signature)' && fileName != '(listfile)' && fileName != '(attributes)') {
       files.add(fileName);
     }
 
@@ -65,13 +65,13 @@ Future<List<String>?> listOTRItems(String path) async {
       try {
         mpqArchive.findNextFile(hFind);
         fileFound = true;
-        String? fileName = hFind.fileName();
-        log("File name: $fileName");
-        if (fileName != null && fileName != "(signature)" && fileName != "(listfile)" && fileName != "(attributes)") {
+        final fileName = hFind.fileName();
+        log('File name: $fileName');
+        if (fileName != null && fileName != '(signature)' && fileName != '(listfile)' && fileName != '(attributes)') {
           files.add(fileName);
         }
       } on StormLibException catch (e) {
-        log("Failed to find next file: ${e.message}");
+        log('Failed to find next file: ${e.message}');
         fileFound = false;
       }
     } while (fileFound);
@@ -80,7 +80,7 @@ Future<List<String>?> listOTRItems(String path) async {
     mpqArchive.close();
     return files;
   } on StormLibException catch (e) {
-    log("Failed to set locale: ${e.message}");
+    log('Failed to set locale: ${e.message}');
     return null;
   }
 }

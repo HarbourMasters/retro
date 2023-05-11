@@ -1,13 +1,13 @@
 
 import 'package:flutter/material.dart';
-import 'package:retro/features/create/create_replace_textures/create_replace_textures_viewmodel.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:retro/features/create/create_replace_textures/create_replace_textures_viewmodel.dart';
 
 // ignore: non_constant_identifier_names
 Widget OTRContent(CreateReplaceTexturesViewModel viewModel, BuildContext context) {
-  final ThemeData theme = Theme.of(context);
-  final TextTheme textTheme = theme.textTheme;
-  final AppLocalizations i18n = AppLocalizations.of(context)!;
+  final theme = Theme.of(context);
+  final textTheme = theme.textTheme;
+  final i18n = AppLocalizations.of(context)!;
 
   return Column(
     children: [
@@ -22,13 +22,13 @@ Widget OTRContent(CreateReplaceTexturesViewModel viewModel, BuildContext context
                 viewModel.selectedOTRPaths.map((e) => e.split('/').last).join(', ')
                 : viewModel.selectedOTRPaths.first.split('/').last,
           ),
-        )),
+        ),),
         const SizedBox(width: 12),
         ElevatedButton(
             onPressed: viewModel.onSelectOTR,
             style: ElevatedButton.styleFrom(minimumSize: const Size(100, 50)),
-            child: Text(i18n.otrContentView_otrSelect))
-      ]),
+            child: Text(i18n.otrContentView_otrSelect),)
+      ],),
       if (viewModel.processedFiles.isEmpty && viewModel.isProcessing == false)
           Expanded( child: Padding(
           padding: const EdgeInsets.only(top: 20),
@@ -36,7 +36,7 @@ Widget OTRContent(CreateReplaceTexturesViewModel viewModel, BuildContext context
             children: [
               Text(
                 i18n.otrContentView_details,
-                style: textTheme.headline5,
+                style: textTheme.headlineSmall,
               ),
               Text(i18n.otrContentView_step1, style: textTheme.bodyMedium),
               Text(i18n.otrContentView_step2, style: textTheme.bodyMedium),
@@ -44,7 +44,7 @@ Widget OTRContent(CreateReplaceTexturesViewModel viewModel, BuildContext context
               Text(i18n.otrContentView_step4, style: textTheme.bodyMedium),
               Text(i18n.otrContentView_step5, style: textTheme.bodyMedium),
             ],
-          ))),
+          ),),),
       if (viewModel.processedFiles.isNotEmpty || viewModel.isProcessing)
         Expanded(child: Padding(
           padding: const EdgeInsets.only(top: 20),
@@ -55,17 +55,17 @@ Widget OTRContent(CreateReplaceTexturesViewModel viewModel, BuildContext context
                 prototypeItem: const SizedBox(width: 0, height: 20),
                 itemBuilder: (context, index) {
                   return Text(viewModel.processedFiles.keys.elementAt(index));
-                }))),
+                },),),),
       Padding(
-        padding: const EdgeInsets.only(top: 20.0),
+        padding: const EdgeInsets.only(top: 20),
         child: ElevatedButton(
           onPressed: viewModel.selectedOTRPaths.isEmpty == false && !viewModel.isProcessing && viewModel.processedFiles.isEmpty
             ? viewModel.onProcessOTR : null,
           style: ElevatedButton.styleFrom(minimumSize: Size(
-            MediaQuery.of(context).size.width * 0.5, 50)
+            MediaQuery.of(context).size.width * 0.5, 50,),
           ),
-          child: Text(viewModel.isProcessing ? i18n.otrContentView_processing : viewModel.processedFiles.isNotEmpty ? 'Extracted ${viewModel.processedFiles.length} Textures' : 'Process') // TODO Better management of this for localization
-        ))
+          child: Text(viewModel.isProcessing ? i18n.otrContentView_processing : viewModel.processedFiles.isNotEmpty ? 'Extracted ${viewModel.processedFiles.length} Textures' : 'Process'), // TODO Better management of this for localization
+        ),)
     ],
   );
 }

@@ -1,55 +1,55 @@
 import 'package:flutter/material.dart';
 
 const retroTypography = TextTheme(
-  headline1: TextStyle(
+  displayLarge: TextStyle(
     fontSize: 95,
     fontWeight: FontWeight.w400,
   ),
-  headline2: TextStyle(
+  displayMedium: TextStyle(
     fontSize: 59,
     fontWeight: FontWeight.w400,
   ),
-  headline3: TextStyle(
+  displaySmall: TextStyle(
     fontSize: 48,
     fontWeight: FontWeight.w500,
   ),
-  headline4: TextStyle(
+  headlineMedium: TextStyle(
     fontSize: 34,
     fontWeight: FontWeight.w500,
   ),
-  headline5: TextStyle(
+  headlineSmall: TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.w500,
   ),
-  headline6: TextStyle(
+  titleLarge: TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.w700,
   ),
-  subtitle1: TextStyle(
+  titleMedium: TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w500,
   ),
-  subtitle2: TextStyle(
+  titleSmall: TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w700,
   ),
-  bodyText1: TextStyle(
+  bodyLarge: TextStyle(
     fontSize: 18,
     fontWeight: FontWeight.w400,
   ),
-  bodyText2: TextStyle(
+  bodyMedium: TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w400,
   ),
-  button: TextStyle(
+  labelLarge: TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w700,
   ),
-  caption: TextStyle(
+  bodySmall: TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.w500,
   ),
-  overline: TextStyle(
+  labelSmall: TextStyle(
     fontSize: 10,
     fontWeight: FontWeight.w500,
   ),
