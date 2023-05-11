@@ -17,6 +17,7 @@ import 'package:retro/otr/types/texture.dart';
 import 'package:retro/utils/log.dart';
 import 'package:tuple/tuple.dart';
 import 'package:retro/utils/path.dart' as p;
+import 'package:path/path.dart' as dartp;
 import 'package:retro/utils/async.dart';
 
 class CreateFinishViewModel with ChangeNotifier {
@@ -53,15 +54,28 @@ class CreateFinishViewModel with ChangeNotifier {
   }
 
   // Stage Management
-  void onAddCustomStageEntry(List<File> files, String path) {
-    if (entries.containsKey(path) && entries[path] is CustomStageEntry) {
-      (entries[path] as CustomStageEntry).files.addAll(files);
-    } else if (entries.containsKey(path)) {
-      throw Exception("Cannot add custom stage entry to existing entry");
-    } else {
-      entries[path] = CustomStageEntry(files);
+  void onAddCustomStageEntries(List<File> files, String basePath) {
+    final Map<String, List<File>> customEntries = HashMap();
+    for (var file in files) {
+      var posixcontext = dartp.Context(style: dartp.Style.posix);
+      var splitEntryPath = dartp.split(dartp.relative(file.parent.path, from: basePath));
+      var entryPath = posixcontext.joinAll(splitEntryPath);
+      if (customEntries[entryPath] == null) {
+        customEntries[entryPath] = [];
+      }
+      customEntries[entryPath]!.add(file);
     }
-
+    for (var entry in customEntries.entries) {
+      var entryPath = entry.key;
+      var entryFiles = entry.value;
+      if (entries.containsKey(entryPath) && entries[entryPath] is CustomStageEntry) {
+        (entries[entryPath] as CustomStageEntry).files.addAll(entryFiles);
+      } else if (entries.containsKey(entryPath)) {
+        throw Exception("Cannot add custom stage entry to existing entry");
+      } else {
+        entries[entryPath] = CustomStageEntry(entryFiles);
+      }
+    }
     totalFiles += files.length;
     currentState = AppState.changesStaged;
     notifyListeners();
