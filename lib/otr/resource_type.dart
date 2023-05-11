@@ -22,7 +22,8 @@ enum ResourceType {
   sohAudio(0x4F415544), // OAUD
   sohAudioSample(0x4F534D50), // OSMP
   sohAudioSoundFont(0x4F534654), // OSFT
-  sohAudioSequence(0x4F534551); // OSEQ
+  sohAudioSequence(0x4F534551), // OSEQ
+  sohBackground(0x4F424749); // OBGI
 
   const ResourceType(this.value);
   final int value;

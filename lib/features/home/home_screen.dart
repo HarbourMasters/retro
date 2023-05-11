@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -46,6 +47,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   onMouseLeave: viewModel.onCardFocusLost,
                   onTap: () {
                     Navigator.pushNamed(context, "/view_otr");
+                  }),
+              const SizedBox(width: 20),
+              OptionCard(
+                  text: "Debug",
+                  icon: Icons.warning_rounded,
+                  onTap: () {
+                    Navigator.of(context).pushNamed('/debug_selection');
                   }),
             ],
           ),

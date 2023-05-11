@@ -5,32 +5,40 @@ import 'package:flutter/material.dart';
 
 class CreateCustomViewModel extends ChangeNotifier {
   List<File> files = [];
-  bool isPathValid = false;
+  String path = "";
+
+  reset() {
+    files = [];
+    path = "";
+  }
 
   onSelectedFiles(List<File> files) {
     this.files = files;
     notifyListeners();
   }
 
-  onDiscardFiles() {
-    files = [];
-    notifyListeners();
-  }
-
-  onPathChanged(String path) {
-    isPathValid = path.isNotEmpty;
+  onSelectedDirectory(String path) {
+    this.path = path;
     notifyListeners();
   }
 
   onSelectFiles() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      allowMultiple: true, type: FileType.any
-    );
-    if (result != null) {
-      onSelectedFiles(result.paths
-        .map((path) => File(path!))
-        .toList()
-      );
+    String? selectedBaseDirectoryPath =
+        await FilePicker.platform.getDirectoryPath();
+    onSelectedDirectory(selectedBaseDirectoryPath ?? "");
+    if (selectedBaseDirectoryPath != null) {
+      var directory = Directory(selectedBaseDirectoryPath);
+      var dirList =
+          directory.list(recursive: true).where((fsEntry) => fsEntry is File);
+      List<File> selectedFileList = [];
+      await for (final FileSystemEntity fsEntry in dirList) {
+        if (fsEntry is File) {
+          selectedFileList.add(fsEntry);
+        }
+      }
+      onSelectedFiles(selectedFileList);
+    } else {
+      onSelectedFiles([]);
     }
   }
 }

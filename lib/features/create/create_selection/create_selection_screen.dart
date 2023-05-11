@@ -21,35 +21,34 @@ class _CreateSelectionScreenState extends State<CreateSelectionScreen> {
           Navigator.of(context).pop();
         },
         content: Expanded(
-          child: Column(
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  OptionCard(
-                      text: i18n.createSelectionScreen_nonHdTex,
-                      icon: Icons.texture,
-                      onTap: () {
-                        Navigator.of(context).pushNamed('/create_replace_textures');
-                      }),
-                  const SizedBox(width: 20),
-                  OptionCard(
-                      text: i18n.createSelectionScreen_customSequences,
-                      icon: Icons.library_music,
-                      onTap: () {
-                        Navigator.of(context).pushNamed('/create_custom_sequences');
-                      }),
-                  const SizedBox(width: 20),
-                  OptionCard(
-                      text: i18n.createSelectionScreen_custom,
-                      icon: Icons.settings_suggest,
-                      onTap: () {
-                        Navigator.of(context).pushNamed('/create_custom');
-                      }),
-                ],
-              )
-            ])));
+              OptionCard(
+                  text: i18n.createSelectionScreen_nonHdTex,
+                  icon: Icons.texture,
+                  onTap: () {
+                    Navigator.of(context).pushNamed('/create_replace_textures');
+                  }),
+              const SizedBox(width: 20),
+              OptionCard(
+                  text: i18n.createSelectionScreen_customSequences,
+                  icon: Icons.library_music,
+                  onTap: () {
+                    Navigator.of(context).pushNamed('/create_custom_sequences');
+                  }),
+              const SizedBox(width: 20),
+              OptionCard(
+                  text: i18n.createSelectionScreen_custom,
+                  icon: Icons.settings_suggest,
+                  onTap: () {
+                    Navigator.of(context).pushNamed('/create_custom');
+                  }),
+            ],
+          )
+        ])));
   }
 }
