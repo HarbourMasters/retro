@@ -102,14 +102,11 @@ class Texture extends Resource {
 
   Future<Uint8List> toPNGBytes() async {
     return api.convertNativeToPng(
-        bytes: texData,
-        format: textureType.value,
-        width: width,
-        height: height,);
-  }
-
-  Uint8List toPNGBytesSync() {
-    return convertN64ToPNG() ?? Uint8List(0);
+      bytes: texData,
+      format: textureType.value,
+      width: width,
+      height: height,
+    );
   }
 
   int getTMEMSize() {
