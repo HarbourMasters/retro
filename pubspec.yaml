@@ -51,7 +51,7 @@ dependencies:
   tuple: ^2.0.1
   crypto: ^3.0.2
   image: ^4.0.7
-  intl: ^0.17.0
+  intl: ^0.18.0
   path: ^1.8.2
 
 flutter_icons:
