@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 
 class CreateCustomViewModel extends ChangeNotifier {
   List<File> files = [];
-  String path = "";
+  String path = '';
 
   reset() {
     files = [];
-    path = "";
+    path = '';
   }
 
   onSelectedFiles(List<File> files) {
@@ -23,14 +23,14 @@ class CreateCustomViewModel extends ChangeNotifier {
   }
 
   onSelectFiles() async {
-    String? selectedBaseDirectoryPath =
+    final selectedBaseDirectoryPath =
         await FilePicker.platform.getDirectoryPath();
-    onSelectedDirectory(selectedBaseDirectoryPath ?? "");
+    onSelectedDirectory(selectedBaseDirectoryPath ?? '');
     if (selectedBaseDirectoryPath != null) {
-      var directory = Directory(selectedBaseDirectoryPath);
-      var dirList =
+      final directory = Directory(selectedBaseDirectoryPath);
+      final dirList =
           directory.list(recursive: true).where((fsEntry) => fsEntry is File);
-      List<File> selectedFileList = [];
+      final selectedFileList = <File>[];
       await for (final FileSystemEntity fsEntry in dirList) {
         if (fsEntry is File) {
           selectedFileList.add(fsEntry);

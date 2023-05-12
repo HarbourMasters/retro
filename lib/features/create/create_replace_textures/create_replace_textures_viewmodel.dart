@@ -4,22 +4,23 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_storm/flutter_storm.dart';
 import 'package:flutter_storm/flutter_storm_defines.dart';
 import 'package:image/image.dart';
+import 'package:path/path.dart' as path;
 import 'package:retro/models/texture_manifest_entry.dart';
 import 'package:retro/otr/resource.dart';
 import 'package:retro/otr/resource_type.dart';
 import 'package:retro/otr/types/background.dart';
 import 'package:retro/otr/types/texture.dart';
 import 'package:retro/utils/log.dart';
-import 'package:tuple/tuple.dart';
 import 'package:retro/utils/path.dart' as p;
-import 'package:path/path.dart' as path;
+import 'package:tuple/tuple.dart';
 
 enum CreateReplacementTexturesStep { question, selectFolder, selectOTR }
+
 typedef ProcessedFilesInFolder = List<Tuple2<File, TextureManifestEntry>>;
 
 class CreateReplaceTexturesViewModel extends ChangeNotifier {
@@ -30,9 +31,9 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
   bool isProcessing = false;
   HashMap<String, dynamic> processedFiles = HashMap();
 
-  String fontData = "assets/FontData";
-  String fontTLUT = "assets/FontTLUT[%d].png";
-  String fontTextureName = "textures/font/sGfxPrintFontData";
+  String fontData = 'assets/FontData';
+  String fontTLUT = 'assets/FontTLUT[%d].png';
+  String fontTextureName = 'textures/font/sGfxPrintFontData';
 
   reset() {
     currentStep = CreateReplacementTexturesStep.question;
@@ -49,17 +50,17 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
   }
 
   onSelectFolder() async {
-    String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+    final selectedDirectory = await FilePicker.platform.getDirectoryPath();
 
     if (selectedDirectory != null) {
       selectedFolderPath = p.normalize(selectedDirectory);
       isProcessing = true;
       notifyListeners();
 
-      HashMap<String, ProcessedFilesInFolder>? processedFiles = await compute(processFolder, selectedFolderPath!);
+      final processedFiles = await compute(processFolder, selectedFolderPath!);
       if (processedFiles == null) {
-      // TODO: Handle this error.
-      log("Error processing folder: $selectedFolderPath");
+        // TODO: Handle this error.
+        log('Error processing folder: $selectedFolderPath');
       } else {
         this.processedFiles = processedFiles;
       }
@@ -69,8 +70,9 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     }
   }
 
-  onSelectOTR() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true, type: FileType.custom, allowedExtensions: ['otr']);
+  Future<void> onSelectOTR() async {
+    final result = await FilePicker.platform.pickFiles(
+        allowMultiple: true, type: FileType.custom, allowedExtensions: ['otr']);
     if (result != null && result.files.isNotEmpty) {
       // save paths filtering out nulls
       selectedOTRPaths = result.paths.whereType<String>().toList();
@@ -83,15 +85,16 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     }
   }
 
-  onProcessOTR() async {
+  Future<void> onProcessOTR() async {
     if (selectedOTRPaths.isEmpty) {
       // TODO: Handle this error
       return;
     }
-    String otrNameForOutputDirectory = selectedOTRPaths[0].split(Platform.pathSeparator).last.split(".").first;
+    final otrNameForOutputDirectory =
+        selectedOTRPaths[0].split(Platform.pathSeparator).last.split('.').first;
 
     // Ask for output folder
-    String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+    final selectedDirectory = await FilePicker.platform.getDirectoryPath();
     if (selectedDirectory == null) {
       return;
     }
@@ -100,7 +103,8 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     notifyListeners();
 
     // Process OTR
-    HashMap<String, TextureManifestEntry>? otrFiles = await compute(processOTR, Tuple2(selectedOTRPaths, selectedDirectory));
+    final otrFiles =
+        await compute(processOTR, Tuple2(selectedOTRPaths, selectedDirectory));
     if (otrFiles == null) {
       // TODO: Handle this error.
     } else {
@@ -108,16 +112,18 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     }
 
     // Dump font
-    await dumpFont("$selectedDirectory/$otrNameForOutputDirectory", (TextureManifestEntry entry) {
+    await dumpFont('$selectedDirectory/$otrNameForOutputDirectory',
+        (TextureManifestEntry entry) {
       processedFiles[fontTextureName] = entry;
     });
 
-     // Write out the processed files to disk
-    String? manifestOutputPath = "$selectedDirectory/$otrNameForOutputDirectory/manifest.json";
-    File manifestFile = File(manifestOutputPath);
+    // Write out the processed files to disk
+    String? manifestOutputPath =
+        '$selectedDirectory/$otrNameForOutputDirectory/manifest.json';
+    final manifestFile = File(manifestOutputPath);
     await manifestFile.create(recursive: true);
-    var encoder = const JsonEncoder.withIndent("  ");
-    String dataToWrite = encoder.convert(processedFiles);
+    const encoder = JsonEncoder.withIndent('  ');
+    final dataToWrite = encoder.convert(processedFiles);
     await manifestFile.writeAsString(dataToWrite);
 
     isProcessing = false;
@@ -125,101 +131,119 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
   }
 
   dumpFont(String outputPath, Function onProcessed) async {
-    Image fontImage = Image(width: 16 * 4, height: 256, numChannels: 4, withPalette: false);
+    final fontImage = Image(width: 16 * 4, height: 256, numChannels: 4);
 
-    Texture tex = Texture.empty();
-    final ByteData data = await rootBundle.load(fontData);
+    final tex = Texture.empty();
+    final data = await rootBundle.load(fontData);
     tex.open(data.buffer.asUint8List());
-    for(int id = 0; id < 4; id++){
-      Texture tlut = Texture.empty();
+    for (var id = 0; id < 4; id++) {
+      final tlut = Texture.empty();
       tex.tlut = tlut;
       tlut.textureType = TextureType.RGBA32bpp;
-      final ByteData data = await rootBundle.load(fontTLUT.replaceAll('%d', id.toString()));
-      final Image pngImage = decodePng(data.buffer.asUint8List())!;
+      final data =
+          await rootBundle.load(fontTLUT.replaceAll('%d', id.toString()));
+      final pngImage = decodePng(data.buffer.asUint8List())!;
       tlut.fromRawImage(pngImage);
-      compositeImage(fontImage, decodePng(tex.toPNGBytes())!, dstX: id * 16, dstY: 0);
+      compositeImage(fontImage, decodePng(tex.toPNGBytes())!,
+          dstX: id * 16, dstY: 0);
     }
 
-    File textureFile = File(path.join(outputPath, "$fontTextureName.png"));
-    Uint8List pngBytes = encodePng(fontImage);
+    final textureFile = File(path.join(outputPath, '$fontTextureName.png'));
+    final pngBytes = encodePng(fontImage);
     await textureFile.create(recursive: true);
     await textureFile.writeAsBytes(pngBytes);
-    String hash = sha256.convert(pngBytes).toString();
-    onProcessed(TextureManifestEntry(hash, tex.textureType, fontImage.width, fontImage.height));
+    final hash = sha256.convert(pngBytes).toString();
+    onProcessed(TextureManifestEntry(
+        hash, tex.textureType, fontImage.width, fontImage.height));
   }
 }
 
-Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(String folderPath) async {
-  HashMap<String, ProcessedFilesInFolder> processedFiles = HashMap();
+Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(
+    String folderPath) async {
+  final processedFiles = HashMap<String, ProcessedFilesInFolder>();
 
   // search for and load manifest.json
-  String manifestPath = p.normalize("$folderPath/manifest.json");
-  File manifestFile = File(manifestPath);
+  final manifestPath = p.normalize('$folderPath/manifest.json');
+  final manifestFile = File(manifestPath);
   if (!manifestFile.existsSync()) {
     return null;
   }
 
-  String manifestContents = await manifestFile.readAsString();
+  final manifestContents = await manifestFile.readAsString();
   Map<String, dynamic> manifest = jsonDecode(manifestContents);
 
   // find all images in folder
-  List<String> supportedExtensions = ['.png', '.jpeg', '.jpg'];
-  List<FileSystemEntity> files = Directory(folderPath).listSync(recursive: true);
-  List<FileSystemEntity> texFiles = files.where((file) => supportedExtensions.contains(path.extension(file.path))).toList();
+  final supportedExtensions = <String>['.png', '.jpeg', '.jpg'];
+  final files = Directory(folderPath).listSync(recursive: true);
+  final texFiles = files
+      .where((file) => supportedExtensions.contains(path.extension(file.path)))
+      .toList();
 
   // for each tex image, check if it's in the manifest
-  for (FileSystemEntity rawFile in texFiles) {
-    File texFile = File(p.normalize(rawFile.path));
-    String texPathRelativeToFolder = p.normalize(texFile.path.split("$folderPath/").last.split('.').first);
+  for (final rawFile in texFiles) {
+    final texFile = File(p.normalize(rawFile.path));
+    final texPathRelativeToFolder =
+        p.normalize(texFile.path.split('$folderPath/').last.split('.').first);
     if (manifest.containsKey(texPathRelativeToFolder)) {
-      TextureManifestEntry manifestEntry = TextureManifestEntry.fromJson(manifest[texPathRelativeToFolder]);
+      final manifestEntry =
+          TextureManifestEntry.fromJson(manifest[texPathRelativeToFolder]);
       // if it is, check if the file has changed
-      Uint8List texFileBytes = await texFile.readAsBytes();
-      String texFileHash = sha256.convert(texFileBytes).toString();
+      final texFileBytes = await texFile.readAsBytes();
+      final texFileHash = sha256.convert(texFileBytes).toString();
       if (manifestEntry.hash != texFileHash) {
         // if it has, add it to the processed files list
-        log("Found file with changed hash: $texPathRelativeToFolder");
+        log('Found file with changed hash: $texPathRelativeToFolder');
 
-        String pathWithoutFilename = p.normalize(texPathRelativeToFolder.split("/").sublist(0, texPathRelativeToFolder.split("/").length - 1).join("/"));
-        if(processedFiles.containsKey(pathWithoutFilename)){
-          processedFiles[pathWithoutFilename]!.add(Tuple2(texFile, manifestEntry));
+        final pathWithoutFilename = p.normalize(texPathRelativeToFolder
+            .split('/')
+            .sublist(0, texPathRelativeToFolder.split('/').length - 1)
+            .join('/'));
+        if (processedFiles.containsKey(pathWithoutFilename)) {
+          processedFiles[pathWithoutFilename]!
+              .add(Tuple2(texFile, manifestEntry));
         } else {
-          processedFiles[pathWithoutFilename] = [Tuple2(texFile, manifestEntry)];
+          processedFiles[pathWithoutFilename] = [
+            Tuple2(texFile, manifestEntry)
+          ];
         }
       }
     } else {
-      log("Found file not present in manifest: $texPathRelativeToFolder");
+      log('Found file not present in manifest: $texPathRelativeToFolder');
     }
   }
 
   return processedFiles;
 }
 
-Future<HashMap<String, TextureManifestEntry>?> processOTR(Tuple2<List<String>, String> params) async {
+Future<HashMap<String, TextureManifestEntry>?> processOTR(
+    Tuple2<List<String>, String> params) async {
   try {
-    bool fileFound = false;
-    HashMap<String, TextureManifestEntry> processedFiles = HashMap();
+    var fileFound = false;
+    final processedFiles = HashMap<String, TextureManifestEntry>();
 
     // just use the first otr in the list for the  directory name
-    String otrNameForOutputDirectory = params.item1[0].split(Platform.pathSeparator).last.split(".").first;
+    final otrNameForOutputDirectory =
+        params.item1[0].split(Platform.pathSeparator).last.split('.').first;
 
     // if folder we'll export to exists, delete it
-    Directory dir = Directory("${params.item2}/$otrNameForOutputDirectory");
+    final dir = Directory('${params.item2}/$otrNameForOutputDirectory');
     if (dir.existsSync()) {
-      log("Deleting existing folder: ${params.item2}/$otrNameForOutputDirectory");
+      log('Deleting existing folder: ${params.item2}/$otrNameForOutputDirectory');
       await dir.delete(recursive: true);
     }
-    
-    for (String otrPath in params.item1) {
-      log("Processing OTR: $otrPath");
+
+    for (final otrPath in params.item1) {
+      log('Processing OTR: $otrPath');
       MPQArchive? mpqArchive = MPQArchive.open(otrPath, 0, MPQ_OPEN_READ_ONLY);
 
-      FileFindResource hFind = FileFindResource();
-      mpqArchive.findFirstFile("*", hFind, null);
+      final hFind = FileFindResource();
+      mpqArchive.findFirstFile('*', hFind, null);
 
       // process first file
-      String? fileName = hFind.fileName();
-      await processFile(fileName!, mpqArchive, "${params.item2}/$otrNameForOutputDirectory/$fileName", (TextureManifestEntry entry) {
+      final fileName = hFind.fileName();
+      await processFile(fileName!, mpqArchive,
+          '${params.item2}/$otrNameForOutputDirectory/$fileName',
+          (TextureManifestEntry entry) {
         processedFiles[fileName] = entry;
       });
 
@@ -228,13 +252,18 @@ Future<HashMap<String, TextureManifestEntry>?> processOTR(Tuple2<List<String>, S
           mpqArchive.findNextFile(hFind);
           fileFound = true;
 
-          String? fileName = hFind.fileName();
-          if (fileName == null || fileName == SIGNATURE_NAME || fileName == LISTFILE_NAME || fileName == ATTRIBUTES_NAME) {
+          final fileName = hFind.fileName();
+          if (fileName == null ||
+              fileName == SIGNATURE_NAME ||
+              fileName == LISTFILE_NAME ||
+              fileName == ATTRIBUTES_NAME) {
             continue;
           }
 
-          log("Processing file: $fileName");
-          bool processed = await processFile(fileName, mpqArchive, "${params.item2}/$otrNameForOutputDirectory/$fileName", (TextureManifestEntry entry) {
+          log('Processing file: $fileName');
+          final processed = await processFile(fileName, mpqArchive,
+              '${params.item2}/$otrNameForOutputDirectory/$fileName',
+              (TextureManifestEntry entry) {
             processedFiles[fileName] = entry;
           });
 
@@ -242,10 +271,10 @@ Future<HashMap<String, TextureManifestEntry>?> processOTR(Tuple2<List<String>, S
             continue;
           }
         } on StormLibException catch (e) {
-          log("Got a StormLib error: ${e.message}");
+          log('Got a StormLib error: ${e.message}');
           fileFound = false;
         } on Exception catch (e) {
-          log("Got an error: $e");
+          log('Got an error: $e');
           fileFound = false;
         }
       } while (fileFound);
@@ -253,54 +282,58 @@ Future<HashMap<String, TextureManifestEntry>?> processOTR(Tuple2<List<String>, S
       hFind.close();
       mpqArchive.close();
     }
-    
+
     return processedFiles;
   } on StormLibException catch (e) {
-    log("Failed to find next file: ${e.message}");
+    log('Failed to find next file: ${e.message}');
     return null;
   }
 }
 
-Future<bool> processFile(String fileName, MPQArchive mpqArchive, String outputPath, Function onProcessed) async {
+Future<bool> processFile(String fileName, MPQArchive mpqArchive,
+    String outputPath, Function onProcessed) async {
   try {
-    FileResource file = mpqArchive.openFileEx(fileName, 0);
-    int fileSize = file.size();
-    Uint8List fileData = file.read(fileSize);
+    final file = mpqArchive.openFileEx(fileName, 0);
+    final fileSize = file.size();
+    final fileData = file.read(fileSize);
 
-    Resource resource = Resource.empty();
+    final resource = Resource.empty();
     resource.rawLoad = true;
     resource.open(fileData);
 
-    if(![ResourceType.texture, ResourceType.sohBackground].contains(resource.resourceType)){
+    if (![ResourceType.texture, ResourceType.sohBackground]
+        .contains(resource.resourceType)) {
       return false;
     }
 
     String? hash;
 
-    switch(resource.resourceType) {
+    switch (resource.resourceType) {
       case ResourceType.texture:
-        Texture texture = Texture.empty();
+        final texture = Texture.empty();
         texture.open(fileData);
 
-        Uint8List pngBytes = texture.toPNGBytes();
-        File textureFile = File("$outputPath.png");
+        final pngBytes = texture.toPNGBytes();
+        final textureFile = File('$outputPath.png');
         await textureFile.create(recursive: true);
         await textureFile.writeAsBytes(pngBytes);
-        Uint8List textureBytes = await textureFile.readAsBytes();
+        final textureBytes = await textureFile.readAsBytes();
         hash = sha256.convert(textureBytes).toString();
-        onProcessed(TextureManifestEntry(hash, texture.textureType, texture.width, texture.height));
+        onProcessed(TextureManifestEntry(
+            hash, texture.textureType, texture.width, texture.height));
         break;
       case ResourceType.sohBackground:
-        Background background = Background.empty();
+        final background = Background.empty();
         background.open(fileData);
 
-        log("Found JPEG background: $fileName!");
-        File textureFile = File("$outputPath.jpg");
-        Image image = decodeJpg(background.texData)!;
+        log('Found JPEG background: $fileName!');
+        final textureFile = File('$outputPath.jpg');
+        final image = decodeJpg(background.texData)!;
         await textureFile.create(recursive: true);
         await textureFile.writeAsBytes(background.texData);
         hash = sha256.convert(background.texData).toString();
-        onProcessed(TextureManifestEntry(hash, TextureType.JPEG32bpp, image.width, image.height));
+        onProcessed(TextureManifestEntry(
+            hash, TextureType.JPEG32bpp, image.width, image.height));
         break;
       default:
         return false;
@@ -308,7 +341,7 @@ Future<bool> processFile(String fileName, MPQArchive mpqArchive, String outputPa
 
     return true;
   } on StormLibException catch (e) {
-    log("Failed to find next file: ${e.message}");
+    log('Failed to find next file: ${e.message}');
     return false;
   } catch (e) {
     // Not a texture

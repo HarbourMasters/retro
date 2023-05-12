@@ -7,7 +7,7 @@ import 'package:retro/otr/resource_type.dart';
 import 'package:retro/otr/version.dart';
 import 'package:retro/utils/tex_utils.dart';
 
-const LOAD_AS_RAW = (1 << 0);
+const LOAD_AS_RAW = 1 << 0;
 
 enum TextureType {
   Error(0, 0),
@@ -38,6 +38,12 @@ enum TextureType {
 }
 
 class Texture extends Resource {
+
+  Texture(
+      this.textureType, this.width, this.height, this.texDataSize, this.texData,)
+      : super(ResourceType.texture, 0, Version.deckard);
+
+  Texture.empty() : this(TextureType.Error, 0, 0, 0, Uint8List(0));
   TextureType textureType;
   int width, height;
   int texDataSize;
@@ -47,12 +53,6 @@ class Texture extends Resource {
   double textureHByteScale = 1;
   double textureVPixelScale = 1;
   bool isPalette = false;
-
-  Texture(
-      this.textureType, this.width, this.height, this.texDataSize, this.texData)
-      : super(ResourceType.texture, 0, Version.deckard);
-
-  Texture.empty() : this(TextureType.Error, 0, 0, 0, Uint8List(0));
 
   @override
   void writeResourceData() {

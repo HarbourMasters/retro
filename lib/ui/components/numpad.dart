@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 class TextNumpad extends StatefulWidget {
 
+  const TextNumpad({ required this.input, required this.onInput, this.title, this.step = 1.0, super.key });
+
   final String? title;
   final num input;
   final num step;
   final Function(num) onInput;
-
-  const TextNumpad({ required this.input, required this.onInput, this.title, this.step = 1.0, super.key });
 
   @override
   State<TextNumpad> createState() => _TextNumpadState();
@@ -21,19 +21,19 @@ class _TextNumpadState extends State<TextNumpad> {
       spacing: 10,
       children: [
         Text(
-          widget.title ?? "${widget.input}",
+          widget.title ?? '${widget.input}',
           style: const TextStyle(
             color: Colors.white,
-            fontSize: 11.0,
+            fontSize: 11,
             fontWeight: FontWeight.bold,
           ),
         ),
         Wrap(
-          spacing: 10.0,
+          spacing: 10,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             ElevatedButton(
-              child: const Text("-"),
+              child: const Text('-'),
               onPressed: () {
                 widget.onInput(widget.input - widget.step);
               },
@@ -43,12 +43,12 @@ class _TextNumpadState extends State<TextNumpad> {
               widget.input.toString(),
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 14.0,
+                fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
             ),
             ElevatedButton(
-              child: const Text("+"),
+              child: const Text('+'),
               onPressed: () {
                 widget.onInput(widget.input + widget.step);
               },

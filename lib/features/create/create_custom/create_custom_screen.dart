@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:path/path.dart' as p;
 import 'package:provider/provider.dart';
 import 'package:retro/features/create/create_custom/create_custom_viewmodel.dart';
 import 'package:retro/features/create/create_finish/create_finish_viewmodel.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:path/path.dart' as p;
 
 class CreateCustomScreen extends StatefulWidget {
   const CreateCustomScreen({super.key});
@@ -24,13 +24,13 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final TextTheme textTheme = theme.textTheme;
-    final CreateCustomViewModel viewModel =
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final viewModel =
         Provider.of<CreateCustomViewModel>(context);
-    final CreateFinishViewModel finishViewModel =
+    final finishViewModel =
         Provider.of<CreateFinishViewModel>(context);
-    final AppLocalizations i18n = AppLocalizations.of(context)!;
+    final i18n = AppLocalizations.of(context)!;
 
     return CustomScaffold(
         title: i18n.createCustomScreen_title,
@@ -47,24 +47,24 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
                     Row(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12.0),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
                           child: OutlinedButton(
                               onPressed: viewModel.onSelectFiles,
                               style: ElevatedButton.styleFrom(
-                                  minimumSize: const Size(200, 50)),
+                                  minimumSize: const Size(200, 50),),
                               child:
-                                  Text(i18n.createCustomScreen_selectButton)),
+                                  Text(i18n.createCustomScreen_selectButton),),
                         ),
                         Text(viewModel.path),
                       ],
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 4.0),
+                      padding: const EdgeInsets.only(bottom: 4),
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
                           '${i18n.createCustomScreen_fileToInsert}${viewModel.files.length}',
-                          style: textTheme.subtitle1,
+                          style: textTheme.titleMedium,
                         ),
                       ),
                     ),
@@ -74,24 +74,24 @@ class _CreateCustomScreenState extends State<CreateCustomScreen> {
                             itemBuilder: (context, index) {
                               return Text(p.relative(
                                   viewModel.files[index].path,
-                                  from: viewModel.path));
-                            })),
+                                  from: viewModel.path,),);
+                            },),),
                     ElevatedButton(
                         onPressed: viewModel.files.isNotEmpty &&
                                 viewModel.path.isNotEmpty
                             ? () {
                                 finishViewModel.onAddCustomStageEntries(
-                                    viewModel.files, viewModel.path);
+                                    viewModel.files, viewModel.path,);
                                 viewModel.reset();
                                 Navigator.of(context).popUntil(
-                                    ModalRoute.withName("/create_selection"));
+                                    ModalRoute.withName('/create_selection'),);
                               }
                             : null,
                         style: ElevatedButton.styleFrom(
                             minimumSize: Size(
-                                MediaQuery.of(context).size.width * 0.5, 50)),
-                        child: Text(i18n.createCustomScreen_stageFiles)),
+                                MediaQuery.of(context).size.width * 0.5, 50,),),
+                        child: Text(i18n.createCustomScreen_stageFiles),),
                   ],
-                ))));
+                ),),),);
   }
 }

@@ -6,6 +6,15 @@ const CONTENT_PADDING_VERTICAL = 15.0;
 const CONTENT_PADDING_HORIZONTAL = 15.0;
 
 class CustomScaffold extends StatelessWidget {
+
+  const CustomScaffold({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.onBackButtonPressed,
+    this.topRightWidget,
+    required this.content,
+  });
   final String title;
   final String? subtitle;
   // modifier
@@ -13,25 +22,15 @@ class CustomScaffold extends StatelessWidget {
   final Widget? topRightWidget;
   final Widget content;
 
-  const CustomScaffold({
-    Key? key,
-    required this.title,
-    this.subtitle,
-    this.onBackButtonPressed,
-    this.topRightWidget,
-    required this.content,
-  }) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final ColorScheme colorScheme = theme.colorScheme;
-    final TextTheme textTheme = theme.textTheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
 
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.only(
-          bottom: 0,
           top:   CONTENT_PADDING_VERTICAL,
           left: CONTENT_PADDING_HORIZONTAL,
           right: CONTENT_PADDING_HORIZONTAL,
@@ -41,7 +40,6 @@ class CustomScaffold extends StatelessWidget {
             SizedBox(
               height: 60,
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // back button
                   if (onBackButtonPressed != null)
@@ -57,10 +55,10 @@ class CustomScaffold extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: textTheme.headline5 ),
+                      Text(title, style: textTheme.headlineSmall ),
                       if (subtitle != null)
-                      Text(subtitle!, style: textTheme.bodyText2?.copyWith(
-                        color: colorScheme.onSurface.withOpacity(0.5))
+                      Text(subtitle!, style: textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurface.withOpacity(0.5),),
                       ),
                     ],
                   ),
@@ -69,15 +67,15 @@ class CustomScaffold extends StatelessWidget {
                     Expanded(
                       child: Align(
                           alignment: Alignment.centerRight,
-                          child: topRightWidget!)),
+                          child: topRightWidget!,),),
 
                 ],
-              )
+              ),
             ),
             content
-          ]
-        )
-      )
+          ],
+        ),
+      ),
     );
   }
 }

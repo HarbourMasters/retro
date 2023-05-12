@@ -14,7 +14,7 @@ class CreateSelectionScreen extends StatefulWidget {
 class _CreateSelectionScreenState extends State<CreateSelectionScreen> {
   @override
   Widget build(BuildContext context) {
-    final AppLocalizations i18n = AppLocalizations.of(context)!;
+    final i18n = AppLocalizations.of(context)!;
     return CustomScaffold(
         title: i18n.createSelectionScreen_title,
         subtitle: i18n.createSelectionScreen_subtitle,
@@ -26,30 +26,29 @@ class _CreateSelectionScreenState extends State<CreateSelectionScreen> {
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               OptionCard(
                   text: i18n.createSelectionScreen_nonHdTex,
                   icon: Icons.texture,
                   onTap: () {
                     Navigator.of(context).pushNamed('/create_replace_textures');
-                  }),
+                  },),
               const SizedBox(width: 20),
               OptionCard(
                   text: i18n.createSelectionScreen_customSequences,
                   icon: Icons.library_music,
                   onTap: () {
                     Navigator.of(context).pushNamed('/create_custom_sequences');
-                  }),
+                  },),
               const SizedBox(width: 20),
               OptionCard(
                   text: i18n.createSelectionScreen_custom,
                   icon: Icons.settings_suggest,
                   onTap: () {
                     Navigator.of(context).pushNamed('/create_custom');
-                  }),
+                  },),
             ],
           )
-        ])));
+        ],),),);
   }
 }

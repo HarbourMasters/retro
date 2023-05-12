@@ -8,6 +8,8 @@ import 'package:tuple/tuple.dart';
 
 class Sequence extends Resource {
 
+  Sequence(this.size, this.rawBinary, this.cachePolicy, this.medium, this.sequenceNum, this.numFonts, this.fontIndices, this.path) : super(ResourceType.sohAudioSequence, 0, Version.rachael);
+
   int size;
   Uint8List rawBinary;
   int sequenceNum;
@@ -17,21 +19,19 @@ class Sequence extends Resource {
   Uint8List fontIndices;
   String path;
 
-  Sequence(this.size, this.rawBinary, this.cachePolicy, this.medium, this.sequenceNum, this.numFonts, this.fontIndices, this.path) : super(ResourceType.sohAudioSequence, 0, Version.rachael);
-
   static Future<Sequence> fromSeqFile(Tuple2<File, File> sequence ) async {
-    List<String> metadata = (await sequence.item2.readAsString()).split('\n');
-    Uint8List rawData = await sequence.item1.readAsBytes();
-    int fontIdx = int.parse(metadata[1].toLowerCase().replaceAll("0x", ""), radix: 16);
-    String type = metadata.length > 2 && metadata[2].isNotEmpty ? metadata[2].toLowerCase().trim() : "bgm";
-    String metaname = metadata[0].trim().replaceAll('/', '|');
+    final metadata = (await sequence.item2.readAsString()).split('\n');
+    final rawData = await sequence.item1.readAsBytes();
+    final fontIdx = int.parse(metadata[1].toLowerCase().replaceAll('0x', ''), radix: 16);
+    final type = metadata.length > 2 && metadata[2].isNotEmpty ? metadata[2].toLowerCase().trim() : 'bgm';
+    final metaname = metadata[0].trim().replaceAll('/', '|');
 
     return Sequence(
       rawData.length, rawData,
-      type == "bgm" ? 2 : 1,
+      type == 'bgm' ? 2 : 1,
       2, 0, 1,
       Uint8List(1)..[0] = fontIdx,
-      "${metaname}_$type"
+      '${metaname}_$type',
     );
   }
 
@@ -43,7 +43,7 @@ class Sequence extends Resource {
     writeInt8(medium);
     writeInt8(cachePolicy);
     writeInt32(numFonts);
-    for (int i = 0; i < numFonts; i++) {
+    for (var i = 0; i < numFonts; i++) {
       writeInt8(fontIndices[i]);
     }
   }

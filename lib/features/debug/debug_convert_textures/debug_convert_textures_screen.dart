@@ -1,14 +1,15 @@
 import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Texture, Image;
 import 'package:image/image.dart' hide Color;
+import 'package:path/path.dart' as path;
 import 'package:retro/otr/resource.dart';
 import 'package:retro/otr/resource_type.dart';
 import 'package:retro/otr/types/background.dart';
 import 'package:retro/otr/types/texture.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
-import 'package:path/path.dart' as path;
 
 class DebugGeneratorFontsScreen extends StatefulWidget {
   const DebugGeneratorFontsScreen({super.key});
@@ -28,28 +29,26 @@ class _DebugGeneratorFontsScreenState extends State<DebugGeneratorFontsScreen> {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
-      title: "Debug Convert Textures",
-      subtitle: "Convert and preview textures",
+      title: 'Debug Convert Textures',
+      subtitle: 'Convert and preview textures',
       onBackButtonPressed: () {
         Navigator.of(context).pop();
       },
       content: Expanded(
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text("PNG to N64 Viewer",
-                    style: TextStyle(color: Colors.white, fontFamily: 'GoogleSans', fontWeight: FontWeight.bold)
+                  const Text('PNG to N64 Viewer',
+                    style: TextStyle(color: Colors.white, fontFamily: 'GoogleSans', fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 20.0),
-                  Container(
+                  const SizedBox(height: 20),
+                  DecoratedBox(
                     decoration: BoxDecoration(
                       color: const Color(0xFF40aae8),
                       borderRadius: BorderRadius.circular(5),
@@ -66,129 +65,129 @@ class _DebugGeneratorFontsScreenState extends State<DebugGeneratorFontsScreen> {
                         value: e,
                         child: Padding(
                           padding: const EdgeInsets.only(left: 17),
-                          child: Text(e.name)
+                          child: Text(e.name),
                         ),
-                      )).toList(),
+                      ),).toList(),
                       onChanged: (_){
                         setState(() {
                           selectedTextureType = _ as TextureType;
                         });
-                      }
+                      },
                     ),
                   ),
-                  const SizedBox(height: 20.0),
+                  const SizedBox(height: 20),
                   ElevatedButton(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 250),
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: Text(textureFile == null ? "Select Texture File" : textureFile!.path.split(path.separator).last,
-                          maxLines: 1
-                        )
-                      )
+                        child: Text(textureFile == null ? 'Select Texture File' : textureFile!.path.split(path.separator).last,
+                          maxLines: 1,
+                        ),
+                      ),
                     ),
                     onPressed: () async {
-                      FilePickerResult? result = await FilePicker.platform.pickFiles(
-                        allowMultiple: false, type: FileType.image
+                      final result = await FilePicker.platform.pickFiles(
+                        type: FileType.image,
                       );
                       if (result != null) {
                         setState(() {
                           textureFile = File(result.files.single.path!);
                         });
                       }
-                    }
+                    },
                   ),
-                  const SizedBox(height: 20.0),
+                  const SizedBox(height: 20),
                   ElevatedButton(
-                    child: const Text("Convert Texture"),
+                    child: const Text('Convert Texture'),
                     onPressed: (){
                       if (textureFile != null) {
                         setState(() {
                           textureData = Texture.empty();
                           textureData?.textureType = selectedTextureType;
-                          Image image = decodePng(textureFile!.readAsBytesSync())!;
+                          final image = decodePng(textureFile!.readAsBytesSync())!;
                           textureData!.fromRawImage(image);
-                          if(selectedTextureType.name.contains("Palette")){
+                          if(selectedTextureType.name.contains('Palette')){
                             textureData!.isPalette = true;
                           }
                           textureBytes = textureData!.toPNGBytes();
                         });
                       }
-                    }
+                    },
                   ),
                   if(textureData != null && textureData!.isPalette)
-                  const SizedBox(height: 20.0),
+                  const SizedBox(height: 20),
                   if(textureData != null && textureData!.isPalette)
                   ElevatedButton(
-                    child: const Text("Load TLUT"),
+                    child: const Text('Load TLUT'),
                     onPressed: () async {
-                      FilePickerResult? result = await FilePicker.platform.pickFiles(
-                        allowMultiple: false, type: FileType.image
+                      final result = await FilePicker.platform.pickFiles(
+                        type: FileType.image,
                       );
                       if (result != null) {
                         setState(() {
-                          Texture tlut = Texture.empty();
+                          final tlut = Texture.empty();
                           tlut.textureType = TextureType.RGBA32bpp;
-                          Image image = decodePng(File(result.files.single.path!).readAsBytesSync())!;
+                          final image = decodePng(File(result.files.single.path!).readAsBytesSync())!;
                           tlut.fromRawImage(image);
                           textureData!.tlut = tlut;
                           textureBytes = textureData!.toPNGBytes();
                         });
                       }
-                    }
+                    },
                   ),
                   if(textureData != null && textureData!.tlut != null)
-                  const SizedBox(height: 20.0),
+                  const SizedBox(height: 20),
                   if(textureData != null && textureData!.tlut != null)
                   ElevatedButton(
-                    child: const Text("Save As"),
+                    child: const Text('Save As'),
                     onPressed: () async {
-                      String? result = await FilePicker.platform.saveFile(
-                        type: FileType.image, allowedExtensions: ["png"], fileName: "converted.png"
+                      final result = await FilePicker.platform.saveFile(
+                        type: FileType.image, allowedExtensions: ['png'], fileName: 'converted.png',
                       );
                       if (result != null) {
                         setState(() {
-                          File out = File(result);
+                          final out = File(result);
                           out.writeAsBytesSync(textureBytes!);
                         });
                       }
-                    }
+                    },
                   ),
-                  const SizedBox(height: 20.0),
-                  const Text("OTR N64 Viewer",
-                    style: TextStyle(color: Colors.white, fontFamily: 'GoogleSans', fontWeight: FontWeight.bold)
+                  const SizedBox(height: 20),
+                  const Text('OTR N64 Viewer',
+                    style: TextStyle(color: Colors.white, fontFamily: 'GoogleSans', fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 20.0),
+                  const SizedBox(height: 20),
                   ElevatedButton(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 250),
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: Text(textureFile == null ? "Select Texture File" : textureFile!.path.split(path.separator).last,
-                          maxLines: 1
-                        )
-                      )
+                        child: Text(textureFile == null ? 'Select Texture File' : textureFile!.path.split(path.separator).last,
+                          maxLines: 1,
+                        ),
+                      ),
                     ),
                     onPressed: () async {
-                      FilePickerResult? result = await FilePicker.platform.pickFiles(
-                        allowMultiple: false, type: FileType.any
+                      final result = await FilePicker.platform.pickFiles(
+                        
                       );
                       if (result != null) {
                         setState(() {
                           textureFile = File(result.files.single.path!);
                         });
                       }
-                    }
+                    },
                   ),
-                  const SizedBox(height: 20.0),
+                  const SizedBox(height: 20),
                   ElevatedButton(
-                    child: const Text("Load Texture"),
+                    child: const Text('Load Texture'),
                     onPressed: (){
                       if (textureFile != null) {
-                        Uint8List bytes = textureFile!.readAsBytesSync();
+                        final bytes = textureFile!.readAsBytesSync();
 
                         setState(() {
-                          Resource resource = Resource.empty();
+                          final resource = Resource.empty();
                           resource.rawLoad = true;
                           resource.open(bytes);
 
@@ -197,14 +196,14 @@ class _DebugGeneratorFontsScreenState extends State<DebugGeneratorFontsScreen> {
                             textureData?.open(bytes);
                             textureBytes = textureData!.toPNGBytes();
                           } else {
-                            Background background = Background.empty();
+                            final background = Background.empty();
                             background.open(bytes);
                             textureData = Texture.empty();
                             textureBytes = background.texData;
                           }
                         });
                       }
-                    }
+                    },
                   ),
                 ],
               ),
@@ -212,7 +211,7 @@ class _DebugGeneratorFontsScreenState extends State<DebugGeneratorFontsScreen> {
             Expanded(
               child: Container(
                 height: MediaQuery.of(context).size.height - 119,
-                padding: const EdgeInsets.only( right: 20.0),
+                padding: const EdgeInsets.only( right: 20),
                 decoration: BoxDecoration(
                   color: Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
