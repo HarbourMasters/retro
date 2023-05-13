@@ -71,7 +71,7 @@ For custom eye and mouth texture animations, we will use Adult Link as an exampl
         `gLinkAdultMouth1Tex, gLinkAdultMouth2Tex, gLinkAdultMouth3Tex, gLinkAdultMouth4Tex`
 1) Rename the default eye texture png (eye open, no expression) the same as the first name in the "eyes" list above (gLinkAdultEyesOpenTex.)
 2) Create a new f3d material and rename that material to "gLinkAdultEyesOpenTex" as well.
-3) Choose "Oot Shaded Solid" for the preset and select the PNG texture you renamed in step 1.
+3) Choose "Oot Shaded Texture" for the preset and select the PNG texture you renamed in step 1.
 4) change color index to RGBA-16.
 5) For the other eye textures and mouth textures repeat the same process from step 1.
 
