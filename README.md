@@ -63,7 +63,7 @@ Now that the setup is done, there are a few general things to keep in mind when 
 
 All materials made must be `Fast3D Materials`, you can either convert the existing Principled BSDF materials to Fast3D under the Fast64 tab, or make new materials by pressing `Create Fast3D Material` in the Materials tab, set the appropriate preset to whatever type of material you need to make. (Solid, Texture, Transparent and so on)
 
-If you want to use a texture larger then 32x32 for a material, assign a smaller texture below that size that fits the same aspect ratio and after exporting and generating the .otr file for that mod, extract the textures from that mod with Retro, replace the texture with the bigger size, and generate a new .otr file to be loaded after the model is loaded.
+If you want to use a texture larger than 32x32 for a material, assign a smaller texture that is 32x32 or below that fits the same aspect ratio and after exporting and generating the .otr file for that mod, extract the textures from that mod with Retro, replace the texture with the bigger size, and generate a new .otr file to be loaded after the model is loaded.
 
 If you are working with a model that uses a existing mesh from the decomp (such as ones that use Links body or hands) the built-in materials may require some adjustments, particularly with textures that use the Format `Color Index 8-bit` should be switched to `RGBA 16-bit` if you don't do this the texture may display incorrectly in-game.
 
