@@ -67,7 +67,7 @@ If you want to use a texture larger than 32x32 for a material, assign a smaller 
 
 If you are working with a model that uses a existing mesh from the decomp (such as ones that use Links body or hands) the built-in materials may require some adjustments, particularly with textures that use the Format `Color Index 8-bit` should be switched to `RGBA 16-bit` if you don't do this the texture may display incorrectly in-game.
 
-Generally you can do two types of model replacements; ones that use a skeleton, and one that modified a Display List(just the mesh).
+Generally you can do two types of model replacements; ones that use a skeleton, and one that modifies a Display List(just the mesh).
 
 For the purposes of a example we will make a simple edit to Child Link (this one is a example of a skeleton model replacement) on the import section of OOT Skeleton Exporter select the mode to be Child Link then click Import Skeleton, after awhile it should then display two Child Link models, one is for standard view the other is for LOD, we suggest deleting the LOD model as it can cause issues preventing exporting to work. If you do this, we suggest you enable "Disable LOD" in-game.
 
