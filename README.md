@@ -65,6 +65,21 @@ All materials made must be `Fast3D Materials`, you can either convert the existi
 
 If you want to use a texture larger than 32x32 for a material, assign a smaller texture that is 32x32 or below that fits the same aspect ratio and after exporting and generating the .otr file for that mod, extract the textures from that mod with Retro, replace the texture with the bigger size, and generate a new .otr file to be loaded after the model is loaded.
 
+For custom eye and mouth texture animations, we will use Adult Link as an example in this tutorial. We will be using this list (these are found inside "object_link_boy.c"):
+    eyes:
+        `gLinkAdultEyesOpenTex, gLinkAdultEyesHalfTex, gLinkAdultEyesClosedfTex, gLinkAdultEyesRollLeftTex,`
+        `gLinkAdultEyesRollRightTex, gLinkAdultEyesShockTex, gLinkAdultEyesUnk1Tex, gLinkAdultEyesUnk2Tex`
+    mouth:
+        `gLinkAdultMouth1Tex, gLinkAdultMouth2Tex, gLinkAdultMouth3Tex, gLinkAdultMouth4Tex`
+1) Rename the default eye texture png (eye open, no expression) the same as the first name in the "eyes" list above (gLinkAdultEyesOpenTex.)
+2) Create a new f3d material and rename that material to "gLinkAdultEyesOpenTex" as well.
+3) Choose "Oot Shaded Texture" for the preset and select the PNG texture you renamed in step 1.
+4) change color index to RGBA-16.
+5) For the other eye textures and mouth textures repeat the same process from step 1.
+
+After you are done with that, go to the default eye material (the material that was already there before you started creating the new f3d materials for the eyes) and enable "Use Texture Reference" then set the texture size to `0x08000000`. scroll down until you see "OOT FlipBook Properties" and under "Array Name" click on the minus sign for all textures. Afterward, uncheck "Export Flipbook Textures 0" and repeat the process with the default mouth material (the one created before you created the new f3d materials for the mouth.) The only difference is for the mouth, set the texture size to `0x09000000`.
+
+    
 If you are working with a model that uses a existing mesh from the decomp (such as ones that use Links body or hands) the built-in materials may require some adjustments, particularly with textures that use the Format `Color Index 8-bit` should be switched to `RGBA 16-bit` if you don't do this the texture may display incorrectly in-game.
 
 Generally you can do two types of model replacements; ones that use a skeleton, and one that modifies a Display List(just the mesh).
