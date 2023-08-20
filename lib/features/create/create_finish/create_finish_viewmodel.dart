@@ -213,7 +213,7 @@ Future<void> generateOTR(
     Tuple4<HashMap<String, StageEntry>, String, SendPort, bool> params) async {
   try {
     MPQArchive? mpqArchive = MPQArchive.create(
-        params.item2, MPQ_CREATE_SIGNATURE | MPQ_CREATE_ARCHIVE_V2, 12288);
+        params.item2, MPQ_CREATE_SIGNATURE | MPQ_CREATE_ARCHIVE_V2, 50000);
     for (final entry in params.item1.entries) {
       if (entry.value is CustomStageEntry) {
         for (final file in (entry.value as CustomStageEntry).files) {
