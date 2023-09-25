@@ -213,7 +213,8 @@ Future<void> generateOTR(
     Tuple4<HashMap<String, StageEntry>, String, SendPort, bool> params) async {
   try {
     MPQArchive? mpqArchive = MPQArchive.create(
-        params.item2, MPQ_CREATE_SIGNATURE | MPQ_CREATE_ARCHIVE_V2, 12288);
+        params.item2, MPQ_CREATE_LISTFILE | MPQ_CREATE_ATTRIBUTES | MPQ_CREATE_ARCHIVE_V2, 40000);
+    List<String> files = [];
     for (final entry in params.item1.entries) {
       if (entry.value is CustomStageEntry) {
         for (final file in (entry.value as CustomStageEntry).files) {
@@ -221,6 +222,11 @@ Future<void> generateOTR(
           final fileData = await file.readAsBytes();
           final fileName =
               "${entry.key}/${p.normalize(file.path).split("/").last}";
+
+          if(files.contains(fileName)) {
+            params.item3.send(1);
+            continue;
+          }
 
           final mpqFile = mpqArchive.createFile(
               fileName,
@@ -230,12 +236,19 @@ Future<void> generateOTR(
               MPQ_FILE_COMPRESS);
           mpqFile.write(fileData, fileLength, MPQ_COMPRESSION_ZLIB);
           mpqFile.finish();
+          files.add(fileName);
           params.item3.send(1);
         }
       } else if (entry.value is CustomSequencesEntry) {
         for (final pair in (entry.value as CustomSequencesEntry).pairs) {
           final sequence = await compute(Sequence.fromSeqFile, pair);
           final fileName = '${entry.key}/${sequence.path}';
+
+          if(files.contains(fileName)) {
+            params.item3.send(1);
+            continue;
+          }
+
           final data = sequence.build();
           final mpqFile = mpqArchive.createFile(
               fileName,
@@ -245,6 +258,7 @@ Future<void> generateOTR(
               MPQ_FILE_COMPRESS);
           mpqFile.write(data, data.length, MPQ_COMPRESSION_ZLIB);
           mpqFile.finish();
+          files.add(fileName);
           params.item3.send(1);
         }
       } else if (entry.value is CustomTexturesEntry) {
@@ -257,7 +271,7 @@ Future<void> generateOTR(
             processes, () => params.item3.send(1));
 
         for (final texture in textures) {
-          if (texture.item2 == null) {
+          if (texture.item2 == null || texture.item2!.length == 0 || files.contains(texture.item1)) {
             params.item3.send('Failed to process texture ${texture.item1}');
             continue;
           }
@@ -271,6 +285,7 @@ Future<void> generateOTR(
           mpqFile.write(
               texture.item2!, texture.item2!.length, MPQ_COMPRESSION_ZLIB);
           mpqFile.finish();
+          files.add(texture.item1);
         }
       }
     }
@@ -278,7 +293,7 @@ Future<void> generateOTR(
     params.item3.send(true);
     mpqArchive.close();
   } on StormLibException catch (e) {
-    log(e.message);
+    rethrow;
   }
 
   Isolate.exit();
@@ -287,12 +302,14 @@ Future<void> generateOTR(
 Future<Tuple2<String, Uint8List?>> processTextureEntry(
     Tuple3<String, Tuple2<File, TextureManifestEntry>, bool> params) async {
   final pair = params.item2;
-  final textureName = pair.item1.path.split('/').last.split('.').first;
+  final rawTexName = pair.item1.path.split('/').last;
+  final textureName = rawTexName.substring(0, rawTexName.lastIndexOf('.'));
   final fileName = '${params.item1}/$textureName';
 
   final data = await (pair.item2.textureType == TextureType.JPEG32bpp
       ? processJPEG
       : processPNG)(pair, textureName);
+
   return Tuple2((params.item3 ? 'alt/' : '') + fileName, data);
 }
 
@@ -327,6 +344,7 @@ Future<Uint8List?> processPNG(
 
   if (image == null) {
     log('Failed to decode image data for PNG: $textureName');
+    throw Exception('Failed to decode image data for PNG: $textureName');
     return null;
   }
 
