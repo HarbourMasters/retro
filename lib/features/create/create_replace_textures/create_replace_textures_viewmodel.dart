@@ -182,8 +182,9 @@ Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(
   // for each tex image, check if it's in the manifest
   for (final rawFile in texFiles) {
     final texFile = File(p.normalize(rawFile.path));
+    final baseTex = texFile.path.split('$folderPath/').last;
     final texPathRelativeToFolder =
-        p.normalize(texFile.path.split('$folderPath/').last.split('.').first);
+        p.normalize(baseTex.substring(0, baseTex.lastIndexOf('.')));
     if (manifest.containsKey(texPathRelativeToFolder)) {
       final manifestEntry =
           TextureManifestEntry.fromJson(manifest[texPathRelativeToFolder]);
@@ -221,7 +222,7 @@ Future<HashMap<String, TextureManifestEntry>?> processOTR(
     var fileFound = false;
     final processedFiles = HashMap<String, TextureManifestEntry>();
 
-    // just use the first otr in the list for the  directory name
+    // just use the first otr in the list for the directory name
     final otrNameForOutputDirectory =
         params.item1[0].split(Platform.pathSeparator).last.split('.').first;
 
