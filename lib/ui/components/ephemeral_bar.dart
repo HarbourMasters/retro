@@ -95,7 +95,7 @@ class _EphemeralBarState extends State<EphemeralBar>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text('Retro: 0.0.5-alpha.2', style: textTheme.bodyMedium!.copyWith(
+                  Text('Retro: 0.0.5', style: textTheme.bodyMedium!.copyWith(
                     color: colorScheme.onSurface,),
                   ),
                   if (!isExpanded)
