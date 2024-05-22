@@ -27,7 +27,7 @@ Widget OTRContent(CreateReplaceTexturesViewModel viewModel, BuildContext context
         ElevatedButton(
             onPressed: viewModel.onSelectOTR,
             style: ElevatedButton.styleFrom(minimumSize: const Size(100, 50)),
-            child: Text(i18n.otrContentView_otrSelect),)
+            child: Text(i18n.otrContentView_otrSelect),),
       ],),
       if (viewModel.processedFiles.isEmpty && viewModel.isProcessing == false)
           Expanded( child: Padding(
@@ -64,8 +64,8 @@ Widget OTRContent(CreateReplaceTexturesViewModel viewModel, BuildContext context
           style: ElevatedButton.styleFrom(minimumSize: Size(
             MediaQuery.of(context).size.width * 0.5, 50,),
           ),
-          child: Text(viewModel.isProcessing ? i18n.otrContentView_processing : viewModel.processedFiles.isNotEmpty ? 'Extracted ${viewModel.processedFiles.length} Textures' : 'Process'), // TODO Better management of this for localization
-        ),)
+          child: Text(viewModel.isProcessing ? i18n.otrContentView_processing : viewModel.processedFiles.isNotEmpty ? 'Extracted ${viewModel.processedFiles.length} Textures' : 'Process'), // TODOBetter management of this for localization
+        ),),
     ],
   );
 }

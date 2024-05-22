@@ -45,7 +45,8 @@ class Texture extends Resource {
 
   Texture.empty() : this(TextureType.Error, 0, 0, 0, Uint8List(0));
   TextureType textureType;
-  int width, height;
+  int width;
+  int height;
   int texDataSize;
   Uint8List texData;
   Texture? tlut;

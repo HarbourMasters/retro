@@ -41,7 +41,7 @@ class _DebugSelectionScreenState extends State<DebugSelectionScreen> {
                         Navigator.of(context).pushNamed('/debug_generate_font');
                       },),
                 ],
-              )
+              ),
             ],),),);
   }
 }

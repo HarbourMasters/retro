@@ -44,15 +44,12 @@ dependencies:
     git:
       url: https://github.com/google/flutter-desktop-embedding.git
       path: plugins/window_size
-  flutter_storm:
-    git:
-      url: https://github.com/HarbourMasters/flutter_storm.git
-      ref: e42354c946c603f7ce86090d599158bb4306cd19
   tuple: ^2.0.1
   crypto: ^3.0.2
   image: ^4.0.7
-  intl: ^0.18.0
+  intl: ^0.19.0
   path: ^1.8.2
+  archive: ^3.5.1
 
 flutter_icons:
   windows:

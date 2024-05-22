@@ -54,7 +54,7 @@ class _InspectOTRScreenState extends State<InspectOTRScreen> {
                     onPressed: viewModel.onSelectOTR,
                     style: ElevatedButton.styleFrom(
                         minimumSize: const Size(100, 50),),
-                    child: Text(i18n.inspectOtrScreen_selectButton),)
+                    child: Text(i18n.inspectOtrScreen_selectButton),),
               ],),
               if (viewModel.isProcessing || viewModel.filteredFilesInOTR.isNotEmpty)
                 Expanded(
@@ -67,7 +67,7 @@ class _InspectOTRScreenState extends State<InspectOTRScreen> {
                                 prototypeItem: const SizedBox(width: 0, height: 20),
                                 itemBuilder: (context, index) {
                                   return Text(viewModel.filteredFilesInOTR[index]);
-                                },),),)
+                                },),),),
             ],
           ),
         ),

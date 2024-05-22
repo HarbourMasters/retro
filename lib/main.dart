@@ -62,7 +62,7 @@ class Retro extends StatelessWidget {
           Locale('de', ''),
           Locale('fr', ''),
           Locale('es', ''),
-          Locale('nl', '')
+          Locale('nl', ''),
         ],
         darkTheme: darkTheme(),
         theme: lightTheme(),
@@ -76,11 +76,11 @@ class Retro extends StatelessWidget {
                       children: [
                         SizedBox(
                             height: MediaQuery.of(context).size.height - 24,
-                            child: child!,),
+                            child: child,),
                         const Positioned(bottom: 0, child: EphemeralBar()),
                       ],
                     ),
-                ),)
+                ),),
           ],);
         },
         routes: {

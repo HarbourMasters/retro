@@ -115,7 +115,7 @@ class _EphemeralBarState extends State<EphemeralBar>
                         icon: const Icon(Icons.memory, size: 14),
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),

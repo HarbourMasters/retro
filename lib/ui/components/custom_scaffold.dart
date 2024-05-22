@@ -67,12 +67,12 @@ class CustomScaffold extends StatelessWidget {
                     Expanded(
                       child: Align(
                           alignment: Alignment.centerRight,
-                          child: topRightWidget!,),),
+                          child: topRightWidget,),),
 
                 ],
               ),
             ),
-            content
+            content,
           ],
         ),
       ),

@@ -49,7 +49,7 @@ class _CreateCustomSequencesScreenState extends State<CreateCustomSequencesScree
                     onPressed: viewModel.onSelectFolder,
                     style: ElevatedButton.styleFrom(
                         minimumSize: const Size(100, 50),),
-                    child: Text(i18n.createCustomSequences_selectButton),)
+                    child: Text(i18n.createCustomSequences_selectButton),),
               ],),
               if (viewModel.isProcessing || viewModel.sequenceMetaPairs.isNotEmpty)
                 Expanded(
@@ -75,7 +75,7 @@ class _CreateCustomSequencesScreenState extends State<CreateCustomSequencesScree
                     MediaQuery.of(context).size.width * 0.5, 50,),
                   ),
                   child: Text(i18n.createCustomSequences_stageFiles),
-                )
+                ),
             ],),
         ),),
       );

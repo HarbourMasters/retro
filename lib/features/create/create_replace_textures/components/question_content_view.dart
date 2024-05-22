@@ -39,7 +39,7 @@ Widget QuestionContent(CreateReplaceTexturesViewModel viewModel, BuildContext co
               },
               child: Text(i18n.questionContentView_no),),
         ],
-      )
+      ),
     ],
   );
 }

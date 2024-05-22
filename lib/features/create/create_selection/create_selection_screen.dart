@@ -47,7 +47,7 @@ class _CreateSelectionScreenState extends State<CreateSelectionScreen> {
                     Navigator.of(context).pushNamed('/create_custom');
                   },),
             ],
-          )
+          ),
         ],),),);
   }
 }

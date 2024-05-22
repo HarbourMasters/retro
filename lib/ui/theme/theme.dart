@@ -17,7 +17,6 @@ ThemeData darkTheme() {
     onSecondary: Colors.white,
     surface: RetroColors.bigStone,
     error: RetroColors.wildWatermelon,
-    background: RetroColors.bigStone,
   );
 
   final textTheme = retroTypography.apply(

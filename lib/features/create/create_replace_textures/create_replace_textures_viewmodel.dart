@@ -2,12 +2,11 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:archive/archive_io.dart';
 import 'package:crypto/crypto.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_storm/flutter_storm.dart';
-import 'package:flutter_storm/flutter_storm_defines.dart';
 import 'package:image/image.dart';
 import 'package:path/path.dart' as path;
 import 'package:retro/models/texture_manifest_entry.dart';
@@ -72,7 +71,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
 
   Future<void> onSelectOTR() async {
     final result = await FilePicker.platform.pickFiles(
-        allowMultiple: true, type: FileType.custom, allowedExtensions: ['otr']);
+        allowMultiple: true, type: FileType.custom, allowedExtensions: ['otr'],);
     if (result != null && result.files.isNotEmpty) {
       // save paths filtering out nulls
       selectedOTRPaths = result.paths.whereType<String>().toList();
@@ -118,7 +117,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     });
 
     // Write out the processed files to disk
-    String? manifestOutputPath =
+    final manifestOutputPath =
         '$selectedDirectory/$otrNameForOutputDirectory/manifest.json';
     final manifestFile = File(manifestOutputPath);
     await manifestFile.create(recursive: true);
@@ -145,7 +144,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
       final pngImage = decodePng(data.buffer.asUint8List())!;
       tlut.fromRawImage(pngImage);
       compositeImage(fontImage, decodePng(tex.toPNGBytes())!,
-          dstX: id * 16, dstY: 0);
+          dstX: id * 16, dstY: 0,);
     }
 
     final textureFile = File(path.join(outputPath, '$fontTextureName.png'));
@@ -154,12 +153,12 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     await textureFile.writeAsBytes(pngBytes);
     final hash = sha256.convert(pngBytes).toString();
     onProcessed(TextureManifestEntry(
-        hash, tex.textureType, fontImage.width, fontImage.height));
+        hash, tex.textureType, fontImage.width, fontImage.height,),);
   }
 }
 
 Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(
-    String folderPath) async {
+    String folderPath,) async {
   final processedFiles = HashMap<String, ProcessedFilesInFolder>();
 
   // search for and load manifest.json
@@ -170,7 +169,7 @@ Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(
   }
 
   final manifestContents = await manifestFile.readAsString();
-  Map<String, dynamic> manifest = jsonDecode(manifestContents);
+  final Map<String, dynamic> manifest = jsonDecode(manifestContents) as Map<String, dynamic>;
 
   // find all images in folder
   final supportedExtensions = <String>['.png', '.jpeg', '.jpg'];
@@ -186,7 +185,7 @@ Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(
         p.normalize(texFile.path.split('$folderPath/').last.split('.').first);
     if (manifest.containsKey(texPathRelativeToFolder)) {
       final manifestEntry =
-          TextureManifestEntry.fromJson(manifest[texPathRelativeToFolder]);
+          TextureManifestEntry.fromJson(manifest[texPathRelativeToFolder] as Map<String, dynamic>);
       // if it is, check if the file has changed
       final texFileBytes = await texFile.readAsBytes();
       final texFileHash = sha256.convert(texFileBytes).toString();
@@ -197,13 +196,13 @@ Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(
         final pathWithoutFilename = p.normalize(texPathRelativeToFolder
             .split('/')
             .sublist(0, texPathRelativeToFolder.split('/').length - 1)
-            .join('/'));
+            .join('/'),);
         if (processedFiles.containsKey(pathWithoutFilename)) {
           processedFiles[pathWithoutFilename]!
               .add(Tuple2(texFile, manifestEntry));
         } else {
           processedFiles[pathWithoutFilename] = [
-            Tuple2(texFile, manifestEntry)
+            Tuple2(texFile, manifestEntry),
           ];
         }
       }
@@ -216,7 +215,7 @@ Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(
 }
 
 Future<HashMap<String, TextureManifestEntry>?> processOTR(
-    Tuple2<List<String>, String> params) async {
+    Tuple2<List<String>, String> params,) async {
   try {
     var fileFound = false;
     final processedFiles = HashMap<String, TextureManifestEntry>();
@@ -234,7 +233,7 @@ Future<HashMap<String, TextureManifestEntry>?> processOTR(
 
     for (final otrPath in params.item1) {
       log('Processing OTR: $otrPath');
-      MPQArchive? mpqArchive = MPQArchive.open(otrPath, 0, MPQ_OPEN_READ_ONLY);
+      final mpqArchive = MPQArchive.open(otrPath, 0, MPQ_OPEN_READ_ONLY);
 
       final hFind = FileFindResource();
       mpqArchive.findFirstFile('*', hFind, null);
@@ -291,7 +290,7 @@ Future<HashMap<String, TextureManifestEntry>?> processOTR(
 }
 
 Future<bool> processFile(String fileName, MPQArchive mpqArchive,
-    String outputPath, Function onProcessed) async {
+    String outputPath, Function onProcessed,) async {
   try {
     final file = mpqArchive.openFileEx(fileName, 0);
     final fileSize = file.size();
@@ -320,7 +319,7 @@ Future<bool> processFile(String fileName, MPQArchive mpqArchive,
         final textureBytes = await textureFile.readAsBytes();
         hash = sha256.convert(textureBytes).toString();
         onProcessed(TextureManifestEntry(
-            hash, texture.textureType, texture.width, texture.height));
+            hash, texture.textureType, texture.width, texture.height,),);
         break;
       case ResourceType.sohBackground:
         final background = Background.empty();
@@ -333,7 +332,7 @@ Future<bool> processFile(String fileName, MPQArchive mpqArchive,
         await textureFile.writeAsBytes(background.texData);
         hash = sha256.convert(background.texData).toString();
         onProcessed(TextureManifestEntry(
-            hash, TextureType.JPEG32bpp, image.width, image.height));
+            hash, TextureType.JPEG32bpp, image.width, image.height,),);
         break;
       default:
         return false;

@@ -27,7 +27,7 @@ Widget FolderContent(
         ElevatedButton(
             onPressed: viewModel.onSelectFolder,
             style: ElevatedButton.styleFrom(minimumSize: const Size(100, 50)),
-            child: Text(i18n.folderContentView_selectButton),)
+            child: Text(i18n.folderContentView_selectButton),),
       ],),
       Row(children: [
         Switch(
@@ -65,7 +65,7 @@ Widget FolderContent(
             MediaQuery.of(context).size.width * 0.5, 50,),
           ),
           child: Text(i18n.folderContentView_stageTextures),
-        ),)
+        ),),
     ],
   );
 }
