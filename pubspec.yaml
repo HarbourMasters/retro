@@ -1,5 +1,5 @@
 name: retro
-description: An OTR generation tool.
+description: An OTR / O2R generation tool.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -47,12 +47,14 @@ dependencies:
   flutter_storm:
     git:
       url: https://github.com/HarbourMasters/flutter_storm.git
-      ref: e42354c946c603f7ce86090d599158bb4306cd19
+      ref: 7cfb8ef3560f3ff3bdda64f1a283fc06f4325dfc
   tuple: ^2.0.1
   crypto: ^3.0.2
   image: ^4.0.7
-  intl: ^0.18.0
+  intl: ^0.18.1
   path: ^1.8.2
+  archive: ^3.6.0
+  flutter_gradient_animation_text: ^1.0.2
 
 flutter_icons:
   windows:
@@ -77,6 +79,9 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
   very_good_analysis: ^3.1.0
+
+dependency_overrides:
+  intl: ^0.18.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

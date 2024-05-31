@@ -128,7 +128,7 @@ class _CreateFinishBottomBarModalState
                                   )
                                 ],
                               )
-                            : Text(i18n.createFinishScreen_generateOtr),
+                            : Text(i18n.createFinishScreen_generateOtr, style: TextStyle(color: Colors.white)),
                       ),
                     ),
                   ],

@@ -18,6 +18,6 @@ enum Version {
 
   static Version fromValue(int value) {
     return Version.values
-        .firstWhere((Version version) => version.value == value);
+        .firstWhere((Version version) => version.value == value, orElse: () => Version.unknown);
   }
 }

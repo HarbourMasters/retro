@@ -32,7 +32,7 @@ class Resource {
     writeInt8(isCustom ? 1 : 0);     // 0x14
     writeInt8(0);                    // 0x15
     writeInt8(0);                    // 0x16
-    writeInt8(0);                    // 0x17 
+    writeInt8(0);                    // 0x17
     writeInt32(0);                   // 0x18
     writeInt32(0);                   // 0x1C
 

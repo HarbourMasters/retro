@@ -95,7 +95,7 @@ class _EphemeralBarState extends State<EphemeralBar>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text('Retro: 0.0.5', style: textTheme.bodyMedium!.copyWith(
+                  Text('Retro: 0.1.0', style: textTheme.bodyMedium!.copyWith(
                     color: colorScheme.onSurface,),
                   ),
                   if (!isExpanded)
@@ -127,7 +127,7 @@ class _EphemeralBarState extends State<EphemeralBar>
     return SizedBox.fromSize(
         size: Size(size.width, max(size.height * animation.value, 24)),
         child: CreateFinishBottomBarModal(
-            bottomBar: bottomBar, dismissCallback: () { 
+            bottomBar: bottomBar, dismissCallback: () {
               expandController.reverse();
               viewModel.toggleEphemeralBar();
             },),);

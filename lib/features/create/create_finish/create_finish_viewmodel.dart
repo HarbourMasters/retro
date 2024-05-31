@@ -10,6 +10,7 @@ import 'package:flutter_storm/flutter_storm.dart';
 import 'package:flutter_storm/flutter_storm_defines.dart';
 import 'package:image/image.dart';
 import 'package:path/path.dart' as dartp;
+import 'package:retro/arc/arc.dart';
 import 'package:retro/models/app_state.dart';
 import 'package:retro/models/stage_entry.dart';
 import 'package:retro/models/texture_manifest_entry.dart';
@@ -40,7 +41,7 @@ class CreateFinishViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  onTogglePrependAlt(newPrependAltValue) async {
+  Future<void> onTogglePrependAlt(bool newPrependAltValue) async {
     prependAlt = newPrependAltValue;
     notifyListeners();
   }
@@ -149,7 +150,9 @@ class CreateFinishViewModel with ChangeNotifier {
   Future<void> onGenerateOTR(Function onCompletion) async {
     final outputFile = await FilePicker.platform.saveFile(
       dialogTitle: 'Please select an output file:',
-      fileName: 'generated.otr',
+      fileName: 'generated.o2r',
+      type: FileType.custom,
+      allowedExtensions: ['otr', 'o2r'],
     );
 
     if (outputFile == null) {
@@ -209,27 +212,17 @@ class CreateFinishViewModel with ChangeNotifier {
   }
 }
 
-Future<void> generateOTR(
-    Tuple4<HashMap<String, StageEntry>, String, SendPort, bool> params) async {
+Future<void> generateOTR(Tuple4<HashMap<String, StageEntry>, String, SendPort, bool> params) async {
   try {
-    MPQArchive? mpqArchive = MPQArchive.create(
-        params.item2, MPQ_CREATE_SIGNATURE | MPQ_CREATE_ARCHIVE_V2, 12288);
+    final arcFile = Arc(params.item2);
+
     for (final entry in params.item1.entries) {
       if (entry.value is CustomStageEntry) {
         for (final file in (entry.value as CustomStageEntry).files) {
-          final fileLength = await file.length();
           final fileData = await file.readAsBytes();
           final fileName =
               "${entry.key}/${p.normalize(file.path).split("/").last}";
-
-          final mpqFile = mpqArchive.createFile(
-              fileName,
-              DateTime.now().millisecondsSinceEpoch ~/ 1000,
-              fileLength,
-              0,
-              MPQ_FILE_COMPRESS);
-          mpqFile.write(fileData, fileLength, MPQ_COMPRESSION_ZLIB);
-          mpqFile.finish();
+          arcFile.addFile(fileName, fileData);
           params.item3.send(1);
         }
       } else if (entry.value is CustomSequencesEntry) {
@@ -237,14 +230,7 @@ Future<void> generateOTR(
           final sequence = await compute(Sequence.fromSeqFile, pair);
           final fileName = '${entry.key}/${sequence.path}';
           final data = sequence.build();
-          final mpqFile = mpqArchive.createFile(
-              fileName,
-              DateTime.now().millisecondsSinceEpoch ~/ 1000,
-              data.length,
-              0,
-              MPQ_FILE_COMPRESS);
-          mpqFile.write(data, data.length, MPQ_COMPRESSION_ZLIB);
-          mpqFile.finish();
+          arcFile.addFile(fileName, data);
           params.item3.send(1);
         }
       } else if (entry.value is CustomTexturesEntry) {
@@ -262,21 +248,13 @@ Future<void> generateOTR(
             continue;
           }
 
-          final mpqFile = mpqArchive.createFile(
-              texture.item1,
-              DateTime.now().millisecondsSinceEpoch ~/ 1000,
-              texture.item2!.length,
-              0,
-              MPQ_FILE_COMPRESS);
-          mpqFile.write(
-              texture.item2!, texture.item2!.length, MPQ_COMPRESSION_ZLIB);
-          mpqFile.finish();
+          arcFile.addFile(texture.item1, texture.item2!);
         }
       }
     }
 
     params.item3.send(true);
-    mpqArchive.close();
+    arcFile.close();
   } on StormLibException catch (e) {
     log(e.message);
   }
@@ -296,8 +274,8 @@ Future<Tuple2<String, Uint8List?>> processTextureEntry(
   return Tuple2((params.item3 ? 'alt/' : '') + fileName, data);
 }
 
-Future<Uint8List?> processJPEG(pair, String textureName) async {
-  final Uint8List imageData = await pair.item1.readAsBytes();
+Future<Uint8List?> processJPEG(Tuple2<File, TextureManifestEntry> pair, String textureName) async {
+  final imageData = await pair.item1.readAsBytes();
   final image = decodeJpg(imageData);
 
   if (image == null) {
@@ -330,8 +308,8 @@ Future<Uint8List?> processPNG(
     return null;
   }
 
-  texture.textureType = pair.item2.textureType;
-  texture.isPalette = image.hasPalette &&
+  texture..textureType = pair.item2.textureType
+  ..isPalette = image.hasPalette &&
       (texture.textureType == TextureType.Palette4bpp ||
           texture.textureType == TextureType.Palette8bpp);
 

@@ -10,6 +10,7 @@ import 'package:flutter_storm/flutter_storm.dart';
 import 'package:flutter_storm/flutter_storm_defines.dart';
 import 'package:image/image.dart';
 import 'package:path/path.dart' as path;
+import 'package:retro/arc/arc.dart';
 import 'package:retro/models/texture_manifest_entry.dart';
 import 'package:retro/otr/resource.dart';
 import 'package:retro/otr/resource_type.dart';
@@ -72,7 +73,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
 
   Future<void> onSelectOTR() async {
     final result = await FilePicker.platform.pickFiles(
-        allowMultiple: true, type: FileType.custom, allowedExtensions: ['otr']);
+        allowMultiple: true, type: FileType.custom, allowedExtensions: ['otr', 'o2r']);
     if (result != null && result.files.isNotEmpty) {
       // save paths filtering out nulls
       selectedOTRPaths = result.paths.whereType<String>().toList();
@@ -169,8 +170,8 @@ Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(
     return null;
   }
 
-  final manifestContents = await manifestFile.readAsString();
-  Map<String, dynamic> manifest = jsonDecode(manifestContents);
+  String manifestContents = await manifestFile.readAsString();
+  Map<String, dynamic> manifest = json.decode(manifestContents) as Map<String, dynamic>;
 
   // find all images in folder
   final supportedExtensions = <String>['.png', '.jpeg', '.jpg'];
@@ -234,53 +235,14 @@ Future<HashMap<String, TextureManifestEntry>?> processOTR(
 
     for (final otrPath in params.item1) {
       log('Processing OTR: $otrPath');
-      MPQArchive? mpqArchive = MPQArchive.open(otrPath, 0, MPQ_OPEN_READ_ONLY);
+      final arcFile = Arc(otrPath);
 
-      final hFind = FileFindResource();
-      mpqArchive.findFirstFile('*', hFind, null);
-
-      // process first file
-      final fileName = hFind.fileName();
-      await processFile(fileName!, mpqArchive,
-          '${params.item2}/$otrNameForOutputDirectory/$fileName',
-          (TextureManifestEntry entry) {
-        processedFiles[fileName] = entry;
-      });
-
-      do {
-        try {
-          mpqArchive.findNextFile(hFind);
-          fileFound = true;
-
-          final fileName = hFind.fileName();
-          if (fileName == null ||
-              fileName == SIGNATURE_NAME ||
-              fileName == LISTFILE_NAME ||
-              fileName == ATTRIBUTES_NAME) {
-            continue;
-          }
-
-          log('Processing file: $fileName');
-          final processed = await processFile(fileName, mpqArchive,
-              '${params.item2}/$otrNameForOutputDirectory/$fileName',
-              (TextureManifestEntry entry) {
-            processedFiles[fileName] = entry;
-          });
-
-          if (!processed) {
-            continue;
-          }
-        } on StormLibException catch (e) {
-          log('Got a StormLib error: ${e.message}');
-          fileFound = false;
-        } on Exception catch (e) {
-          log('Got an error: $e');
-          fileFound = false;
-        }
-      } while (fileFound);
-
-      hFind.close();
-      mpqArchive.close();
+      await arcFile.listItems(onFile: (String fileName, Uint8List data) async {
+        await processFile(fileName, data, '${params.item2}/$otrNameForOutputDirectory/$fileName', (TextureManifestEntry entry) {
+          processedFiles[fileName] = entry;
+        });
+      },);
+      arcFile.close();
     }
 
     return processedFiles;
@@ -290,62 +252,48 @@ Future<HashMap<String, TextureManifestEntry>?> processOTR(
   }
 }
 
-Future<bool> processFile(String fileName, MPQArchive mpqArchive,
-    String outputPath, Function onProcessed) async {
-  try {
-    final file = mpqArchive.openFileEx(fileName, 0);
-    final fileSize = file.size();
-    final fileData = file.read(fileSize);
+Future<bool> processFile(String fileName, Uint8List data, String outputPath, Function onProcessed) async {
+  final resource = Resource.empty()
+    ..rawLoad = true
+    ..open(data);
 
-    final resource = Resource.empty();
-    resource.rawLoad = true;
-    resource.open(fileData);
-
-    if (![ResourceType.texture, ResourceType.sohBackground]
-        .contains(resource.resourceType)) {
-      return false;
-    }
-
-    String? hash;
-
-    switch (resource.resourceType) {
-      case ResourceType.texture:
-        final texture = Texture.empty();
-        texture.open(fileData);
-
-        final pngBytes = texture.toPNGBytes();
-        final textureFile = File('$outputPath.png');
-        await textureFile.create(recursive: true);
-        await textureFile.writeAsBytes(pngBytes);
-        final textureBytes = await textureFile.readAsBytes();
-        hash = sha256.convert(textureBytes).toString();
-        onProcessed(TextureManifestEntry(
-            hash, texture.textureType, texture.width, texture.height));
-        break;
-      case ResourceType.sohBackground:
-        final background = Background.empty();
-        background.open(fileData);
-
-        log('Found JPEG background: $fileName!');
-        final textureFile = File('$outputPath.jpg');
-        final image = decodeJpg(background.texData)!;
-        await textureFile.create(recursive: true);
-        await textureFile.writeAsBytes(background.texData);
-        hash = sha256.convert(background.texData).toString();
-        onProcessed(TextureManifestEntry(
-            hash, TextureType.JPEG32bpp, image.width, image.height));
-        break;
-      default:
-        return false;
-    }
-
-    return true;
-  } on StormLibException catch (e) {
-    log('Failed to find next file: ${e.message}');
-    return false;
-  } catch (e) {
-    // Not a texture
-    print(e);
+  if (![ResourceType.texture, ResourceType.sohBackground]
+      .contains(resource.resourceType)) {
     return false;
   }
+
+  String? hash;
+
+  switch (resource.resourceType) {
+    case ResourceType.texture:
+      final texture = Texture.empty();
+      texture.open(data);
+
+      final pngBytes = texture.toPNGBytes();
+      final textureFile = File('$outputPath.png');
+      await textureFile.create(recursive: true);
+      await textureFile.writeAsBytes(pngBytes);
+      final textureBytes = await textureFile.readAsBytes();
+      hash = sha256.convert(textureBytes).toString();
+      onProcessed(TextureManifestEntry(
+          hash, texture.textureType, texture.width, texture.height));
+      break;
+    case ResourceType.sohBackground:
+      final background = Background.empty();
+      background.open(data);
+
+      log('Found JPEG background: $fileName!');
+      final textureFile = File('$outputPath.jpg');
+      final image = decodeJpg(background.texData)!;
+      await textureFile.create(recursive: true);
+      await textureFile.writeAsBytes(background.texData);
+      hash = sha256.convert(background.texData).toString();
+      onProcessed(TextureManifestEntry(
+          hash, TextureType.JPEG32bpp, image.width, image.height));
+      break;
+    default:
+      return false;
+  }
+
+  return true;
 }
