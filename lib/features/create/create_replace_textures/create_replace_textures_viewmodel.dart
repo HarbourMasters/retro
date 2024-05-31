@@ -236,6 +236,7 @@ Future<HashMap<String, TextureManifestEntry>?> processOTR(
     for (final otrPath in params.item1) {
       log('Processing OTR: $otrPath');
       final arcFile = Arc(otrPath);
+
       await arcFile.listItems(onFile: (String fileName, Uint8List data) async {
         await processFile(fileName, data, '${params.item2}/$otrNameForOutputDirectory/$fileName', (TextureManifestEntry entry) {
           processedFiles[fileName] = entry;

@@ -127,8 +127,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "6ca343b9c37cc46fb3a99f49bf7116fbc7f674a1"
-      resolved-ref: "6ca343b9c37cc46fb3a99f49bf7116fbc7f674a1"
+      ref: "7cfb8ef3560f3ff3bdda64f1a283fc06f4325dfc"
+      resolved-ref: "7cfb8ef3560f3ff3bdda64f1a283fc06f4325dfc"
       url: "https://github.com/HarbourMasters/flutter_storm.git"
     source: git
     version: "0.0.1"

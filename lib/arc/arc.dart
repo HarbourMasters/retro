@@ -54,13 +54,25 @@ class Arc {
       final fileName = hFind.fileName();
       if (fileName != null && fileName != '(signature)' && fileName != '(listfile)' && fileName != '(attributes)') {
         files.add(fileName);
+        if(onFile != null) {
+          final file = mpqArchive.openFileEx(fileName, 0);
+          await onFile(fileName, file.read(file.size()));
+        }
       }
 
       do {
         try {
           mpqArchive.findNextFile(hFind);
           fileFound = true;
+
           final fileName = hFind.fileName();
+          if (fileName == null ||
+              fileName == SIGNATURE_NAME ||
+              fileName == LISTFILE_NAME ||
+              fileName == ATTRIBUTES_NAME) {
+            continue;
+          }
+
           log('File name: $fileName');
           if (fileName != null && fileName != '(signature)' && fileName != '(listfile)' && fileName != '(attributes)') {
             files.add(fileName);
@@ -72,11 +84,14 @@ class Arc {
         } on StormLibException catch (e) {
           log('Failed to find next file: ${e.message}');
           fileFound = false;
+          break;
+        } on Exception catch (e) {
+          log('Got an error: $e');
+          fileFound = false;
         }
       } while (fileFound);
 
       hFind.close();
-      mpqArchive.close();
       return files;
     } on StormLibException catch (e) {
       log('Failed to set locale: ${e.message}');
