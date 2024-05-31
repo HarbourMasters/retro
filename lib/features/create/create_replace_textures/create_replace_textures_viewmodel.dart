@@ -169,8 +169,8 @@ Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(
     return null;
   }
 
-  final manifestContents = await manifestFile.readAsString();
-  Map<String, dynamic> manifest = jsonDecode(manifestContents);
+  String manifestContents = await manifestFile.readAsString();
+  Map<String, dynamic> manifest = json.decode(manifestContents) as Map<String, dynamic>;
 
   // find all images in folder
   final supportedExtensions = <String>['.png', '.jpeg', '.jpg'];

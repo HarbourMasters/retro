@@ -1,8 +1,12 @@
+import 'dart:collection';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:retro/features/create/create_finish/create_finish_viewmodel.dart';
 import 'package:retro/features/create/create_replace_textures/create_replace_textures_viewmodel.dart';
-import 'package:retro/utils/language_ext.dart';
+import 'package:retro/models/texture_manifest_entry.dart';
+import 'package:tuple/tuple.dart';
 
 // ignore: non_constant_identifier_names
 Widget FolderContent(
@@ -51,13 +55,14 @@ Widget FolderContent(
                 prototypeItem: const SizedBox(width: 0, height: 20),
                 itemBuilder: (context, index) {
                   final key = viewModel.processedFiles.keys.elementAt(index);
+                  // ignore: avoid_dynamic_calls
                   return Text("${finishViewModel.prependAlt ? 'alt/' : ''}$key (${viewModel.processedFiles[key]?.length ?? 0} tex)");
                 },),),),
       Padding(
         padding: const EdgeInsets.only(top: 20),
         child: ElevatedButton(
           onPressed: viewModel.processedFiles.isNotEmpty ? () {
-            finishViewModel.onAddCustomTextureEntry(cast(viewModel.processedFiles));
+            finishViewModel.onAddCustomTextureEntry(viewModel.processedFiles as HashMap<String, List<Tuple2<File, TextureManifestEntry>>>);
             viewModel.reset();
             Navigator.of(context).popUntil(ModalRoute.withName('/create_selection'));
           } : null,

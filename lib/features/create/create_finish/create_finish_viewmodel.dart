@@ -40,7 +40,7 @@ class CreateFinishViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  onTogglePrependAlt(newPrependAltValue) async {
+  Future<void> onTogglePrependAlt(bool newPrependAltValue) async {
     prependAlt = newPrependAltValue;
     notifyListeners();
   }
@@ -296,8 +296,8 @@ Future<Tuple2<String, Uint8List?>> processTextureEntry(
   return Tuple2((params.item3 ? 'alt/' : '') + fileName, data);
 }
 
-Future<Uint8List?> processJPEG(pair, String textureName) async {
-  final Uint8List imageData = await pair.item1.readAsBytes();
+Future<Uint8List?> processJPEG(Tuple2<File, TextureManifestEntry> pair, String textureName) async {
+  final imageData = await pair.item1.readAsBytes();
   final image = decodeJpg(imageData);
 
   if (image == null) {
@@ -330,8 +330,8 @@ Future<Uint8List?> processPNG(
     return null;
   }
 
-  texture.textureType = pair.item2.textureType;
-  texture.isPalette = image.hasPalette &&
+  texture..textureType = pair.item2.textureType
+  ..isPalette = image.hasPalette &&
       (texture.textureType == TextureType.Palette4bpp ||
           texture.textureType == TextureType.Palette8bpp);
 
