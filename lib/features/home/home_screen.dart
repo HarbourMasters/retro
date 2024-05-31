@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_gradient_animation_text/flutter_gradient_animation_text.dart';
 import 'package:provider/provider.dart';
 import 'package:retro/features/home/home_viewmodel.dart';
 import 'package:retro/ui/components/option_card.dart';
@@ -25,6 +27,28 @@ class _HomeScreenState extends State<HomeScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(i18n.appTitle, style: textTheme.displaySmall),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Brought to you by', style: textTheme.titleSmall),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4),
+                child: GradientAnimationText(
+                  text: Text('HM64'),
+                  colors: [
+                      Colors.indigo,
+                      Colors.blue,
+                      Colors.green,
+                      Colors.yellow,
+                      Colors.orange,
+                      Colors.red,
+                  ],
+                  duration: const Duration(seconds: 2),
+                ),
+              ),
+              const Icon(Icons.favorite, color: Colors.red),
+            ],
+          ),
           const SizedBox(height: 40),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

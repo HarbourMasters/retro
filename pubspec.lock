@@ -94,6 +94,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_gradient_animation_text:
+    dependency: "direct main"
+    description:
+      name: flutter_gradient_animation_text
+      sha256: "0e144ecfae2c77da8444a56fcd17b2c6490e4b22a6fd32668fc581202ba02e91"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.2"
   flutter_lints:
     dependency: "direct dev"
     description:

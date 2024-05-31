@@ -54,6 +54,7 @@ dependencies:
   intl: ^0.18.1
   path: ^1.8.2
   archive: ^3.6.0
+  flutter_gradient_animation_text: ^1.0.2
 
 flutter_icons:
   windows:
