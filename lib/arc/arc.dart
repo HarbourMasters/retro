@@ -111,17 +111,21 @@ class Arc {
     return files;
   }
 
-  void _addMPQFile(String path, Uint8List data) {
+  void _addMPQFile(String path, Uint8List data, bool compress) {
     final mpqArchive = handle as MPQArchive;
     final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-    mpqArchive.createFile(path, timestamp, data.length, 0, 0)
-      ..write(data, data.length, MPQ_COMPRESSION_ZLIB)
+    mpqArchive.createFile(path, timestamp, data.length, 0, compress ? MPQ_FILE_COMPRESS : 0)
+      ..write(data, data.length, compress ? MPQ_COMPRESSION_ZLIB : 0)
       ..finish();
   }
 
-  void _addZipFile(String path, Uint8List data) {
+  void _addZipFile(String path, Uint8List data, bool compress) {
     final archive = handle as Archive;
-    archive.addFile(ArchiveFile(path, data.length, data));
+    if(compress) {
+      archive.addFile(ArchiveFile(path, data.length, data));
+    } else {
+      archive.addFile(ArchiveFile.noCompress(path, data.length, data));
+    }
   }
 
   void _closeMPQ() {
@@ -147,11 +151,11 @@ class Arc {
     }
   }
 
-  void addFile(String path, Uint8List data) {
+  void addFile(String path, Uint8List data, { bool compress = false }) {
     if(handle is MPQArchive) {
-      return _addMPQFile(path, data);
+      return _addMPQFile(path, data, compress);
     } else {
-      return _addZipFile(path, data);
+      return _addZipFile(path, data, compress);
     }
   }
 

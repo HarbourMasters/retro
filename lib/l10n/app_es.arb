@@ -26,6 +26,7 @@
     "otrContentView_processing": "Procesando...",
     "folderContentView_customTexturePath": "Carpeta de reemplazos de texturas personalizadas",
     "folderContentView_prependAltToggle": "Agregar en `alt/`. Esto permitirá a los jugadores cambiar los recursos durante el juego.",
+    "folderContentView_compressToggle": "Comprimir archivos, esto puede reducir el tamaño del OTR / O2R",
     "folderContentView_selectButton": "Seleccionar",
     "folderContentView_stageTextures": "Agregar texturas",
     "createCustomSequences_addCustomSequences": "Agregar secuencias personalizadas",
