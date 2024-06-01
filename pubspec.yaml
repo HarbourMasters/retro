@@ -50,7 +50,7 @@ dependencies:
       ref: 7cfb8ef3560f3ff3bdda64f1a283fc06f4325dfc
   tuple: ^2.0.1
   crypto: ^3.0.2
-  image: ^4.0.7
+  image: 4.0.7
   intl: ^0.18.1
   path: ^1.8.2
   archive: ^3.6.0
