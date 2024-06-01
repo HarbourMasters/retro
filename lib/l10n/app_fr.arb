@@ -26,6 +26,7 @@
     "otrContentView_processing": "Traitement en cours...",
     "folderContentView_customTexturePath": "Dossier de remplacements de textures personnalisées",
     "folderContentView_prependAltToggle": "Ajouter un dossier `alt/` à votre OTR / O2R. Permet aux joueurs d'activer ou désactiver les assets en jeu.",
+    "folderContentView_compressToggle": "Compresser les fichiers. Cela réduira la taille de l'OTR / O2R.",
     "folderContentView_selectButton": "Sélectionner",
     "folderContentView_stageTextures": "Indexer les textures",
     "createCustomSequences_addCustomSequences": "Ajouter des séquences personnalisées",

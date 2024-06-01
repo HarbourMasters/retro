@@ -26,6 +26,7 @@
     "otrContentView_processing": "Processing...",
     "folderContentView_customTexturePath": "Custom Texture Replacements Folder",
     "folderContentView_prependAltToggle": "Prepend `alt/`. This will allow players to toggle these assets on-the-fly in game.",
+    "folderContentView_compressToggle": "Compress Files. This will reduce the size of the OTR / O2R.",
     "folderContentView_selectButton": "Select",
     "folderContentView_stageTextures": "Stage Textures",
     "createCustomSequences_addCustomSequences": "Add Custom Sequences",

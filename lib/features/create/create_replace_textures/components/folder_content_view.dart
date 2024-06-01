@@ -33,6 +33,7 @@ Widget FolderContent(
             style: ElevatedButton.styleFrom(minimumSize: const Size(100, 50)),
             child: Text(i18n.folderContentView_selectButton),)
       ],),
+      const SizedBox(height: 10),
       Row(children: [
         Switch(
           activeColor: Colors.blue,
@@ -42,6 +43,16 @@ Widget FolderContent(
           },
         ),
         Text(i18n.folderContentView_prependAltToggle),
+      ],),
+      Row(children: [
+        Switch(
+          activeColor: Colors.blue,
+          value: finishViewModel.compressFiles,
+          onChanged: (value) {
+            finishViewModel.onToggleCompressFiles(value);
+          },
+        ),
+        Text(i18n.folderContentView_compressToggle),
       ],),
       if (viewModel.processedFiles.isEmpty && viewModel.isProcessing == false)
         const Spacer(),

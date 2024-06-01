@@ -26,6 +26,7 @@
     "otrContentView_processing": "Verarbeite...",
     "folderContentView_customTexturePath": "Benutzeridentifizierter Austausch-Texturen Ordner",
     "folderContentView_prependAltToggle": "Füge einen `alt/` Dies ermöglicht es den Spielern, Assets im Spiel zu aktivieren oder zu deaktivieren.",
+    "folderContentView_compressToggle": "Dateien komprimieren. Dadurch wird die Größe der OTR / O2R reduziert.",
     "folderContentView_selectButton": "Wähle",
     "folderContentView_stageTextures": "Texturen indexieren",
     "createCustomSequences_addCustomSequences": "Füge benutzeridentifizierte Sequenzen hinzu",

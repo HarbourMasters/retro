@@ -28,6 +28,7 @@ class CreateFinishViewModel with ChangeNotifier {
   bool isEphemeralBarExpanded = false;
   bool isGenerating = false;
   bool prependAlt = false;
+  bool compressFiles = false;
   int totalFiles = 0;
   int filesProcessed = 0;
 
@@ -43,6 +44,11 @@ class CreateFinishViewModel with ChangeNotifier {
 
   Future<void> onTogglePrependAlt(bool newPrependAltValue) async {
     prependAlt = newPrependAltValue;
+    notifyListeners();
+  }
+
+  Future<void> onToggleCompressFiles(bool newCompressFilesValue) async {
+    compressFiles = newCompressFilesValue;
     notifyListeners();
   }
 
@@ -166,7 +172,7 @@ class CreateFinishViewModel with ChangeNotifier {
 
     isGenerating = true;
     notifyListeners();
-    await createGenerationIsolate(entries, outputFile, prependAlt);
+    await createGenerationIsolate(entries, outputFile, prependAlt, compressFiles);
     // await compute(generateOTR, Tuple2(entries, outputFile));
     isGenerating = false;
     notifyListeners();
@@ -176,11 +182,11 @@ class CreateFinishViewModel with ChangeNotifier {
   }
 
   Future createGenerationIsolate(HashMap<String, StageEntry> entries,
-      String outputFile, bool shouldPrependAlt) async {
+      String outputFile, bool shouldPrependAlt, bool shouldCompress) async {
     final receivePort = ReceivePort();
     await Isolate.spawn(
       generateOTR,
-      Tuple4(entries, outputFile, receivePort.sendPort, shouldPrependAlt),
+      Tuple5(entries, outputFile, receivePort.sendPort, shouldPrependAlt, shouldCompress),
       onExit: receivePort.sendPort,
       onError: receivePort.sendPort,
     );
@@ -212,8 +218,9 @@ class CreateFinishViewModel with ChangeNotifier {
   }
 }
 
-Future<void> generateOTR(Tuple4<HashMap<String, StageEntry>, String, SendPort, bool> params) async {
+Future<void> generateOTR(Tuple5<HashMap<String, StageEntry>, String, SendPort, bool, bool> params) async {
   try {
+    final compress = params.item5;
     final arcFile = Arc(params.item2);
 
     for (final entry in params.item1.entries) {
@@ -222,7 +229,7 @@ Future<void> generateOTR(Tuple4<HashMap<String, StageEntry>, String, SendPort, b
           final fileData = await file.readAsBytes();
           final fileName =
               "${entry.key}/${p.normalize(file.path).split("/").last}";
-          arcFile.addFile(fileName, fileData);
+          arcFile.addFile(fileName, fileData, compress: compress);
           params.item3.send(1);
         }
       } else if (entry.value is CustomSequencesEntry) {
@@ -230,7 +237,7 @@ Future<void> generateOTR(Tuple4<HashMap<String, StageEntry>, String, SendPort, b
           final sequence = await compute(Sequence.fromSeqFile, pair);
           final fileName = '${entry.key}/${sequence.path}';
           final data = sequence.build();
-          arcFile.addFile(fileName, data);
+          arcFile.addFile(fileName, data, compress: compress);
           params.item3.send(1);
         }
       } else if (entry.value is CustomTexturesEntry) {
@@ -248,7 +255,7 @@ Future<void> generateOTR(Tuple4<HashMap<String, StageEntry>, String, SendPort, b
             continue;
           }
 
-          arcFile.addFile(texture.item1, texture.item2!);
+          arcFile.addFile(texture.item1, texture.item2!, compress: compress);
         }
       }
     }
