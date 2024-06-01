@@ -151,7 +151,7 @@ class Arc {
     }
   }
 
-  void addFile(String path, Uint8List data, { bool compress = true }) {
+  void addFile(String path, Uint8List data, { bool compress = false }) {
     if(handle is MPQArchive) {
       return _addMPQFile(path, data, compress);
     } else {
