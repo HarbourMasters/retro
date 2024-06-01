@@ -146,10 +146,10 @@ packages:
     dependency: "direct main"
     description:
       name: image
-      sha256: "2237616a36c0d69aef7549ab439b833fb7f9fb9fc861af2cc9ac3eedddd69ca8"
+      sha256: "30e8694b58d61f67ce042b399f2abb44b0dd3f0de10342eeb737b7d9cdb69643"
       url: "https://pub.dev"
     source: hosted
-    version: "4.2.0"
+    version: "4.0.7"
   intl:
     dependency: "direct main"
     description:
