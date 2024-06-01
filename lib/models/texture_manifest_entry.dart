@@ -4,7 +4,7 @@ class TextureManifestEntry {
 
   TextureManifestEntry(this.hash, this.textureType, this.textureWidth, this.textureHeight);
 
-  factory TextureManifestEntry.fromJson(dynamic json) {
+  factory TextureManifestEntry.fromJson(Map<String, dynamic> json) {
     return TextureManifestEntry(
       json['hash'] as String,
       TextureType.values[json['textureType'] as int],
