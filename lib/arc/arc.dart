@@ -4,7 +4,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:archive/archive.dart';
+import 'package:archive/archive_io.dart';
 import 'package:flutter_storm/flutter_storm.dart';
 import 'package:flutter_storm/flutter_storm_defines.dart';
 import 'package:retro/utils/log.dart';
@@ -14,8 +14,8 @@ enum ArcMode {
 }
 
 class Arc {
+
   static ZipDecoder zdec = ZipDecoder();
-  static ZipEncoder zenc = ZipEncoder();
 
   dynamic handle;
   String path;
@@ -36,7 +36,7 @@ class Arc {
         if(file.existsSync()) {
           handle = zdec.decodeBytes(file.readAsBytesSync());
         } else {
-          handle = Archive();
+          handle = ZipFileEncoder()..createWithBuffer(OutputFileStream(path));
         }
         break;
     }
@@ -100,6 +100,9 @@ class Arc {
   }
 
   Future<List<String>?> _listZipFiles({ FutureOr<void> Function(String, Uint8List)? onFile }) async {
+    if(handle is! Archive) {
+      return [];
+    }
     final files = <String>[];
     final archive = handle as Archive;
     for (final file in archive) {
@@ -120,11 +123,11 @@ class Arc {
   }
 
   void _addZipFile(String path, Uint8List data, bool compress) {
-    final archive = handle as Archive;
+    final archive = handle as ZipFileEncoder;
     if(compress) {
-      archive.addFile(ArchiveFile(path, data.length, data));
+      archive.addArchiveFile(ArchiveFile(path, data.length, data));
     } else {
-      archive.addFile(ArchiveFile.noCompress(path, data.length, data));
+      archive.addArchiveFile(ArchiveFile.noCompress(path, data.length, data));
     }
   }
 
@@ -134,13 +137,12 @@ class Arc {
   }
 
   void _closeZip() {
-    final archive = handle as Archive;
-    final file = File(path);
-    final fileBytes = zenc.encode(archive);
-    if(fileBytes == null) {
-      throw Exception('Failed to encode archive');
+    if(handle is! ZipFileEncoder) {
+      return;
     }
-    file.writeAsBytesSync(fileBytes);
+
+    final archive = handle as ZipFileEncoder;
+    archive.close();
   }
 
   Future<List<String>?> listItems({ FutureOr<void> Function(String, Uint8List)? onFile }) {

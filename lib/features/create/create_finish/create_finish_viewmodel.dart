@@ -315,10 +315,8 @@ Future<Uint8List?> processPNG(
     return null;
   }
 
-  texture..textureType = pair.item2.textureType
-  ..isPalette = image.hasPalette &&
-      (texture.textureType == TextureType.Palette4bpp ||
-          texture.textureType == TextureType.Palette8bpp);
+  texture.textureType = pair.item2.textureType;
+  texture.isPalette = image.hasPalette && (texture.textureType == TextureType.Palette4bpp || texture.textureType == TextureType.Palette8bpp);
 
   final isNotOriginalSize = pair.item2.textureWidth != image.width ||
       pair.item2.textureHeight != image.height;
