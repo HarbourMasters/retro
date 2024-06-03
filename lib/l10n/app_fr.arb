@@ -48,5 +48,18 @@
     "inspectOtrScreen_inspectOtrSubtitle": "Inspecter le contenu d'un OTR / O2R",
     "inspectOtrScreen_noOtrSelected": "Aucun OTR / O2R sélectionné",
     "inspectOtrScreen_selectButton": "Sélectionner",
-    "inspectOtrScreen_search": "Rechercher"
+    "inspectOtrScreen_search": "Rechercher",
+
+    "gameSelectionScreen_title": "Outils Spécifiques au Jeu",
+    "gameSelectionScreen_subtitle": "Sélectionnez le jeu pour lequel vous souhaitez créer une sélection",
+
+    "gameSelectionScreenSoh_title": "Ship of Harkinian",
+    "gameSelectionScreenSoh_subtitle": "Sélectionnez l'outil que vous souhaitez utiliser",
+
+    "sohCreateDebugFontScreen_title": "Générateur de Police de Débogage",
+    "sohCreateDebugFontScreen_subtitle": "Convertit et génère des polices pour le sélecteur de cartes du soh",
+
+    "gameSelectionScreen2Ship_title": "2 Ship 2 Harkinian",
+    "gameSelectionScreen2Ship_subtitle": "Sélectionnez l'outil que vous souhaitez utiliser",
+    "gameSelection2ShipComingSoon_text": "Les outils 2 Ship 2 Harkinian arrivent bientôt!"
 }

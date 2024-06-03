@@ -48,5 +48,18 @@
     "inspectOtrScreen_inspectOtrSubtitle": "Inspecteer de inhoud van een OTR / O2R",
     "inspectOtrScreen_noOtrSelected": "Geen OTR / O2R geselecteerd",
     "inspectOtrScreen_selectButton": "Selecteer",
-    "inspectOtrScreen_search": "Zoek"
+    "inspectOtrScreen_search": "Zoek",
+
+    "gameSelectionScreen_title": "Specifieke Tools",
+    "gameSelectionScreen_subtitle": "Selecteer het spel waarvoor je een selectie wilt maken",
+
+    "gameSelectionScreenSoh_title": "Ship of Harkinian",
+    "gameSelectionScreenSoh_subtitle": "Selecteer de tool die je wilt gebruiken",
+
+    "sohCreateDebugFontScreen_title": "Debug Lettertype Genereren",
+    "sohCreateDebugFontScreen_subtitle": "Genereer debug-lettertypen voor de soh map selector",
+
+    "gameSelectionScreen2Ship_title": "2 Ship 2 Harkinian",
+    "gameSelectionScreen2Ship_subtitle": "Selecteer de tool die je wilt gebruiken",
+    "gameSelection2ShipComingSoon_text": "Tools voor 2 Ship 2 Harkinian komen binnenkort!"
 }
