@@ -31,20 +31,22 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> getRetroVersion() async {
     const url = 'https://raw.githubusercontent.com/HarbourMasters/retro/main/release.json';
 
-    final response = await http.get(
-      Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    );
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      );
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      setState(() {
-        versionCode = data['version'] as int;
-      });
-    } else {
-      throw Exception('Failed to load data');
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          versionCode = data['version'] as int;
+        });
+      }
+    } catch (e) {
+      print('Error fetching version code: $e');
     }
   }
 
