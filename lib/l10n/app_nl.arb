@@ -6,7 +6,7 @@
     "home_inspectOptionSubtitle": "Inspecteer de inhoud van een OTR / O2R",
     "createSelectionScreen_title": "Selectie maken",
     "createSelectionScreen_subtitle": "Selecteer het type selectie dat je wilt maken",
-    "createSelectionScreen_nonHdTex": "Vervang textures (niet-HD)",
+    "createSelectionScreen_nonHdTex": "Vervang textures",
     "createSelectionScreen_customSequences": "Aangepaste composities",
     "createSelectionScreen_custom": "Aangepast",
     "createReplaceTexturesScreen_Option": "Vervang textures",
@@ -61,5 +61,8 @@
 
     "gameSelectionScreen2Ship_title": "2 Ship 2 Harkinian",
     "gameSelectionScreen2Ship_subtitle": "Selecteer de tool die je wilt gebruiken",
-    "gameSelection2ShipComingSoon_text": "Tools voor 2 Ship 2 Harkinian komen binnenkort!"
+    "gameSelection2ShipComingSoon_text": "Tools voor 2 Ship 2 Harkinian komen binnenkort!",
+
+    "extractModsWarning_part1": "Bestaande mods extraheren",
+    "extractModsWarning_part2": "Het zou niet kunnen werken."
 }

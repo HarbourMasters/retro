@@ -30,6 +30,41 @@ class _CreateSelectionScreenState extends State<CreateSelectionScreen> {
                 OptionCard(
                   text: i18n.createSelectionScreen_nonHdTex,
                   icon: Icons.texture,
+                  overlay: Positioned(
+                    top: 10,
+                    left: 10,
+                    child: Container(
+                      width: 190,
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: Colors.yellow[800]!.withOpacity(0.7),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.warning_amber_rounded,
+                                color: Colors.white,
+                                size: 15,
+                              ),
+                              const SizedBox(width: 2),
+                              Text(
+                                i18n.extractModsWarning_part1,
+                                style: const TextStyle(color: Colors.white, fontSize: 10.5),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            i18n.extractModsWarning_part2,
+                            style: const TextStyle(color: Colors.white, fontSize: 10.5),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                   onTap: () {
                     Navigator.of(context).pushNamed('/create_replace_textures');
                   },

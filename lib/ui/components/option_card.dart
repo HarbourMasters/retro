@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class OptionCard extends StatefulWidget {
   const OptionCard({
     super.key,
     required this.text,
     required this.icon,
+    this.overlay,
     this.onMouseEnter,
     this.onMouseLeave,
     required this.onTap,
@@ -13,6 +15,7 @@ class OptionCard extends StatefulWidget {
   final IconData icon;
   final Function? onMouseEnter;
   final Function? onMouseLeave;
+  final Widget? overlay;
   final void Function() onTap;
 
   @override
@@ -28,49 +31,54 @@ class _OptionCardState extends State<OptionCard> {
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
-    return Column(
+    return Stack(
       children: [
-        MouseRegion(
-          onEnter: (event) {
-            setState(() {
-              isHovered = true;
-            });
+        Column(
+          children: [
+            MouseRegion(
+              onEnter: (event) {
+                setState(() {
+                  isHovered = true;
+                });
 
-            if (widget.onMouseEnter != null) {
-              widget.onMouseEnter!();
-            }
-          },
-          onExit: (event) {
-            setState(() {
-              isHovered = false;
-            });
-            if (widget.onMouseLeave != null) {
-              widget.onMouseLeave!();
-            }
-          },
-          child: GestureDetector(
-            onTap: widget.onTap,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: isHovered ? Colors.white24 : Colors.white12,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(80),
-                child: Icon(
-                  widget.icon,
-                  size: 50,
+                if (widget.onMouseEnter != null) {
+                  widget.onMouseEnter!();
+                }
+              },
+              onExit: (event) {
+                setState(() {
+                  isHovered = false;
+                });
+                if (widget.onMouseLeave != null) {
+                  widget.onMouseLeave!();
+                }
+              },
+              child: GestureDetector(
+                onTap: widget.onTap,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: isHovered ? Colors.white24 : Colors.white12,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(80),
+                    child: Icon(
+                      widget.icon,
+                      size: 50,
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
+            const SizedBox(height: 10),
+            Text(
+              widget.text,
+              style: textTheme.bodyLarge?.copyWith(color: colorScheme.onSurface.withOpacity(0.5)),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
-        const SizedBox(height: 10),
-        Text(
-          widget.text,
-          style: textTheme.bodyLarge?.copyWith(color: colorScheme.onSurface.withOpacity(0.5)),
-          textAlign: TextAlign.center,
-        ),
+        widget.overlay ?? const SizedBox(),
       ],
     );
   }

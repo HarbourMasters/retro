@@ -60,31 +60,29 @@ class Retro extends StatelessWidget {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        supportedLocales: const [
-          Locale('en', ''),
-          Locale('de', ''),
-          Locale('fr', ''),
-          Locale('es', ''),
-          Locale('nl', '')
-        ],
+        supportedLocales: const [Locale('en', ''), Locale('de', ''), Locale('fr', ''), Locale('es', ''), Locale('nl', '')],
         darkTheme: darkTheme(),
         theme: lightTheme(),
         themeMode: ThemeMode.dark,
         initialRoute: '/',
         builder: (context, child) {
-          return Overlay(initialEntries: [
-            OverlayEntry(
+          return Overlay(
+            initialEntries: [
+              OverlayEntry(
                 builder: (context) => ScaffoldMessenger(
                   child: Stack(
-                      children: [
-                        SizedBox(
-                            height: MediaQuery.of(context).size.height - 24,
-                            child: child!,),
-                        const Positioned(bottom: 0, child: EphemeralBar()),
-                      ],
-                    ),
-                ),)
-          ],);
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height - 24,
+                        child: child,
+                      ),
+                      const Positioned(bottom: 0, child: EphemeralBar()),
+                    ],
+                  ),
+                ),
+              )
+            ],
+          );
         },
         routes: {
           '/': (context) => const HomeScreen(),
@@ -96,9 +94,9 @@ class Retro extends StatelessWidget {
           '/view_otr': (context) => const InspectOTRScreen(),
           '/create_custom_sequences': (context) => const CreateCustomSequencesScreen(),
           '/create_replace_textures': (context) => const CreateReplaceTexturesScreen(),
-          '/debug_selection':(context) => const DebugSelectionScreen(),
-          '/debug_convert_textures':(context) => const DebugGeneratorFontsScreen(),
-          '/debug_generate_font':(context) => const DebugGeneratorFontScreen(),
+          '/debug_selection': (context) => const DebugSelectionScreen(),
+          '/debug_convert_textures': (context) => const DebugGeneratorFontsScreen(),
+          '/debug_generate_font': (context) => const DebugGeneratorFontScreen(),
         },
       ),
     );

@@ -61,5 +61,8 @@
 
     "gameSelectionScreen2Ship_title": "2 Ship 2 Harkinian",
     "gameSelectionScreen2Ship_subtitle": "Select the tool you want to use",
-    "gameSelection2ShipComingSoon_text": "2 Ship 2 Harkinian Tools are coming soon!"
+    "gameSelection2ShipComingSoon_text": "2 Ship 2 Harkinian Tools are coming soon!",
+
+    "extractModsWarning_part1": "Extracting existing mods",
+    "extractModsWarning_part2": "might not work."
 }
