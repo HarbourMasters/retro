@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_gradient_animation_text/flutter_gradient_animation_text.dart';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:retro/features/home/home_viewmodel.dart';
 import 'package:retro/ui/components/option_card.dart';
@@ -14,6 +17,37 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+
+  static DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+  String? hashCommit;
+  String? dateCommit;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(getHashCommit);
+  }
+
+  Future<void> getHashCommit(_) async {
+    const url = 'https://api.github.com/repos/HarbourMasters/retro/commits/main';
+
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      hashCommit = (data['sha'] as String).substring(0, 7);
+      dateCommit = formatter.format(DateTime.parse(data['commit']['committer']['date'] as String));
+      setState(() {});
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -80,9 +114,14 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           const SizedBox(height: 40),
-          Text(viewModel.focusedCardInfo,
-              style: textTheme.titleSmall
-                  ?.copyWith(color: colorScheme.onSurface.withOpacity(0.2)),),
+          Text(
+            '$hashCommit - main',
+            style: textTheme.titleSmall?.copyWith(color: colorScheme.onSurface.withOpacity(0.2)),
+          ),
+          Text(
+            '$dateCommit',
+            style: textTheme.titleSmall?.copyWith(color: colorScheme.onSurface.withOpacity(0.2)),
+          ),
         ],
       ),
     );

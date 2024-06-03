@@ -48,5 +48,21 @@
     "inspectOtrScreen_inspectOtrSubtitle": "Inspect the contents of an OTR / O2R",
     "inspectOtrScreen_noOtrSelected": "No OTR / O2R Selected",
     "inspectOtrScreen_selectButton": "Select",
-    "inspectOtrScreen_search": "Search"
+    "inspectOtrScreen_search": "Search",
+
+    "gameSelectionScreen_title": "Game Specific Tools",
+    "gameSelectionScreen_subtitle": "Select the game you want to create a selection for",
+
+    "gameSelectionScreenSoh_title": "Ship of Harkinian",
+    "gameSelectionScreenSoh_subtitle": "Select the tool you want to use",
+
+    "sohCreateDebugFontScreen_title": "Debug Font Converter",
+    "sohCreateDebugFontScreen_subtitle": "Convert and generate fonts for the soh map selector",
+
+    "gameSelectionScreen2Ship_title": "2 Ship 2 Harkinian",
+    "gameSelectionScreen2Ship_subtitle": "Select the tool you want to use",
+    "gameSelection2ShipComingSoon_text": "2 Ship 2 Harkinian Tools are coming soon!",
+
+    "gameSelectionScreenGhostship_title": "Ghostship",
+    "gameSelectionScreenStarship_title": "Starship"
 }

@@ -12,6 +12,9 @@ import 'package:retro/features/create/create_finish/create_finish_viewmodel.dart
 import 'package:retro/features/create/create_replace_textures/create_replace_textures_screen.dart';
 import 'package:retro/features/create/create_replace_textures/create_replace_textures_viewmodel.dart';
 import 'package:retro/features/create/create_selection/create_selection_screen.dart';
+import 'package:retro/features/create/create_selection/games/games_selection_screen.dart';
+import 'package:retro/features/create/create_selection/games/soh/2ship_screen.dart';
+import 'package:retro/features/create/create_selection/games/soh/soh_screen.dart';
 import 'package:retro/features/debug/debug_convert_textures/debug_convert_textures_screen.dart';
 import 'package:retro/features/debug/debug_font_generator/debug_font_generator_screen.dart';
 import 'package:retro/features/debug/debug_selection/debug_selection_screen.dart';
@@ -86,6 +89,9 @@ class Retro extends StatelessWidget {
         routes: {
           '/': (context) => const HomeScreen(),
           '/create_selection': (context) => const CreateSelectionScreen(),
+          '/game_selection': (context) => const GameSelectionScreen(),
+          '/game_selection/soh': (context) => const SOHGameScreen(),
+          '/game_selection/2ship': (context) => const Ship2GameScreen(),
           '/create_custom': (context) => const CreateCustomScreen(),
           '/view_otr': (context) => const InspectOTRScreen(),
           '/create_custom_sequences': (context) => const CreateCustomSequencesScreen(),

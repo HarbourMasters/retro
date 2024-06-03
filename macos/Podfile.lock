@@ -2,6 +2,9 @@ PODS:
   - flutter_storm (0.0.1):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
   - url_launcher_macos (0.0.1):
     - FlutterMacOS
   - window_size (0.0.2):
@@ -10,6 +13,7 @@ PODS:
 DEPENDENCIES:
   - flutter_storm (from `Flutter/ephemeral/.symlinks/plugins/flutter_storm/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
+  - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
   - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
   - window_size (from `Flutter/ephemeral/.symlinks/plugins/window_size/macos`)
 
@@ -18,6 +22,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_storm/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
+  path_provider_foundation:
+    :path: Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin
   url_launcher_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos
   window_size:
@@ -26,6 +32,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   flutter_storm: 9d6bb8ed36b51e877d7a3aef59328b696766d5d9
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
+  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   url_launcher_macos: 5f437abeda8c85500ceb03f5c1938a8c5a705399
   window_size: 339dafa0b27a95a62a843042038fa6c3c48de195
 

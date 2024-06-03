@@ -73,12 +73,16 @@ class Arc {
             continue;
           }
 
-          log('File name: $fileName');
-          if (fileName != null && fileName != '(signature)' && fileName != '(listfile)' && fileName != '(attributes)') {
+          if (fileName != '(signature)' && fileName != '(listfile)' && fileName != '(attributes)') {
             files.add(fileName);
             if(onFile != null) {
               final file = mpqArchive.openFileEx(fileName, 0);
-              await onFile(fileName, file.read(file.size()));
+              try {
+                final size = file.size();
+                await onFile(fileName, file.read(size));
+              } catch (e) {
+                log('Skipping file $fileName: $e');
+              }
             }
           }
         } on StormLibException catch (e) {

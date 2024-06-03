@@ -89,11 +89,11 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "io.dcvz" "\0"
+            VALUE "CompanyName", "dev.hm64.retro" "\0"
             VALUE "FileDescription", "retro" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "retro" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2022 io.dcvz. All rights reserved." "\0"
+            VALUE "LegalCopyright", "MIT License" "\0"
             VALUE "OriginalFilename", "retro.exe" "\0"
             VALUE "ProductName", "retro" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
