@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:retro/context.dart';
 import 'package:retro/features/create/create_finish/create_finish_screen.dart';
 import 'package:retro/features/create/create_finish/create_finish_viewmodel.dart';
 import 'package:retro/ui/theme/colors.dart';
@@ -95,7 +96,7 @@ class _EphemeralBarState extends State<EphemeralBar>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text('Retro: 0.2.0', style: textTheme.bodyMedium!.copyWith(
+                  Text('Retro: ${RetroContext.versionName}', style: textTheme.bodyMedium!.copyWith(
                     color: colorScheme.onSurface,),
                   ),
                   if (!isExpanded)
