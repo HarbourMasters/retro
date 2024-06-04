@@ -1,9 +1,6 @@
-import 'package:intl/intl.dart';
 import 'package:retro/auto/build.dart';
 
-
 class GitInfo {
-
   GitInfo({required this.branch, required this.commitHash, this.commitDate = ''});
 
   final String branch;
