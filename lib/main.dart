@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -30,6 +31,8 @@ import 'package:window_size/window_size.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  final errorFile = File('latest.log')
+    ..createSync();
 
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     setWindowTitle('Retro');
@@ -39,8 +42,17 @@ void main() {
 
   RetroContext.git = GitLoader.getGitInfo();
 
+  runZonedGuarded<Future<void>>(bindApp, (error, stack) async {
+    // Log to file
+    final errorString = 'Error: $error\nStack: $stack';
+    await errorFile.writeAsString(errorString, mode: FileMode.append);
+  });
+}
+
+Future<void> bindApp() async {
   runApp(const Retro());
 }
+
 
 class Retro extends StatelessWidget {
   const Retro({super.key});

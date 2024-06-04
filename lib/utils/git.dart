@@ -12,11 +12,7 @@ class GitInfo {
 }
 
 class GitLoader {
-
-  static final DateFormat _dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
-
   static GitInfo getGitInfo() {
-    final date = DateTime.fromMillisecondsSinceEpoch(int.parse(commitDate) * 1000);
-    return GitInfo(branch: branch, commitHash: commitHash, commitDate:  _dateFormat.format(date));
+    return GitInfo(branch: branch, commitHash: commitHash, commitDate: commitDate.split(' -').first);
   }
 }
