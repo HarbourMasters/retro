@@ -264,6 +264,7 @@ Future<bool> processFile(String fileName, Uint8List data, String outputPath, Fun
       final texture = Texture.empty();
       texture.open(data);
 
+      // don't try to extract hd textures
       if(texture.gameVersion == Version.roy){
         break;
       }
