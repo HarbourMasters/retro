@@ -18,6 +18,8 @@ jobs:
         cache: true
         cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:' # optional, change this to force refresh cache
         cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:' # optional, change this to specify the cache path
+    - run: chmod +x ./build.sh
+    - run: ./build.sh
     - run: flutter config --enable-macos-desktop
     - run: flutter build -v macos --release
     - run: ditto -c -k --sequesterRsrc --keepParent retro.app $GITHUB_WORKSPACE/retro.zip
@@ -36,6 +38,7 @@ jobs:
         cache: true
         cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:' # optional, change this to force refresh cache
         cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:' # optional, change this to specify the cache path
+    - run: ./build.bat
     - run: flutter config --enable-windows-desktop
     - run: flutter build windows --release
     - uses: actions/upload-artifact@v3
@@ -54,13 +57,15 @@ jobs:
         cache: true
         cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:' # optional, change this to force refresh cache
         cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:' # optional, change this to specify the cache path
+    - run: chmod +x ./build.sh
+    - run: ./build.sh
     - run: flutter config --enable-linux-desktop
     - run: flutter build linux --release
     - name: Create AppImage
       run: |
         wget "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
         chmod a+x appimagetool-x86_64.AppImage
-        
+
         # Create AppDir
         cp -r build/linux/x64/release/bundle/ retro.AppDir
         cp assets/icon-macos.png retro.AppDir/retro.png
