@@ -16,6 +16,7 @@ import 'package:retro/otr/resource.dart';
 import 'package:retro/otr/resource_type.dart';
 import 'package:retro/otr/types/background.dart';
 import 'package:retro/otr/types/texture.dart';
+import 'package:retro/otr/version.dart';
 import 'package:retro/utils/log.dart';
 import 'package:retro/utils/path.dart' as p;
 import 'package:tuple/tuple.dart';
@@ -170,8 +171,8 @@ Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(
     return null;
   }
 
-  String manifestContents = await manifestFile.readAsString();
-  Map<String, dynamic> manifest = json.decode(manifestContents) as Map<String, dynamic>;
+  final manifestContents = await manifestFile.readAsString();
+  final manifest = json.decode(manifestContents) as Map<String, dynamic>;
 
   // find all images in folder
   final supportedExtensions = <String>['.png', '.jpeg', '.jpg'];
@@ -187,7 +188,7 @@ Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(
         p.normalize(texFile.path.split('$folderPath/').last.split('.').first);
     if (manifest.containsKey(texPathRelativeToFolder)) {
       final manifestEntry =
-          TextureManifestEntry.fromJson(manifest[texPathRelativeToFolder]);
+          TextureManifestEntry.fromJson(manifest[texPathRelativeToFolder] as Map<String, dynamic>);
       // if it is, check if the file has changed
       final texFileBytes = await texFile.readAsBytes();
       final texFileHash = sha256.convert(texFileBytes).toString();
@@ -218,38 +219,32 @@ Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(
 
 Future<HashMap<String, TextureManifestEntry>?> processOTR(
     Tuple2<List<String>, String> params) async {
-  try {
-    var fileFound = false;
-    final processedFiles = HashMap<String, TextureManifestEntry>();
+  final processedFiles = HashMap<String, TextureManifestEntry>();
 
-    // just use the first otr in the list for the  directory name
-    final otrNameForOutputDirectory =
-        params.item1[0].split(Platform.pathSeparator).last.split('.').first;
+  // just use the first otr in the list for the  directory name
+  final otrNameForOutputDirectory =
+      params.item1[0].split(Platform.pathSeparator).last.split('.').first;
 
-    // if folder we'll export to exists, delete it
-    final dir = Directory('${params.item2}/$otrNameForOutputDirectory');
-    if (dir.existsSync()) {
-      log('Deleting existing folder: ${params.item2}/$otrNameForOutputDirectory');
-      await dir.delete(recursive: true);
-    }
-
-    for (final otrPath in params.item1) {
-      log('Processing OTR: $otrPath');
-      final arcFile = Arc(otrPath);
-
-      await arcFile.listItems(onFile: (String fileName, Uint8List data) async {
-        await processFile(fileName, data, '${params.item2}/$otrNameForOutputDirectory/$fileName', (TextureManifestEntry entry) {
-          processedFiles[fileName] = entry;
-        });
-      },);
-      arcFile.close();
-    }
-
-    return processedFiles;
-  } on StormLibException catch (e) {
-    log('Failed to find next file: ${e.message}');
-    return null;
+  // if folder we'll export to exists, delete it
+  final dir = Directory('${params.item2}/$otrNameForOutputDirectory');
+  if (dir.existsSync()) {
+    log('Deleting existing folder: ${params.item2}/$otrNameForOutputDirectory');
+    await dir.delete(recursive: true);
   }
+
+  for (final otrPath in params.item1) {
+    log('Processing OTR: $otrPath');
+    final arcFile = Arc(otrPath);
+
+    await arcFile.listItems(onFile: (String fileName, Uint8List data) async {
+      await processFile(fileName, data, '${params.item2}/$otrNameForOutputDirectory/$fileName', (TextureManifestEntry entry) {
+        processedFiles[fileName] = entry;
+      });
+    },);
+    arcFile.close();
+  }
+
+  return processedFiles.isEmpty ? null : processedFiles;
 }
 
 Future<bool> processFile(String fileName, Uint8List data, String outputPath, Function onProcessed) async {
@@ -268,6 +263,11 @@ Future<bool> processFile(String fileName, Uint8List data, String outputPath, Fun
     case ResourceType.texture:
       final texture = Texture.empty();
       texture.open(data);
+
+      // don't try to extract hd textures
+      if(texture.gameVersion == Version.roy){
+        break;
+      }
 
       final pngBytes = texture.toPNGBytes();
       final textureFile = File('$outputPath.png');

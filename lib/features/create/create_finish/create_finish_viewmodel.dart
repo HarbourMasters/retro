@@ -104,13 +104,13 @@ class CreateFinishViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  onAddCustomTextureEntry(
+  void onAddCustomTextureEntry(
     HashMap<String, List<Tuple2<File, TextureManifestEntry>>> replacementMap,
   ) {
     for (final entry in replacementMap.entries) {
       if (entries.containsKey(entry.key) &&
           entries[entry.key] is CustomTexturesEntry) {
-        (entries[entry.key] as CustomTexturesEntry).pairs.addAll(entry.value);
+        (entries[entry.key]! as CustomTexturesEntry).pairs.addAll(entry.value);
       } else if (entries.containsKey(entry.key)) {
         throw Exception('Cannot add custom texture entry to existing entry');
       } else {
@@ -124,18 +124,25 @@ class CreateFinishViewModel with ChangeNotifier {
     notifyListeners();
   }
 
+  void onAddFile(File file, String path) {
+    entries[path] = CustomStageEntry([file]);
+    totalFiles++;
+    currentState = AppState.changesStaged;
+    notifyListeners();
+  }
+
   void onRemoveFile(File file, String path) {
     if (entries.containsKey(path) && entries[path] is CustomStageEntry) {
-      (entries[path] as CustomStageEntry).files.remove(file);
+      (entries[path]! as CustomStageEntry).files.remove(file);
     } else if (entries.containsKey(path) &&
         entries[path] is CustomSequencesEntry) {
-      (entries[path] as CustomSequencesEntry).pairs.removeWhere(
+      (entries[path]! as CustomSequencesEntry).pairs.removeWhere(
             (pair) =>
                 pair.item1.path == file.path || pair.item2.path == file.path,
           );
     } else if (entries.containsKey(path) &&
         entries[path] is CustomTexturesEntry) {
-      (entries[path] as CustomTexturesEntry)
+      (entries[path]! as CustomTexturesEntry)
           .pairs
           .removeWhere((pair) => pair.item1.path == file.path);
     } else {

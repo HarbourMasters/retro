@@ -48,5 +48,21 @@
     "inspectOtrScreen_inspectOtrSubtitle": "Überprüfe die Inhalte einer OTR / O2R",
     "inspectOtrScreen_noOtrSelected": "Keine OTR / O2R ausgewählt",
     "inspectOtrScreen_selectButton": "Wähle",
-    "inspectOtrScreen_search": "Suchen"
+    "inspectOtrScreen_search": "Suchen",
+
+    "gameSelectionScreen_title": "Spezifische Werkzeuge",
+    "gameSelectionScreen_subtitle": "Wähle das Spiel aus, für das du eine Auswahl treffen möchtest",
+
+    "gameSelectionScreenSoh_title": "Ship of Harkinian",
+    "gameSelectionScreenSoh_subtitle": "Wähle das Werkzeug aus, das du verwenden möchtest",
+
+    "sohCreateDebugFontScreen_title": "Debug-Schriftart Generieren",
+    "sohCreateDebugFontScreen_subtitle": "Generiere Debug-Schriften für den SOH-Karten-Selektor",
+
+    "gameSelectionScreen2Ship_title": "2 Ship 2 Harkinian",
+    "gameSelectionScreen2Ship_subtitle": "Wähle das Werkzeug aus, das du verwenden möchtest",
+    "gameSelection2ShipComingSoon_text": "Werkzeuge für 2 Ship 2 Harkinian kommen bald!",
+
+    "extractModsWarning_part1": "Existierende Mods extrahieren",
+    "extractModsWarning_part2": "Könnte nicht funktionieren."
 }

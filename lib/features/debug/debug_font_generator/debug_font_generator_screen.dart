@@ -5,6 +5,10 @@ import 'dart:ui' as ui;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide Texture, Image;
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:retro/features/create/create_finish/create_finish_viewmodel.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
 import 'package:retro/ui/components/numpad.dart';
 
@@ -12,8 +16,7 @@ class DebugGeneratorFontScreen extends StatefulWidget {
   const DebugGeneratorFontScreen({super.key});
 
   @override
-  State<DebugGeneratorFontScreen> createState() =>
-      _DebugGeneratorFontScreenState();
+  State<DebugGeneratorFontScreen> createState() => _DebugGeneratorFontScreenState();
 }
 
 class _DebugGeneratorFontScreenState extends State<DebugGeneratorFontScreen> {
@@ -23,10 +26,11 @@ class _DebugGeneratorFontScreenState extends State<DebugGeneratorFontScreen> {
   double textScale = 1;
   int glyphWidth = 32;
   int glyphHeight = 32;
+  int rows = 18;
+  int columns = 32;
 
   void loadFont(File ttf) {
-    final fontName =
-        ttf.path.split(Platform.pathSeparator).last.split('.').first;
+    final fontName = ttf.path.split(Platform.pathSeparator).last.split('.').first;
     final font = FontLoader(fontName);
     font.addFont(Future.value(ttf.readAsBytesSync().buffer.asByteData()));
     font.load();
@@ -37,9 +41,10 @@ class _DebugGeneratorFontScreenState extends State<DebugGeneratorFontScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final i18n = AppLocalizations.of(context)!;
     return CustomScaffold(
-      title: 'Debug Font Generator',
-      subtitle: 'Convert and generate fonts for the oot debug menu',
+      title: i18n.sohCreateDebugFontScreen_title,
+      subtitle: i18n.sohCreateDebugFontScreen_subtitle,
       onBackButtonPressed: () {
         Navigator.of(context).pop();
       },
@@ -53,13 +58,6 @@ class _DebugGeneratorFontScreenState extends State<DebugGeneratorFontScreen> {
                 direction: Axis.vertical,
                 spacing: 10,
                 children: [
-                  const Text(
-                    'Font to OoT Generator',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: 'GoogleSans',
-                        fontWeight: FontWeight.bold),
-                  ),
                   TextNumpad(
                     title: 'Text Offset:',
                     step: 0.5,
@@ -98,6 +96,16 @@ class _DebugGeneratorFontScreenState extends State<DebugGeneratorFontScreen> {
                       });
                     },
                   ),
+                  TextNumpad(
+                    title: 'Rows:',
+                    step: 1,
+                    input: rows,
+                    onInput: (num value) {
+                      setState(() {
+                        rows = value.toInt();
+                      });
+                    },
+                  ),
                   ElevatedButton(
                     child: const Text('Load Font'),
                     onPressed: () async {
@@ -111,10 +119,12 @@ class _DebugGeneratorFontScreenState extends State<DebugGeneratorFontScreen> {
                     },
                   ),
                   if (fontFamily != null)
-                    ElevatedButton(
-                      onPressed: writeFontTable,
-                      child: const Text('Convert Texture'),
-                    )
+                  ElevatedButton(
+                    onPressed: () async {
+                      await writeFontTable(context);
+                    },
+                    child: const Text('Convert Texture'),
+                  )
                 ],
               ),
             ),
@@ -126,15 +136,18 @@ class _DebugGeneratorFontScreenState extends State<DebugGeneratorFontScreen> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: fontFamily != null
-                    ? CustomPaint(
-                        painter: FontPainter(
-                            fontFamily: fontFamily!,
-                            offset: textOffset,
-                            scale: textScale,
-                            glyphWidth: glyphWidth,
-                            glyphHeight: glyphHeight),
-                      )
-                    : null,
+                  ? CustomPaint(
+                      painter: FontPainter(
+                        fontFamily: fontFamily!,
+                        offset: textOffset,
+                        scale: textScale,
+                        glyphWidth: glyphWidth,
+                        glyphHeight: glyphHeight,
+                        ht: rows,
+                        vt: columns,
+                      ),
+                    )
+                  : null,
               ),
             ),
           ],
@@ -143,10 +156,11 @@ class _DebugGeneratorFontScreenState extends State<DebugGeneratorFontScreen> {
     );
   }
 
-  Future<void> writeFontTable() async {
+  Future<void> writeFontTable(BuildContext context) async {
     final recorder = ui.PictureRecorder();
     final width = glyphWidth * 8;
     final height = glyphHeight * 32;
+    final finishViewModel = Provider.of<CreateFinishViewModel>(context, listen: false);
     FontPainter(
       fontFamily: fontFamily!,
       offset: textOffset,
@@ -154,19 +168,17 @@ class _DebugGeneratorFontScreenState extends State<DebugGeneratorFontScreen> {
       glyphWidth: glyphWidth,
       glyphHeight: glyphHeight,
       drawGrid: false,
-    ).paint(Canvas(recorder), Size(width as double, height as double));
+      ht: 8,
+    ).paint(Canvas(recorder), Size(width.toDouble(), height.toDouble()));
     final picture = recorder.endRecording();
     final img = await picture.toImage(width, height);
     final pngBytes = await img.toByteData(format: ImageByteFormat.png);
+    final tmpDir = await getTemporaryDirectory();
+    final file = File('${tmpDir.path}/sGfxPrintFontData.png');
 
-    final result = await FilePicker.platform.saveFile(
-      type: FileType.custom,
-      allowedExtensions: ['png'],
-      fileName: 'sGfxPrintFontData.png',
-    );
-    if (result != null) {
-      await File(result).writeAsBytes(pngBytes!.buffer.asUint8List());
-    }
+    await file.writeAsBytes(pngBytes!.buffer.asUint8List());
+    finishViewModel.onAddFile(file, 'textures/font/sGfxPrintFontData');
+    Navigator.of(context).popUntil(ModalRoute.withName('/create_selection'));
   }
 }
 
@@ -178,45 +190,46 @@ class FontPainter extends CustomPainter {
     this.glyphWidth = 32,
     this.glyphHeight = 32,
     this.drawGrid = true,
+    this.ht = 18,
+    this.vt = 32,
   });
 
-  List<List<String>> fontTable = [
-    ['0', '4', '1', '5', '2', '6', '3', '7'],
-    ['8', 'C', '9', 'D', 'A', 'E', 'B', 'F'],
-    ['0', '4', '1', '5', '2', '6', '3', '7'],
-    ['8', '←', '9', '→', 'A', '↑', 'B', '↓'],
-    [' ', r'$', '!', '%', '"', '&', '#', "'"],
-    ['(', ',', ')', '-', '*', '.', '+', '/'],
-    ['0', '4', '1', '5', '2', '6', '3', '7'],
-    ['8', '<', '9', '=', ':', '>', ';', '?'],
-    ['@', 'D', 'A', 'E', 'B', 'F', 'C', 'G'],
-    ['H', 'L', 'I', 'M', 'J', 'N', 'K', 'O'],
-    ['P', 'T', 'Q', 'U', 'R', 'V', 'S', 'W'],
-    ['X', '¥', 'Y', ']', 'Z', '^', '[', '_'],
-    ["'", 'd', 'a', 'e', 'b', 'f', 'c', 'g'],
-    ['h', 'l', 'i', 'm', 'j', 'n', 'k', 'o'],
-    ['p', 't', 'q', 'u', 'r', 'v', 's', 'w'],
-    ['x', ';', 'y', '}', 'z', '~', '{', '␡'],
-    [' ', ',', '.', ' ', ' ', ' ', ' ', ' '],
-    ['い', 'や', 'う', 'や', 'え', 'や', 'え', 'や'],
-    ['-', 'え', 'あ', 'お', 'い', 'か', 'い', 'か'],
-    ['く', 'し', 'け', 'チ', 'こ', 'せ', 'こ', 'せ'],
-    [' ', ',', ' ', '.', ' ', ' ', ' ', ' '],
-    ['イ', 'ヤ', 'ウ', 'コ', 'ェ', 'ヨ', 'エ', 'ッ'],
-    ['-', 'エ', 'ア', 'オ', 'イ', 'カ', 'ウ', 'キ'],
-    ['ワ', 'シ', 'ク', 'ス', 'コ', 'セ', 'サ', 'ン'],
-    ['タ', 'ト', '子', 'ナ', 'ッ', 'ニ', 'テ', 'ヌ'],
-    ['ネ', 'つ', 'ノ', 'へ', 'い', 'ホ', 'い', 'マ'],
-    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-    ['リ', 'ワ', 'ル', 'ン', 'レ', '"', '口', 'ロ'],
-    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-    ['ね', 'ふ', 'の', 'へ', 'は', 'ほ', 'は', 'ま'],
-    ['み', 'せ', 'せ', 'ゆ', 'の', 'よ', 'も', 'ら'],
-    [' ', 'わ', 'る', 'ん', 'れ', '"', 'ろ', 'ロ']
+  List<String> fontTable = [
+    '0', '4', '1', '5', '2', '6', '3', '7',
+    '8', 'C', '9', 'D', 'A', 'E', 'B', 'F',
+    '0', '4', '1', '5', '2', '6', '3', '7',
+    '8', '←', '9', '→', 'A', '↑', 'B', '↓',
+    ' ', r'$', '!', '%', '"', '&', '#', "'",
+    '(', ',', ')', '-', '*', '.', '+', '/',
+    '0', '4', '1', '5', '2', '6', '3', '7',
+    '8', '<', '9', '=', ':', '>', ';', '?',
+    '@', 'D', 'A', 'E', 'B', 'F', 'C', 'G',
+    'H', 'L', 'I', 'M', 'J', 'N', 'K', 'O',
+    'P', 'T', 'Q', 'U', 'R', 'V', 'S', 'W',
+    'X', '¥', 'Y', ']', 'Z', '^', '[', '_',
+    "'", 'd', 'a', 'e', 'b', 'f', 'c', 'g',
+    'h', 'l', 'i', 'm', 'j', 'n', 'k', 'o',
+    'p', 't', 'q', 'u', 'r', 'v', 's', 'w',
+    'x', ';', 'y', '}', 'z', '~', '{', '␡',
+    ' ', ',', '.', ' ', ' ', ' ', ' ', ' ',
+    'い', 'や', 'う', 'や', 'え', 'や', 'え', 'や',
+    '-', 'え', 'あ', 'お', 'い', 'か', 'い', 'か',
+    'く', 'し', 'け', 'チ', 'こ', 'せ', 'こ', 'せ',
+    ' ', ',', ' ', '.', ' ', ' ', ' ', ' ',
+    'イ', 'ヤ', 'ウ', 'コ', 'ェ', 'ヨ', 'エ', 'ッ',
+    '-', 'エ', 'ア', 'オ', 'イ', 'カ', 'ウ', 'キ',
+    'ワ', 'シ', 'ク', 'ス', 'コ', 'セ', 'サ', 'ン',
+    'タ', 'ト', '子', 'ナ', 'ッ', 'ニ', 'テ', 'ヌ',
+    'ネ', 'つ', 'ノ', 'へ', 'い', 'ホ', 'い', 'マ',
+    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+    'リ', 'ワ', 'ル', 'ン', 'レ', '"', '口', 'ロ',
+    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+    'ね', 'ふ', 'の', 'へ', 'は', 'ほ', 'は', 'ま',
+    'み', 'せ', 'せ', 'ゆ', 'の', 'よ', 'も', 'ら',
+    ' ', 'わ', 'る', 'ん', 'れ', '"', 'ろ', 'ロ'
   ];
 
-  final regExp = RegExp(
-      r'[\^$*.\[\]{}()?\-"!@#%&/\,><:;_~`+=' // <-- Notice the escaped symbols
+  final regExp = RegExp(r'[\^$*.\[\]{}()?\-"!@#%&/\,><:;_~`+=' // <-- Notice the escaped symbols
       "'" // <-- ' is added to the expression
       ']');
 
@@ -226,9 +239,10 @@ class FontPainter extends CustomPainter {
   final int glyphWidth;
   final int glyphHeight;
   final bool drawGrid;
+  final int ht;
+  final int vt;
 
-  double convertFontSize(double size) =>
-      size / WidgetsBinding.instance.window.devicePixelRatio;
+  double convertFontSize(double size) => size / WidgetsBinding.instance.window.devicePixelRatio;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -237,13 +251,15 @@ class FontPainter extends CustomPainter {
       ..strokeWidth = 1
       ..style = PaintingStyle.stroke;
 
-    for (var id = 0; id < 32 * 8; id++) {
-      final tx = (id % 8).floorToDouble();
-      final ty = (id / 8).floorToDouble();
+    for (var id = 0; id < vt * ht; id++) {
+      final tx = (id % ht).floorToDouble();
+      final ty = (id / ht).floorToDouble();
       final to = Offset(tx * glyphWidth, ty * glyphHeight);
-      final rect = Rect.fromLTWH(
-          to.dx, to.dy, glyphWidth.toDouble(), glyphHeight.toDouble());
-      final text = fontTable[ty.toInt()][tx.toInt()];
+      final rect = Rect.fromLTWH(to.dx, to.dy, glyphWidth.toDouble(), glyphHeight.toDouble());
+      if (id >= fontTable.length) {
+        continue;
+      }
+      final text = fontTable[id];
       if (drawGrid) {
         canvas.drawRect(rect, paint);
       }
@@ -254,27 +270,18 @@ class FontPainter extends CustomPainter {
           text: text == ' ' && ty >= 16 ? '�' : text,
           style: TextStyle(
               color: Colors.white,
-              fontSize: text == ' '
-                  ? convertFontSize(20)
-                  : convertFontSize(text.contains(regExp)
-                          ? glyphHeight - 5
-                          : glyphHeight.toDouble()) *
-                      scale,
+              fontSize: text == ' ' ? convertFontSize(20) : convertFontSize(text.contains(regExp) ? glyphHeight - 5 : glyphHeight.toDouble()) * scale,
               fontFamily: fontFamily),
         ),
       );
       textPainter.layout(maxWidth: size.width);
       textPainter.paint(
           canvas,
-          Offset(
-              tx * glyphWidth + (glyphWidth / 2) - (textPainter.size.width / 2),
-              (ty * glyphHeight +
-                      (glyphHeight / 2) -
-                      (textPainter.size.height / 2)) -
-                  offset));
+          Offset(tx * glyphWidth + (glyphWidth / 2) - (textPainter.size.width / 2),
+              (ty * glyphHeight + (glyphHeight / 2) - (textPainter.size.height / 2)) - offset));
     }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

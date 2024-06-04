@@ -15,39 +15,79 @@ class _CreateSelectionScreenState extends State<CreateSelectionScreen> {
   Widget build(BuildContext context) {
     final i18n = AppLocalizations.of(context)!;
     return CustomScaffold(
-        title: i18n.createSelectionScreen_title,
-        subtitle: i18n.createSelectionScreen_subtitle,
-        onBackButtonPressed: () {
-          Navigator.of(context).pop();
-        },
-        content: Expanded(
-            child:
-                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              OptionCard(
+      title: i18n.createSelectionScreen_title,
+      subtitle: i18n.createSelectionScreen_subtitle,
+      onBackButtonPressed: () {
+        Navigator.of(context).pop();
+      },
+      content: Expanded(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Wrap(
+              spacing: 15,
+              children: [
+                OptionCard(
                   text: i18n.createSelectionScreen_nonHdTex,
                   icon: Icons.texture,
+                  overlay: Positioned(
+                    top: 10,
+                    left: 10,
+                    child: Container(
+                      width: 190,
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: Colors.yellow[800]!.withOpacity(0.7),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.warning_amber_rounded,
+                                color: Colors.white,
+                                size: 15,
+                              ),
+                              const SizedBox(width: 2),
+                              Text(
+                                i18n.extractModsWarning_part1,
+                                style: const TextStyle(color: Colors.white, fontSize: 10.5),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            i18n.extractModsWarning_part2,
+                            style: const TextStyle(color: Colors.white, fontSize: 10.5),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                   onTap: () {
                     Navigator.of(context).pushNamed('/create_replace_textures');
-                  },),
-              const SizedBox(width: 20),
-              OptionCard(
-                  text: i18n.createSelectionScreen_customSequences,
-                  icon: Icons.library_music,
+                  },
+                ),
+                OptionCard(
+                  text: i18n.gameSelectionScreen_title,
+                  icon: Icons.videogame_asset_rounded,
                   onTap: () {
-                    Navigator.of(context).pushNamed('/create_custom_sequences');
-                  },),
-              const SizedBox(width: 20),
-              OptionCard(
+                    Navigator.of(context).pushNamed('/game_selection');
+                  },
+                ),
+                OptionCard(
                   text: i18n.createSelectionScreen_custom,
                   icon: Icons.settings_suggest,
                   onTap: () {
                     Navigator.of(context).pushNamed('/create_custom');
-                  },),
-            ],
-          )
-        ],),),);
+                  },
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
   }
 }

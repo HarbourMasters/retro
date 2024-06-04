@@ -8,7 +8,7 @@
 PRODUCT_NAME = retro
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = io.dcvz.retro
+PRODUCT_BUNDLE_IDENTIFIER = dev.hm64.retro
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2022 io.dcvz. All rights reserved.
+PRODUCT_COPYRIGHT = MIT brought to you by HM64
