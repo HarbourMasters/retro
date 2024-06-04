@@ -101,6 +101,10 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
+    - .git/HEAD         # This file points out the current branch of the project.
+    - .git/ORIG_HEAD    # This file points to the commit id at origin (last commit id of the remote repository).
+    - .git/logs/HEAD    # This directory includes files that contain the history of the commits.
+    - .git/refs/heads/  # This directory includes files for each branch that points to the last commit id (local repo).
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

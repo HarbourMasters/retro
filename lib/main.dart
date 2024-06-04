@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:retro/context.dart';
 import 'package:retro/features/create/create_custom/create_custom_screen.dart';
 import 'package:retro/features/create/create_custom/create_custom_viewmodel.dart';
 import 'package:retro/features/create/create_custom_sequences/create_custom_sequences_screen.dart';
@@ -24,15 +25,18 @@ import 'package:retro/features/inspect_otr/inspect_otr_screen.dart';
 import 'package:retro/features/inspect_otr/inspect_otr_viewmodel.dart';
 import 'package:retro/ui/components/ephemeral_bar.dart';
 import 'package:retro/ui/theme/theme.dart';
+import 'package:retro/utils/git.dart';
 import 'package:window_size/window_size.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     setWindowTitle('Retro');
     setWindowMinSize(const Size(600, 600));
     setWindowMaxSize(Size.infinite);
   }
+
+  RetroContext.git = await GitLoader.getGitInfo();
 
   runApp(const Retro());
 }

@@ -119,11 +119,11 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 40),
               Text(
-                '${RetroContext.commitHash} - ${RetroContext.branch}',
+                '${RetroContext.git.commitHash} - ${RetroContext.git.branch}',
                 style: textTheme.titleSmall?.copyWith(color: colorScheme.onSurface.withOpacity(0.2)),
               ),
               Text(
-                RetroContext.commitDate,
+                RetroContext.git.commitDate,
                 style: textTheme.titleSmall?.copyWith(color: colorScheme.onSurface.withOpacity(0.2)),
               ),
             ],

@@ -31,14 +31,14 @@ class _GameSelectionScreenState extends State<GameSelectionScreen> {
               children: [
                 OptionCard(
                   text: i18n.gameSelectionScreenSoh_title,
-                  icon: FontAwesomeIcons.puzzlePiece,
+                  icon: Icons.directions_boat_filled_rounded,
                   onTap: () {
                     Navigator.of(context).pushNamed('/game_selection/soh');
                   },
                 ),
                 OptionCard(
                   text: i18n.gameSelectionScreen2Ship_title,
-                  icon: FontAwesomeIcons.drum,
+                  icon: Icons.dark_mode,
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       backgroundColor: const Color.fromARGB(255, 249, 210, 144),
