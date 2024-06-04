@@ -28,15 +28,16 @@ import 'package:retro/ui/theme/theme.dart';
 import 'package:retro/utils/git.dart';
 import 'package:window_size/window_size.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
+
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     setWindowTitle('Retro');
-    setWindowMinSize(const Size(600, 600));
+    setWindowMinSize(const Size(700, 700));
     setWindowMaxSize(Size.infinite);
   }
 
-  RetroContext.git = await GitLoader.getGitInfo();
+  RetroContext.git = GitLoader.getGitInfo();
 
   runApp(const Retro());
 }

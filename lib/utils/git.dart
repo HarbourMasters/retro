@@ -15,7 +15,7 @@ class GitLoader {
 
   static final DateFormat _dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
 
-  static Future<GitInfo> getGitInfo() async {
+  static GitInfo getGitInfo() {
     final date = DateTime.fromMillisecondsSinceEpoch(int.parse(commitDate) * 1000);
     return GitInfo(branch: branch, commitHash: commitHash, commitDate:  _dateFormat.format(date));
   }
