@@ -5,9 +5,8 @@ import 'dart:isolate';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' hide Image hide Texture;
+import 'package:flutter/material.dart' hide Image, Texture;
 import 'package:flutter_storm/flutter_storm.dart';
-import 'package:flutter_storm/flutter_storm_defines.dart';
 import 'package:image/image.dart';
 import 'package:path/path.dart' as dartp;
 import 'package:retro/arc/arc.dart';
@@ -78,7 +77,7 @@ class CreateFinishViewModel with ChangeNotifier {
       final entryFiles = entry.value;
       if (entries.containsKey(entryPath) &&
           entries[entryPath] is CustomStageEntry) {
-        (entries[entryPath] as CustomStageEntry).files.addAll(entryFiles);
+        (entries[entryPath]! as CustomStageEntry).files.addAll(entryFiles);
       } else if (entries.containsKey(entryPath)) {
         throw Exception('Cannot add custom stage entry to existing entry');
       } else {
@@ -188,7 +187,7 @@ class CreateFinishViewModel with ChangeNotifier {
     onCompletion();
   }
 
-  Future createGenerationIsolate(HashMap<String, StageEntry> entries,
+  Future<void> createGenerationIsolate(HashMap<String, StageEntry> entries,
       String outputFile, bool shouldPrependAlt, bool shouldCompress) async {
     final receivePort = ReceivePort();
     await Isolate.spawn(
@@ -279,13 +278,17 @@ Future<void> generateOTR(Tuple5<HashMap<String, StageEntry>, String, SendPort, b
 Future<Tuple2<String, Uint8List?>> processTextureEntry(
     Tuple3<String, Tuple2<File, TextureManifestEntry>, bool> params) async {
   final pair = params.item2;
-  final textureName = pair.item1.path.split('/').last.split('.').first;
-  final fileName = '${params.item1}/$textureName';
+  final baseDir = params.item1;
+  final isAlt = params.item3;
+
+  final textureName = dartp.basenameWithoutExtension(pair.item1.path);
+  final fileName = dartp.join(baseDir, textureName);
 
   final data = await (pair.item2.textureType == TextureType.JPEG32bpp
       ? processJPEG
       : processPNG)(pair, textureName);
-  return Tuple2((params.item3 ? 'alt/' : '') + fileName, data);
+  final finalPath = isAlt ? dartp.join('alt', fileName) : fileName;
+  return Tuple2(finalPath, data);
 }
 
 Future<Uint8List?> processJPEG(Tuple2<File, TextureManifestEntry> pair, String textureName) async {

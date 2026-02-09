@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:retro/l10n/app_localizations.dart';
 import 'package:retro/features/create/create_replace_textures/create_replace_textures_viewmodel.dart';
 
 // ignore: non_constant_identifier_names

@@ -2,7 +2,7 @@ import 'dart:collection';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:retro/l10n/app_localizations.dart';
 import 'package:retro/features/create/create_finish/create_finish_viewmodel.dart';
 import 'package:retro/features/create/create_replace_textures/create_replace_textures_viewmodel.dart';
 import 'package:retro/models/texture_manifest_entry.dart';

@@ -7,22 +7,22 @@ class CreateCustomViewModel extends ChangeNotifier {
   List<File> files = [];
   String path = '';
 
-  reset() {
+  void reset() {
     files = [];
     path = '';
   }
 
-  onSelectedFiles(List<File> files) {
+  void onSelectedFiles(List<File> files) {
     this.files = files;
     notifyListeners();
   }
 
-  onSelectedDirectory(String path) {
+  void onSelectedDirectory(String path) {
     this.path = path;
     notifyListeners();
   }
 
-  onSelectFiles() async {
+  Future<void> onSelectFiles() async {
     final selectedBaseDirectoryPath =
         await FilePicker.platform.getDirectoryPath();
     onSelectedDirectory(selectedBaseDirectoryPath ?? '');

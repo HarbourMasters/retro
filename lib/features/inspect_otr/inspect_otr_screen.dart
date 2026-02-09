@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:retro/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:retro/features/inspect_otr/inspect_otr_viewmodel.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';

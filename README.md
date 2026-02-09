@@ -19,7 +19,7 @@ samples, guidance on mobile development, and a full API reference.
 ### i18n localization rules
 
 When adding any text to retro, be sure to make it localizable by doing the following
-- Make sure that `import 'package:flutter_gen/gen_l10n/app_localizations.dart';` is properly imported in the file you're adding any kind of text.
+- Make sure that `import 'package:retro/l10n/app_localizations.dart';` is properly imported in the file you're adding any kind of text.
 - Make sure to also have this `final AppLocalizations i18n = AppLocalizations.of(context)!;`present in the override.
 - When it's the time for you to add your text, follow this naming convention:
     - When you're adding a key in a **component**, use this: `i18n.components_myFile_keyName`

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:retro/l10n/app_localizations.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
 import 'package:retro/ui/components/option_card.dart';
 

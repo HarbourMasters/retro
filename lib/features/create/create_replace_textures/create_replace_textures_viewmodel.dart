@@ -6,8 +6,6 @@ import 'package:crypto/crypto.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_storm/flutter_storm.dart';
-import 'package:flutter_storm/flutter_storm_defines.dart';
 import 'package:image/image.dart';
 import 'package:path/path.dart' as path;
 import 'package:retro/arc/arc.dart';
@@ -16,7 +14,6 @@ import 'package:retro/otr/resource.dart';
 import 'package:retro/otr/resource_type.dart';
 import 'package:retro/otr/types/background.dart';
 import 'package:retro/otr/types/texture.dart';
-import 'package:retro/otr/version.dart';
 import 'package:retro/utils/log.dart';
 import 'package:retro/utils/path.dart' as p;
 import 'package:tuple/tuple.dart';
@@ -37,7 +34,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
   String fontTLUT = 'assets/FontTLUT[%d].png';
   String fontTextureName = 'textures/font/sGfxPrintFontData';
 
-  reset() {
+  void reset() {
     currentStep = CreateReplacementTexturesStep.question;
     selectedFolderPath = null;
     selectedOTRPaths = [];
@@ -46,12 +43,12 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  onUpdateStep(CreateReplacementTexturesStep step) {
+  void onUpdateStep(CreateReplacementTexturesStep step) {
     currentStep = step;
     notifyListeners();
   }
 
-  onSelectFolder() async {
+  Future<void> onSelectFolder() async {
     final selectedDirectory = await FilePicker.platform.getDirectoryPath();
 
     if (selectedDirectory != null) {
@@ -61,7 +58,6 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
 
       final processedFiles = await compute(processFolder, selectedFolderPath!);
       if (processedFiles == null) {
-        // TODO: Handle this error.
         log('Error processing folder: $selectedFolderPath');
       } else {
         this.processedFiles = processedFiles;
@@ -74,12 +70,11 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
 
   Future<void> onSelectOTR() async {
     final result = await FilePicker.platform.pickFiles(
-        allowMultiple: true, type: FileType.custom, allowedExtensions: ['otr', 'o2r']);
+        allowMultiple: true, type: FileType.custom, allowedExtensions: ['otr', 'o2r'],);
     if (result != null && result.files.isNotEmpty) {
       // save paths filtering out nulls
       selectedOTRPaths = result.paths.whereType<String>().toList();
       if (selectedOTRPaths.isEmpty) {
-        // TODO: Handle this error
         return;
       }
 
@@ -89,7 +84,6 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
 
   Future<void> onProcessOTR() async {
     if (selectedOTRPaths.isEmpty) {
-      // TODO: Handle this error
       return;
     }
     final otrNameForOutputDirectory =
@@ -108,7 +102,6 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     final otrFiles =
         await compute(processOTR, Tuple2(selectedOTRPaths, selectedDirectory));
     if (otrFiles == null) {
-      // TODO: Handle this error.
     } else {
       processedFiles = otrFiles;
     }
@@ -120,7 +113,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     });
 
     // Write out the processed files to disk
-    String? manifestOutputPath =
+    final manifestOutputPath =
         '$selectedDirectory/$otrNameForOutputDirectory/manifest.json';
     final manifestFile = File(manifestOutputPath);
     await manifestFile.create(recursive: true);
@@ -132,7 +125,7 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  dumpFont(String outputPath, Function onProcessed) async {
+  Future<void> dumpFont(String outputPath, Function onProcessed) async {
     final fontImage = Image(width: 16 * 4, height: 256, numChannels: 4);
 
     final tex = Texture.empty();
@@ -147,7 +140,8 @@ class CreateReplaceTexturesViewModel extends ChangeNotifier {
       final pngImage = decodePng(data.buffer.asUint8List())!;
       tlut.fromRawImage(pngImage);
       compositeImage(fontImage, decodePng(tex.toPNGBytes())!,
-          dstX: id * 16, dstY: 0);
+        dstX: id * 16, dstY: 0,
+      );
     }
 
     final textureFile = File(path.join(outputPath, '$fontTextureName.png'));
@@ -181,32 +175,26 @@ Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(
       .where((file) => supportedExtensions.contains(path.extension(file.path)))
       .toList();
 
-  // for each tex image, check if it's in the manifest
   for (final rawFile in texFiles) {
     final texFile = File(p.normalize(rawFile.path));
-    final texPathRelativeToFolder =
-        p.normalize(texFile.path.split('$folderPath/').last.split('.').first);
+    final relativePath = path.relative(texFile.path, from: folderPath);
+    final texPathRelativeToFolder = p.normalize(path.withoutExtension(relativePath));
+
     if (manifest.containsKey(texPathRelativeToFolder)) {
-      final manifestEntry =
-          TextureManifestEntry.fromJson(manifest[texPathRelativeToFolder] as Map<String, dynamic>);
-      // if it is, check if the file has changed
+      final manifestEntry = TextureManifestEntry.fromJson(
+          manifest[texPathRelativeToFolder] as Map<String, dynamic>);
+
       final texFileBytes = await texFile.readAsBytes();
       final texFileHash = sha256.convert(texFileBytes).toString();
-      if (manifestEntry.hash != texFileHash) {
-        // if it has, add it to the processed files list
-        log('Found file with changed hash: $texPathRelativeToFolder');
 
-        final pathWithoutFilename = p.normalize(texPathRelativeToFolder
-            .split('/')
-            .sublist(0, texPathRelativeToFolder.split('/').length - 1)
-            .join('/'));
+      if (manifestEntry.hash != texFileHash) {
+        log('Found file with changed hash: $texPathRelativeToFolder');
+        final pathWithoutFilename = path.dirname(texPathRelativeToFolder);
+
         if (processedFiles.containsKey(pathWithoutFilename)) {
-          processedFiles[pathWithoutFilename]!
-              .add(Tuple2(texFile, manifestEntry));
+          processedFiles[pathWithoutFilename]!.add(Tuple2(texFile, manifestEntry));
         } else {
-          processedFiles[pathWithoutFilename] = [
-            Tuple2(texFile, manifestEntry)
-          ];
+          processedFiles[pathWithoutFilename] = [Tuple2(texFile, manifestEntry)];
         }
       }
     } else {
@@ -263,12 +251,6 @@ Future<bool> processFile(String fileName, Uint8List data, String outputPath, Fun
     case ResourceType.texture:
       final texture = Texture.empty();
       texture.open(data);
-
-      // don't try to extract hd textures
-      if(texture.gameVersion == Version.roy){
-        break;
-      }
-
       final pngBytes = texture.toPNGBytes();
       final textureFile = File('$outputPath.png');
       await textureFile.create(recursive: true);

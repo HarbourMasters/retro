@@ -13,13 +13,13 @@ class CreateCustomSequencesViewModel extends ChangeNotifier {
   List<Tuple2<File, File>> sequenceMetaPairs = [];
   bool isProcessing = false;
 
-  reset() {
+  void reset() {
     selectedFolderPath = null;
     sequenceMetaPairs = [];
     isProcessing = false;
   }
 
-  onSelectFolder() async {
+  Future<void> onSelectFolder() async {
     final selectedDirectory = await FilePicker.platform.getDirectoryPath();
 
     if (selectedDirectory != null) {
