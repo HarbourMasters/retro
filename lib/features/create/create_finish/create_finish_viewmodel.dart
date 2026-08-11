@@ -280,14 +280,16 @@ Future<Tuple2<String, Uint8List?>> processTextureEntry(
   final pair = params.item2;
   final baseDir = params.item1;
   final isAlt = params.item3;
-
-  final textureName = dartp.basenameWithoutExtension(pair.item1.path);
-  final fileName = dartp.join(baseDir, textureName);
+  final targetPath = pair.item2.targetName;
+  final textureName = targetPath != null
+      ? dartp.basename(targetPath)
+      : dartp.basenameWithoutExtension(pair.item1.path);
+  final fileName = targetPath ?? dartp.join(baseDir, textureName);
 
   final data = await (pair.item2.textureType == TextureType.JPEG32bpp
       ? processJPEG
       : processPNG)(pair, textureName);
-  final finalPath = isAlt ? dartp.join('alt', fileName) : fileName;
+  final finalPath = p.normalize(isAlt ? dartp.join('alt', fileName) : fileName);
   return Tuple2(finalPath, data);
 }
 
@@ -317,45 +319,100 @@ Future<Uint8List?> processPNG(
   String textureName,
 ) async {
   final texture = Texture.empty();
+  final entry = pair.item2;
   final imageData = await pair.item1.readAsBytes();
-  final image = decodePng(imageData);
+  var image = decodePng(imageData);
 
   if (image == null) {
     log('Failed to decode image data for PNG: $textureName');
     return null;
   }
 
-  texture.textureType = pair.item2.textureType;
+  if (entry.kind == TextureEntryKind.additiveFontGlyph) {
+    var k = exactMultiple(image, entry.textureWidth, entry.textureHeight);
+    if (k == null && entry.tileWidth != null && entry.tileHeight != null) {
+      k = exactMultiple(image, entry.tileWidth!, entry.tileHeight!);
+    }
+    if (k == null) {
+      log('Skipping $textureName: ${image.width}x${image.height} is not an '
+          'integer multiple of its ${entry.textureWidth}x${entry.textureHeight}'
+          ' mask chunk or of its drawn tile');
+      return null;
+    }
+    final alignedWidth = (entry.textureWidth + 3) & ~3;
+    image = padCanvas(image, k * alignedWidth, k * entry.textureHeight);
+    texture.textureType = TextureType.RGBA32bpp;
+    texture.setTextureFlags(LOAD_AS_RAW);
+    texture.setTextureScale(k.toDouble(), k.toDouble());
+    texture.fromRawImage(image);
+    return texture.build();
+  }
+
+  if (entry.tileWidth != null &&
+      entry.tileHeight != null &&
+      exactMultiple(image, entry.textureWidth, entry.textureHeight) == null) {
+    final k = exactMultiple(image, entry.tileWidth!, entry.tileHeight!);
+    if (k != null) {
+      image = padCanvas(
+          image, k * entry.textureWidth, k * entry.textureHeight,);
+    }
+  }
+
+  texture.textureType = entry.textureType;
   texture.isPalette = image.hasPalette && (texture.textureType == TextureType.Palette4bpp || texture.textureType == TextureType.Palette8bpp);
 
-  final isNotOriginalSize = pair.item2.textureWidth != image.width ||
-      pair.item2.textureHeight != image.height;
-  if (isNotOriginalSize) {
+  final isNotOriginalSize = entry.textureWidth != image.width ||
+      entry.textureHeight != image.height;
+  final isAdditive = entry.kind == TextureEntryKind.additive;
+  if (isAdditive) {
+    texture.isPalette = false;
+  }
+  if (isNotOriginalSize || isAdditive) {
     texture.setTextureFlags(LOAD_AS_RAW);
     if (!image.hasPalette || !texture.isPalette) {
       texture.textureType = TextureType.RGBA32bpp;
     }
 
-    final hByteScale = (image.width / pair.item2.textureWidth) *
+    final hByteScale = (image.width / entry.textureWidth) *
         (texture.textureType.pixelMultiplier /
-            pair.item2.textureType.pixelMultiplier);
-    final vPixelScale = image.height / pair.item2.textureHeight;
+            entry.textureType.pixelMultiplier);
+    final vPixelScale = image.height / entry.textureHeight;
     texture.setTextureScale(hByteScale, vPixelScale);
   }
 
   texture.fromRawImage(image);
 
-  if (pair.item2.textureType == TextureType.Palette8bpp ||
-      pair.item2.textureType == TextureType.Palette4bpp) {
+  if (entry.textureType == TextureType.Palette8bpp ||
+      entry.textureType == TextureType.Palette4bpp) {
     if (texture.isPalette) {
-      texture.textureType = pair.item2.textureType;
-    } else if (!isNotOriginalSize) {
+      texture.textureType = entry.textureType;
+    } else if (!isNotOriginalSize && !isAdditive) {
       print('Skipping $textureName because it is not a palette texture');
       return null;
     }
-  } else {
-    texture.textureType = pair.item2.textureType;
+  } else if (!isAdditive) {
+    texture.textureType = entry.textureType;
   }
 
   return texture.build();
+}
+
+int? exactMultiple(Image image, int width, int height) {
+  if (width <= 0 || height <= 0) {
+    return null;
+  }
+  if (image.width % width != 0 || image.height % height != 0) {
+    return null;
+  }
+  final k = image.width ~/ width;
+  return (k > 0 && image.height ~/ height == k) ? k : null;
+}
+
+Image padCanvas(Image image, int width, int height) {
+  if (image.width == width && image.height == height) {
+    return image;
+  }
+  final canvas = Image(width: width, height: height, numChannels: 4);
+  compositeImage(canvas, image, dstX: 0, dstY: 0, blend: BlendMode.direct);
+  return canvas;
 }

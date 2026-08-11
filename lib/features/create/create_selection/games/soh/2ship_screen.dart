@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:retro/l10n/app_localizations.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:retro/ui/components/custom_scaffold.dart';
 import 'package:retro/ui/components/option_card.dart';
 
@@ -31,14 +30,14 @@ class _Ship2GameScreenState extends State<Ship2GameScreen> {
               children: [
                 OptionCard(
                   text: i18n.gameSelectionScreenSoh_title,
-                  icon: FontAwesomeIcons.puzzlePiece,
+                  icon: Icons.extension,
                   onTap: () {
                     Navigator.of(context).pushNamed('/game_selection/soh');
                   },
                 ),
                 OptionCard(
                   text: i18n.gameSelectionScreen2Ship_title,
-                  icon: FontAwesomeIcons.drum,
+                  icon: Icons.music_note,
                   onTap: () {
                     Navigator.of(context).pushNamed('/create_replace_textures');
                   },

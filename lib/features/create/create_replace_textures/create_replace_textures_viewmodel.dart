@@ -9,6 +9,8 @@ import 'package:flutter/services.dart';
 import 'package:image/image.dart';
 import 'package:path/path.dart' as path;
 import 'package:retro/arc/arc.dart';
+import 'package:retro/games/bk64/bk64_conventions.dart';
+import 'package:retro/games/game_texture_conventions.dart';
 import 'package:retro/models/texture_manifest_entry.dart';
 import 'package:retro/otr/resource.dart';
 import 'package:retro/otr/resource_type.dart';
@@ -168,6 +170,26 @@ Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(
   final manifestContents = await manifestFile.readAsString();
   final manifest = json.decode(manifestContents) as Map<String, dynamic>;
 
+  // Optional aliases.json: maps source image paths (relative to the folder,
+  // extension included) onto archive texture paths, so externally-named packs
+  // can be repacked without renaming thousands of files.
+  final aliases = <String, List<String>>{};
+  final aliasFile = File(p.normalize('$folderPath/aliases.json'));
+  if (aliasFile.existsSync()) {
+    final aliasJson =
+        json.decode(await aliasFile.readAsString()) as Map<String, dynamic>;
+    for (final alias in aliasJson.entries) {
+      final targets = alias.value is List
+          ? (alias.value as List).cast<String>()
+          : <String>[alias.value as String];
+      aliases[p.normalize(alias.key)] = targets
+          .map((target) => p.normalize(
+              target.startsWith('alt/') ? target.substring(4) : target,),)
+          .toList();
+    }
+    log('Loaded aliases.json with ${aliases.length} source images');
+  }
+
   // find all images in folder
   final supportedExtensions = <String>['.png', '.jpeg', '.jpg'];
   final files = Directory(folderPath).listSync(recursive: true);
@@ -177,32 +199,63 @@ Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(
 
   for (final rawFile in texFiles) {
     final texFile = File(p.normalize(rawFile.path));
-    final relativePath = path.relative(texFile.path, from: folderPath);
+    final relativePath = p.normalize(path.relative(texFile.path, from: folderPath));
     final texPathRelativeToFolder = p.normalize(path.withoutExtension(relativePath));
+    final targets = aliases[relativePath] ?? [texPathRelativeToFolder];
 
-    if (manifest.containsKey(texPathRelativeToFolder)) {
-      final manifestEntry = TextureManifestEntry.fromJson(
-          manifest[texPathRelativeToFolder] as Map<String, dynamic>);
-
-      final texFileBytes = await texFile.readAsBytes();
-      final texFileHash = sha256.convert(texFileBytes).toString();
-
-      if (manifestEntry.hash != texFileHash) {
-        log('Found file with changed hash: $texPathRelativeToFolder');
-        final pathWithoutFilename = path.dirname(texPathRelativeToFolder);
-
-        if (processedFiles.containsKey(pathWithoutFilename)) {
-          processedFiles[pathWithoutFilename]!.add(Tuple2(texFile, manifestEntry));
-        } else {
-          processedFiles[pathWithoutFilename] = [Tuple2(texFile, manifestEntry)];
-        }
+    for (final target in targets) {
+      final manifestEntry = resolveTextureEntry(manifest, target);
+      if (manifestEntry == null) {
+        log('Found file not present in manifest: $target');
+        continue;
       }
-    } else {
-      log('Found file not present in manifest: $texPathRelativeToFolder');
+
+      if (manifestEntry.kind == TextureEntryKind.replacement) {
+        final texFileBytes = await texFile.readAsBytes();
+        final texFileHash = sha256.convert(texFileBytes).toString();
+        if (manifestEntry.hash == texFileHash) {
+          continue;
+        }
+        log('Found file with changed hash: $target');
+      } else {
+        log('Staging additive texture: $target');
+      }
+
+      manifestEntry.targetName = target;
+      final pathWithoutFilename = path.dirname(target);
+
+      if (processedFiles.containsKey(pathWithoutFilename)) {
+        processedFiles[pathWithoutFilename]!.add(Tuple2(texFile, manifestEntry));
+      } else {
+        processedFiles[pathWithoutFilename] = [Tuple2(texFile, manifestEntry)];
+      }
     }
   }
 
   return processedFiles;
+}
+
+// Game ports whose extra texture conventions the shared flow consults
+const List<GameTextureConventions> gameTextureConventions = [
+  Bk64TextureConventions(),
+];
+
+// Look a target path up in the manifest; on a miss, let each game's
+// conventions try to resolve it as an additive path with a template
+// entry describing how to convert it.
+TextureManifestEntry? resolveTextureEntry(
+    Map<String, dynamic> manifest, String target) {
+  if (manifest.containsKey(target)) {
+    return TextureManifestEntry.fromJson(
+        manifest[target] as Map<String, dynamic>);
+  }
+  for (final game in gameTextureConventions) {
+    final entry = game.resolveAdditiveEntry(manifest, target);
+    if (entry != null) {
+      return entry;
+    }
+  }
+  return null;
 }
 
 Future<HashMap<String, TextureManifestEntry>?> processOTR(
@@ -230,6 +283,10 @@ Future<HashMap<String, TextureManifestEntry>?> processOTR(
       });
     },);
     arcFile.close();
+  }
+
+  for (final game in gameTextureConventions) {
+    await game.recordExtractionMetadata(params.item1, processedFiles);
   }
 
   return processedFiles.isEmpty ? null : processedFiles;
