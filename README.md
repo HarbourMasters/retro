@@ -3,6 +3,8 @@
 ![Retro Logo](https://user-images.githubusercontent.com/60364512/228030177-6b7a51f2-fe24-4ce4-8235-8d35f2526250.png#gh-light-mode-only)
 An OTR / O2R generation tool.
 
+[Texture replacement folders](docs/texture-packs.md) covers `manifest.json` and `aliases.json`, for authoring or converting a pack by hand.
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.

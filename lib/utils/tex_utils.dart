@@ -92,6 +92,10 @@ extension N64Graphics on Texture {
         break;
       case TextureType.Palette4bpp:
         for (final pixel in image) {
+          // Two texels per byte, written from the even one
+          if (pixel.x.isOdd) {
+            continue;
+          }
           final pos = ((pixel.y * width) + pixel.x) ~/ 2;
           final cr1 = pixel.index.toInt();
           final cr2 = image.getPixelSafe(pixel.x + 1, pixel.y).index.toInt();
@@ -107,6 +111,9 @@ extension N64Graphics on Texture {
         break;
       case TextureType.Grayscale4bpp:
         for (final pixel in image) {
+          if (pixel.x.isOdd) {
+            continue;
+          }
           final pos = ((pixel.y * width) + pixel.x) ~/ 2;
           final r1 = pixel.r.toInt();
           final r2 = image.getPixelSafe(pixel.x + 1, pixel.y).r.toInt();
@@ -122,6 +129,9 @@ extension N64Graphics on Texture {
         break;
       case TextureType.GrayscaleAlpha4bpp:
         for (final pixel in image) {
+          if (pixel.x.isOdd) {
+            continue;
+          }
           final pos = ((pixel.y * width) + pixel.x) ~/ 2;
           final nextPixel = image.getPixelSafe(pixel.x + 1, pixel.y);
 

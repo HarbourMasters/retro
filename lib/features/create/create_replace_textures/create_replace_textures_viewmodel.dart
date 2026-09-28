@@ -194,35 +194,67 @@ Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(
   final supportedExtensions = <String>['.png', '.jpeg', '.jpg'];
   final files = Directory(folderPath).listSync(recursive: true);
   final texFiles = files
-      .where((file) => supportedExtensions.contains(path.extension(file.path)))
+      .where((file) =>
+          supportedExtensions.contains(path.extension(file.path).toLowerCase()),)
       .toList();
 
   for (final rawFile in texFiles) {
     final texFile = File(p.normalize(rawFile.path));
     final relativePath = p.normalize(path.relative(texFile.path, from: folderPath));
     final texPathRelativeToFolder = p.normalize(path.withoutExtension(relativePath));
-    final targets = aliases[relativePath] ?? [texPathRelativeToFolder];
+    // A source with no directory names a file wherever it sits in the folder.
+    final targets = aliases[relativePath] ??
+        aliases[path.basename(relativePath)] ??
+        [texPathRelativeToFolder];
 
     for (final target in targets) {
-      final manifestEntry = resolveTextureEntry(manifest, target);
+      var textureName = target;
+      int? stripIndex;
+      var manifestEntry = resolveTextureEntry(manifest, target);
+
+      // "path#2" names band 2 of a banded texture. The manifest is asked first,
+      // so a texture whose own name ends in "#<n>" still wins.
+      final bandIndex = manifestEntry == null ? bandIndexOf(target) : null;
+      if (bandIndex != null) {
+        final base = target.substring(0, target.lastIndexOf('#'));
+        final baseEntry = resolveTextureEntry(manifest, base);
+        final strips = baseEntry?.strips;
+        if (baseEntry != null && strips == null) {
+          log('Skipping $target: $base declares no bands');
+          continue;
+        }
+        if (strips != null && bandIndex >= strips.length) {
+          log('Skipping $target: $base has only ${strips.length} bands');
+          continue;
+        }
+        if (strips != null) {
+          manifestEntry = baseEntry;
+          textureName = base;
+          stripIndex = bandIndex;
+        }
+      }
+
       if (manifestEntry == null) {
         log('Found file not present in manifest: $target');
         continue;
       }
 
-      if (manifestEntry.kind == TextureEntryKind.replacement) {
+      if (stripIndex != null) {
+        manifestEntry.stripIndex = stripIndex;
+        log('Staging band $stripIndex of $textureName');
+      } else if (manifestEntry.kind == TextureEntryKind.replacement) {
         final texFileBytes = await texFile.readAsBytes();
         final texFileHash = sha256.convert(texFileBytes).toString();
         if (manifestEntry.hash == texFileHash) {
           continue;
         }
-        log('Found file with changed hash: $target');
+        log('Found file with changed hash: $textureName');
       } else {
-        log('Staging additive texture: $target');
+        log('Staging additive texture: $textureName');
       }
 
-      manifestEntry.targetName = target;
-      final pathWithoutFilename = path.dirname(target);
+      manifestEntry.targetName = textureName;
+      final pathWithoutFilename = path.dirname(textureName);
 
       if (processedFiles.containsKey(pathWithoutFilename)) {
         processedFiles[pathWithoutFilename]!.add(Tuple2(texFile, manifestEntry));
@@ -233,6 +265,16 @@ Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(
   }
 
   return processedFiles;
+}
+
+// The band a target ending in "#<n>" names, or null for anything else.
+int? bandIndexOf(String target) {
+  final hash = target.lastIndexOf('#');
+  if (hash <= 0 || hash == target.length - 1) {
+    return null;
+  }
+  final index = int.tryParse(target.substring(hash + 1));
+  return (index != null && index >= 0) ? index : null;
 }
 
 // Game ports whose extra texture conventions the shared flow consults

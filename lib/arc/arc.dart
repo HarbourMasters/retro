@@ -157,6 +157,13 @@ class Arc {
     }
   }
 
+  bool get isZip => handle is ZipFileEncoder;
+
+  void addDeflated(String path, Uint8List deflated, int size, int crc32) {
+    final archive = handle as ZipFileEncoder;
+    archive.addArchiveFile(ArchiveFile(path, size, InputStream(deflated), ArchiveFile.DEFLATE)..crc32 = crc32);
+  }
+
   void addFile(String path, Uint8List data, { bool compress = false }) {
     if(handle is MPQArchive) {
       return _addMPQFile(path, data, compress);
