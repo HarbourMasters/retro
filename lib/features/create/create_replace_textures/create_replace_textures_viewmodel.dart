@@ -192,22 +192,39 @@ Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(
 
   // find all images in folder
   final supportedExtensions = <String>['.png', '.jpeg', '.jpg'];
-  final files = Directory(folderPath).listSync(recursive: true);
-  final texFiles = files
+  final texFiles = listInGlidenOrder(Directory(folderPath))
       .where((file) =>
           supportedExtensions.contains(path.extension(file.path).toLowerCase()),)
       .toList();
+  final relativePaths = texFiles
+      .map((file) => p.normalize(path.relative(file.path, from: folderPath)))
+      .toSet();
+  final movedAliases = <String, List<String>>{
+    for (final alias in aliases.entries)
+      if (alias.key.contains('/') && !relativePaths.contains(alias.key))
+        path.basename(alias.key): alias.value,
+  };
+
+  // The first file to supply a texture wins
+  final suppliedBy = <String, String>{};
 
   for (final rawFile in texFiles) {
     final texFile = File(p.normalize(rawFile.path));
     final relativePath = p.normalize(path.relative(texFile.path, from: folderPath));
     final texPathRelativeToFolder = p.normalize(path.withoutExtension(relativePath));
+    final name = path.basename(relativePath);
     // A source with no directory names a file wherever it sits in the folder.
     final targets = aliases[relativePath] ??
-        aliases[path.basename(relativePath)] ??
+        aliases[name] ??
+        movedAliases[name] ??
         [texPathRelativeToFolder];
 
     for (final target in targets) {
+      final earlier = suppliedBy[target];
+      if (earlier != null) {
+        log('Skipping $relativePath for $target: $earlier comes first');
+        continue;
+      }
       var textureName = target;
       int? stripIndex;
       var manifestEntry = resolveTextureEntry(manifest, target);
@@ -253,6 +270,7 @@ Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(
         log('Staging additive texture: $textureName');
       }
 
+      suppliedBy[target] = relativePath;
       manifestEntry.targetName = textureName;
       final pathWithoutFilename = path.dirname(textureName);
 
@@ -265,6 +283,27 @@ Future<HashMap<String, ProcessedFilesInFolder>?> processFolder(
   }
 
   return processedFiles;
+}
+
+List<File> listInGlidenOrder(Directory dir) {
+  final entries = dir.listSync()
+    ..sort((a, b) => path
+        .basename(a.path)
+        .toUpperCase()
+        .compareTo(path.basename(b.path).toUpperCase()),);
+  final files = <File>[];
+  for (final entry in entries) {
+    final name = path.basename(entry.path);
+    if (name.startsWith('.') || name.startsWith('~!~')) {
+      continue;
+    }
+    if (entry is Directory) {
+      files.addAll(listInGlidenOrder(entry));
+    } else if (entry is File) {
+      files.add(entry);
+    }
+  }
+  return files;
 }
 
 // The band a target ending in "#<n>" names, or null for anything else.
