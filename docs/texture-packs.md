@@ -37,7 +37,9 @@ A replacement that isn't the original's size is packed raw as RGBA32 with its sc
 
 ## aliases.json
 
-For packs whose filenames don't match the archive's texture paths. Maps an image path relative to the folder, extension included, to one target or several. A source with no directory matches a file of that name anywhere in the folder. A leading `alt/` on a target is ignored.
+For packs whose filenames don't match the archive's texture paths. Maps an image path relative to the folder, extension included, to one target or several. A source with no directory matches a file of that name anywhere in the folder, and so does a source whose folder no longer holds that file. A leading `alt/` on a target is ignored.
+
+When more than one image supplies the same texture, the first in the order GLideN64 loads the folder is used, so the pack shows what the emulator does: depth first, each folder in name order, skipping names that start with `.` or `~!~`.
 
 ```json
 {

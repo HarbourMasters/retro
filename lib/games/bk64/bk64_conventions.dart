@@ -14,6 +14,7 @@ class Bk64TextureConventions implements GameTextureConventions {
   static final RegExp _boldFontPattern =
       RegExp(r'^(.*)boldfont/(.+_\d+_\d+)_[0-9A-Fa-f]+$');
   static final RegExp _langScopedPattern = RegExp(r'^(.*)lang/[^/]+/(.+)$');
+  static final RegExp _animFramePattern = RegExp(r'^(.+_tex_\d+)_frame_\d+$');
   static final RegExp _spriteChunkPattern = RegExp(r'^(.+)_(\d+)_(\d+)$');
 
   @override
@@ -43,6 +44,13 @@ class Bk64TextureConventions implements GameTextureConventions {
     final langMatch = _langScopedPattern.firstMatch(target);
     if (langMatch != null) {
       final template = lookup('${langMatch.group(1)!}${langMatch.group(2)!}');
+      if (template != null) {
+        return _additiveFrom(template, TextureEntryKind.additive);
+      }
+    }
+    final frameMatch = _animFramePattern.firstMatch(target);
+    if (frameMatch != null) {
+      final template = lookup(frameMatch.group(1)!);
       if (template != null) {
         return _additiveFrom(template, TextureEntryKind.additive);
       }
